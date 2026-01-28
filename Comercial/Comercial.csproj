@@ -86,6 +86,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\BibliotecasSIG\BibliotecasSIG\BibliotecasSIG.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="icones\configuracao-de-dados-windows-metro-16.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
