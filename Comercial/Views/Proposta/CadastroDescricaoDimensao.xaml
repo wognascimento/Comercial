@@ -1,0 +1,136 @@
+﻿<UserControl x:Class="Comercial.Views.Proposta.CadastroDescricaoDimensao"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:local="clr-namespace:Comercial.Views.Proposta" 
+             xmlns:vm="clr-namespace:Comercial.Views.Proposta"
+             xmlns:converters="clr-namespace:Comercial.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.DataContext>
+        <vm:CadastroDescricaoDimensaoViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <converters:StringToCheckBoxConverter x:Key="StringToCheckBoxConverter"/>
+    </UserControl.Resources>
+
+    <telerik:RadGridView 
+            x:Name="rgView" 
+            Grid.Row="1"
+            telerik:StyleManager.Theme="Office2016" 
+            AutoGenerateColumns="False"
+            SelectionMode="Extended"
+            ClipboardCopyMode="Cells, Header"
+            ItemsSource="{Binding DimensoesComercial}" 
+            SelectedItem="{Binding DimensaoComerciaSelecionada, Mode=TwoWay}"
+            IsReadOnly="{Binding IsActive}"
+            NewRowPosition="Bottom"
+            GroupRenderMode="Flat"
+            CanUserFreezeColumns="False"
+            AddingNewDataItem="rgView_AddingNewDataItem"
+            RowEditEnded ="OnRowEditEnded"
+            CanUserDeleteRows="False" 
+            ShowGroupPanel="False" 
+            ShowSearchPanel="True">
+
+        <telerik:RadGridView.Columns>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding coddimensao}" 
+                Header="#" 
+                Width="auto"
+                IsReadOnly="True"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding dimensao}" 
+                Width="auto"
+                Header="Dimensão"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding dimensaofantasia}" 
+                Width="auto"
+                Header="Dimensão Fantasia"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding nomefantasia}" 
+                Width="auto"
+                Header="Nome Fantasia"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding observacao}" 
+                Width="auto"
+                Header="Observação"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding obsobrigatoria}" 
+                Width="auto"
+                Header="Observação Obrigatória"/>
+            <telerik:GridViewCheckBoxColumn 
+                DataMemberBinding="{Binding travaled, Converter={StaticResource StringToCheckBoxConverter}}"
+                Width="auto"
+                Header="Trava LED"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding indicedimensao}" 
+                Width="auto"
+                Header="Índice Dimensão"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding indiceled}"
+                Width="auto"
+                Header="Índice LED"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding indicedesconto}" 
+                Width="auto"
+                Header="Índice Desconto"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding indicedescontopreco}" 
+                Width="auto"
+                Header="Índice Desconto Preço"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding cargaeletrica}" 
+                Width="auto"
+                Header="Carga Elétrica"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding areareal}" 
+                Width="auto"
+                Header="Área Real"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding cubagem}" 
+                Width="auto"
+                Header="Cubagem"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding peso}" 
+                Width="auto"
+                Header="Peso"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding custounitarioapurado}" 
+                Width="auto"
+                Header="Custo unit. Apurado"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding custounitarioestimado}" 
+                Width="auto"
+                Header="Custo Unit. Estimado"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding preco}" 
+                Width="auto"
+                Header="Preço"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding valor_desconto_area_projecao}" 
+                Width="auto"
+                Header="Valor Desconto Area Projecao"/>
+            <telerik:GridViewCheckBoxColumn 
+                DataMemberBinding="{Binding ativo, Converter={StaticResource StringToCheckBoxConverter}}"
+                Width="auto"
+                Header="Ativo"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding cadastradopor}" 
+                Width="auto"
+                Header="Cadastrado Por"/>
+            <telerik:GridViewDataColumn 
+                DataMemberBinding="{Binding datacadastro}" 
+                Width="auto"
+                Header="Data Cadastro"/>
+        </telerik:RadGridView.Columns>
+
+    </telerik:RadGridView>
+
+
+
+</UserControl>

@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="Comercial.Views.Proposta.CadastroDescricao"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:local="clr-namespace:Comercial.Views.Proposta" 
+             xmlns:vm="clr-namespace:Comercial.Views.Proposta"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.DataContext>
+        <vm:CadastroDescricaoViewModel/>
+    </UserControl.DataContext>
+
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="FAMÍLIA:" FontWeight="Bold" Margin="4" VerticalAlignment="Center"/>
+            <!--<TextBlock Text="SHOPPING ABC - ABC" Margin="4"/>-->
+            <telerik:RadComboBox 
+                x:Name="rcBox" 
+                ItemsSource="{Binding ComercialPropostaFamilias}"
+                Margin="4" 
+                DisplayMemberPath="familia"
+                SelectedValuePath="id" 
+                Width="200" 
+                SelectionChanged="rcBox_SelectionChanged" />
+        </StackPanel>
+
+
+        <telerik:RadGridView 
+            x:Name="rgView" 
+            Grid.Row="1"
+            telerik:StyleManager.Theme="Office2016" 
+            AutoGenerateColumns="False"
+            SelectionMode="Extended"
+            ClipboardCopyMode="Cells, Header"
+            ItemsSource="{Binding DescricoesComercial}" 
+            SelectedItem="{Binding DescricaoComerciaSelecionada, Mode=TwoWay}"
+            IsReadOnly="{Binding IsActive}"
+            NewRowPosition="Bottom"
+            GroupRenderMode="Flat"
+            CanUserFreezeColumns="False"
+            AddingNewDataItem="rgView_AddingNewDataItem"
+            RowEditEnded ="OnRowEditEnded"
+            CanUserDeleteRows="False" 
+            ShowGroupPanel="False" 
+            ShowSearchPanel="True">
+
+            <telerik:RadContextMenu.ContextMenu>
+                <telerik:RadContextMenu Opening="RadContextMenu_Opening">
+                    <telerik:RadMenuItem Header="Cadastrar Dimensão" Click="OnCadastroDimensaoClick" />
+                </telerik:RadContextMenu>
+            </telerik:RadContextMenu.ContextMenu>
+
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn 
+                    DataMemberBinding="{Binding coddesccoml}" 
+                    Header="#" 
+                    Width="auto"
+                    IsReadOnly="True"/>
+                <telerik:GridViewDataColumn 
+                    DataMemberBinding="{Binding descricaocomercial}" 
+                    Header="Descrição Comercial"
+                    Width="*"/>
+            </telerik:RadGridView.Columns>
+
+        </telerik:RadGridView>
+
+
+    </Grid>
+</UserControl>

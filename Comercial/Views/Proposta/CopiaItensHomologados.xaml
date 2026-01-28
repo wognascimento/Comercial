@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="Comercial.Views.Proposta.CopiaItensHomologados"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:local="clr-namespace:Comercial.Views.Proposta" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Filtros -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="0" 
+                   Text="FAMÍLIA:" 
+                   VerticalAlignment="Center"
+                   Margin="0,0,10,0"/>
+            <telerik:RadComboBox 
+                x:Name="rcbFamilia" 
+                Grid.Column="1"
+                ItemsSource="{Binding ComercialPropostaFamilias}"
+                DisplayMemberPath="familia"
+                SelectedValuePath="id" 
+                VerticalAlignment="Center"
+                SelectionChanged="rcbFamilia_SelectionChanged"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" 
+                   Text="DESCRICAO:" 
+                   VerticalAlignment="Center"
+                   Margin="0,0,10,0"/>
+            <telerik:RadAutoSuggestBox 
+                x:Name="rasBoxDescricao" 
+                ItemsSource="{Binding DescricoesComercial}"
+                TextChanged="rasBoxDescricao_TextChanged"
+                DisplayMemberPath="descricaocomercial"
+                TextMemberPath="descricaocomercial"
+                Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" 
+                Margin="0,5,0,0"
+                QueryButtonVisibility="Collapsed"
+                SuggestionChosen="rasBoxDescricao_SuggestionChosen" 
+                GotFocus="rasBox_GotFocus"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" 
+                   Text="DIMENSÃO:" 
+                   VerticalAlignment="Center"
+                   Margin="0,0,10,0"/>
+            <telerik:RadAutoSuggestBox 
+                x:Name="rasBoxDimenssao" 
+                ItemsSource="{Binding DimensoesComercial}"
+                TextChanged="rasBoxDimenssao_TextChanged"
+                DisplayMemberPath="dimensao"
+                TextMemberPath="dimensao"
+                Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" 
+                Margin="0,5,0,0"
+                QueryButtonVisibility="Collapsed"
+                SuggestionChosen="rasBoxDimenssao_SuggestionChosen"
+                GotFocus="rasBox_GotFocus"/>
+        </Grid>
+
+        <!-- Grid de Itens -->
+        <GroupBox Grid.Row="1" 
+              Header="Itens Check-List"
+              Margin="0,0,0,10">
+            <telerik:RadGridView 
+                x:Name="rgViewHomologacao"
+                IsReadOnly="True"
+                ItemsSource="{Binding ItensHomologados}"
+                SelectedItem="{Binding ItemHomologado}"
+                AutoGenerateColumns="False"
+                ShowGroupPanel="False"
+                CanUserFreezeColumns="False"
+                Margin="10">
+                <telerik:RadGridView.Columns>
+                    <telerik:GridViewDataColumn Header="ORDEM" DataMemberBinding="{Binding id}" Width="80"/>
+                    <telerik:GridViewDataColumn Header="PLANILHA" DataMemberBinding="{Binding planilha}" Width="100"/>
+                    <telerik:GridViewDataColumn Header="DESCRIÇÃO" DataMemberBinding="{Binding descricao_completa}" Width="*"/>
+                    <telerik:GridViewDataColumn Header="UNI" DataMemberBinding="{Binding unidade}" Width="60"/>
+                    <telerik:GridViewDataColumn Header="QTD" DataMemberBinding="{Binding qtd}" Width="80" TextAlignment="Right"/>
+                    <telerik:GridViewDataColumn Header="VALOR UNITÁRIO" DataMemberBinding="{Binding vlr_unitario}" Width="120" TextAlignment="Right" DataFormatString="{}{0:N2}"/>
+                    <telerik:GridViewDataColumn Header="VALOR TOT" DataMemberBinding="{Binding vlr_total}" Width="120" TextAlignment="Right" DataFormatString="{}{0:N2}"/>
+                </telerik:RadGridView.Columns>
+            </telerik:RadGridView>
+        </GroupBox>
+
+        <!-- Botões -->
+        <StackPanel Grid.Row="2" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Right">
+            <Button Content="COPIAR" 
+                Click="Button_Click"
+                Width="100" 
+                Height="30"
+                Margin="5,0,0,0"/>
+        </StackPanel>
+    </Grid>
+
+</UserControl>

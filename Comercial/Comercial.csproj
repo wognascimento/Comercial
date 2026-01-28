@@ -1,0 +1,212 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
+	  <ApplicationIcon>icones\logo-app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="icones\configuracao-de-dados-windows-metro-16.png" />
+    <None Remove="icones\icons8-adicionar-a-coleção-40.png" />
+    <None Remove="icones\icons8-adicionar-a-coleção-80.png" />
+    <None Remove="icones\icons8-adicionar-propriedade-40.png" />
+    <None Remove="icones\icons8-adicionar-propriedade-80.png" />
+    <None Remove="icones\icons8-copiar-40.png" />
+    <None Remove="icones\icons8-copiar-80.png" />
+    <None Remove="icones\icons8-detalhes-40.png" />
+    <None Remove="icones\icons8-detalhes-80.png" />
+    <None Remove="icones\icons8-editar-propriedade-40.png" />
+    <None Remove="icones\icons8-editar-propriedade-80.png" />
+    <None Remove="icones\icons8-excluir-40.png" />
+    <None Remove="icones\icons8-excluir-80.png" />
+    <None Remove="icones\icons8-impressão-40.png" />
+    <None Remove="icones\icons8-impressão-80.png" />
+    <None Remove="icones\icons8-lista-de-verificação-40.png" />
+    <None Remove="icones\icons8-lista-de-verificação-80.png" />
+    <None Remove="icones\icons8-ms-excel-blue-ui-120.png" />
+    <None Remove="icones\icons8-ms-excel-blue-ui-16.png" />
+    <None Remove="icones\icons8-ms-excel-blue-ui-32.png" />
+    <None Remove="icones\icons8-ms-excel-blue-ui-96.png" />
+    <None Remove="icones\icons8-next-page-blue-ui-16.png" />
+    <None Remove="icones\icons8-next-page-blue-ui-32.png" />
+    <None Remove="icones\icons8-next-page-blue-ui-96.png" />
+    <None Remove="icones\icons8-pesquisar-40.png" />
+    <None Remove="icones\icons8-pesquisar-80.png" />
+    <None Remove="icones\icons8-salvar-40.png" />
+    <None Remove="icones\icons8-salvar-80.png" />
+    <None Remove="icones\icons8-salvar-como-blue-ui-16.png" />
+    <None Remove="icones\icons8-salvar-como-blue-ui-32.png" />
+    <None Remove="icones\icons8-salvar-como-blue-ui-96.png" />
+    <None Remove="icones\icons8-usu_0025c3_0025a1rio-de-g_0025c3_0025aanero-neutro-windows-metro-16.png" />
+    <None Remove="icones\icons8-vassoura-40.png" />
+    <None Remove="icones\icons8-vassoura-80.png" />
+    <None Remove="icones\logo-app.ico" />
+    <None Remove="icones\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="ClosedXML" Version="0.105.0" />
+	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+	  <PackageReference Include="Dapper" Version="2.1.66" />
+	  <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
+	  <PackageReference Include="Mapster" Version="7.4.0" />
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+      <PackageReference Include="Syncfusion.Presentation.Wpf" Version="27.1.58" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="27.1.58" />
+      <PackageReference Include="System.DirectoryServices.AccountManagement" Version="9.0.10" />
+	  <PackageReference Include="Telerik.UI.for.Wpf.80.Xaml" Version="2025.2.521" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="App.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="icones\icons8-adicionar-propriedade-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="icones\icons8-adicionar-propriedade-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Modelos\BASE.pptx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="imagem_1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Impressos\" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="icones\configuracao-de-dados-windows-metro-16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-adicionar-a-coleção-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-adicionar-a-coleção-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-copiar-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-copiar-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-detalhes-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-detalhes-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-editar-propriedade-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-editar-propriedade-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-excluir-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-excluir-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-impressão-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-impressão-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-lista-de-verificação-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-lista-de-verificação-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-ms-excel-blue-ui-120.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-ms-excel-blue-ui-16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-ms-excel-blue-ui-32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-ms-excel-blue-ui-96.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-next-page-blue-ui-16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-next-page-blue-ui-32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-next-page-blue-ui-96.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-pesquisar-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-pesquisar-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-salvar-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-salvar-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-salvar-como-blue-ui-16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-salvar-como-blue-ui-32.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-salvar-como-blue-ui-96.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-usu_0025c3_0025a1rio-de-g_0025c3_0025aanero-neutro-windows-metro-16.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-vassoura-40.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\icons8-vassoura-80.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\logo-app.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icones\logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Localization\GridViewResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GridViewResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Localization\GridViewResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>GridViewResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+	<Target Name="IncludeEmptyFolders" AfterTargets="Publish">
+		<MakeDir Directories="$(PublishDir)Impressos" />
+	</Target>
+
+</Project>
