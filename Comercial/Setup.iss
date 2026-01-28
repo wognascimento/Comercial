@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Comercial S.I.G."
-#define MyAppVersion "1.0.0.42"
+#define MyAppVersion "1.0.0.0"
 #define MyAppPublisher "Cipolatti, Inc."
 #define MyAppURL "https://www.cipolatti.com.br.com.br/"
 #define MyAppExeName "Comercial.exe"
@@ -13,7 +13,7 @@
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{54439EDB-1877-4689-B1F1-127E18CC5D88}
+AppId={{6B771552-1C87-4624-9F22-54FF2627BBFC}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
