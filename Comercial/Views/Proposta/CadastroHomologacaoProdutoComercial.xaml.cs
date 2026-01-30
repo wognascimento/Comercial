@@ -185,6 +185,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                     concluido.IsEnabled = false;
                     btnIncluir.IsEnabled = false;
                     btnAlterar.IsEnabled = false;
+                    btnExcluir.IsEnabled = false;
                     btnCopiar.IsEnabled = false;
                 }
                 else
@@ -192,6 +193,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                     concluido.IsEnabled = true;
                     btnIncluir.IsEnabled = true;
                     btnAlterar.IsEnabled = true;
+                    btnExcluir.IsEnabled = true;
                     btnCopiar.IsEnabled = true;
                 }
 
@@ -568,6 +570,33 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         }
     }
 
+    private async void btnExcluir_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var confirmResult = MessageBox.Show("Tem certeza que deseja excluir este item?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (confirmResult != MessageBoxResult.Yes)
+                return;
+
+            if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
+            {
+                await vm.DeleteInsumoAsync(vm.ItemHomologado.codinsumo);
+
+                await vm.CarregarItensHomologacao(vm.DimenssaoComercial.coddimensao);
+                this.btnLimpar_Click(sender, e);
+                MessageBox.Show("Item alterado com sucesso!", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private async void rgViewHomologacao_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
         if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -789,6 +818,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         vm.ComplementoAdicional = compleAdicional;
 
     }
+
 }
 
 public partial class CadastroHomologacaoProdutoComercialViewModel : ObservableObject
@@ -1120,6 +1150,23 @@ public partial class CadastroHomologacaoProdutoComercialViewModel : ObservableOb
             await _repo.UpdateAsync(conn, proposta);
 
         return proposta.codinsumo;
+    }
+
+    public async Task<bool> DeleteInsumoAsync(long codinsumo)
+    {
+        const string sql = @"
+            DELETE FROM comercial.proposta_insumodesccoml
+            WHERE codinsumo = @codinsumo;
+        ";
+
+        await using var connection = new NpgsqlConnection(BaseSettings.ConnectionString);
+
+        var linhasAfetadas = await connection.ExecuteAsync(
+            sql,
+            new { codinsumo }
+        );
+
+        return linhasAfetadas > 0;
     }
 
     public async Task AtualizarCustoAsync(long coddimensao)
