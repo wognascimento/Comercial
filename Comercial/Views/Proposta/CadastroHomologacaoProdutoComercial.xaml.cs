@@ -31,14 +31,15 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         this.rasBoxDescricao.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxDescricao));
         this.rasBoxDimenssao.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxDimenssao));
 
-        this.rasBoxPlanilha.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxPlanilha));
-        this.rasBoxDescricaoProduto.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxDescricaoProduto));
-        this.rasBoxDescricaoAdicional.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxDescricaoAdicional));
-        this.rasBoxComplementoAdicional.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxComplementoAdicional));
+        //this.rasBoxPlanilha.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxPlanilha));
+        //this.rasBoxDescricaoProduto.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxDescricaoProduto));
+        //this.rasBoxDescricaoAdicional.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxDescricaoAdicional));
+        //this.rasBoxComplementoAdicional.ClearButtonCommand = new DelegateCommand(execute: obj => OnClearExecuted(this.rasBoxComplementoAdicional));
     }
 
     private void OnClearExecuted(RadAutoSuggestBox suggestBox)
     {
+        /*
         suggestBox.Text = string.Empty;
         //suggestBox.IsDropDownOpen = false;
         if (suggestBox.Name == "rasBoxDescricao")
@@ -94,6 +95,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         {
             this.txtUnidade.Text = string.Empty;
         }
+        */
     }
 
     private async void CadastroHomologacaoProdutoComercial_Loaded(object sender, RoutedEventArgs e)
@@ -174,9 +176,26 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 txtcustoestimado.Text = dimensao?.custounitarioestimado?.ToString();
                 txtindicedimensoa.Text = dimensao?.indicedimensao?.ToString();
                 txtindiceled.Text = dimensao?.indiceled?.ToString();
-                concluido.IsChecked = dimensao.insumo_concluido.Contains("1") ? true : false;
+
+                concluido.IsChecked = dimensao.insumo_concluido.Contains('1') ? true : false;
                 concluido_por.Text = dimensao?.insumo_concluido_por?.ToString();
                 concluido_data.DateTimeText = dimensao?.insumo_concluido_data?.ToString("dd/MM/yyyy");
+                if(dimensao.insumo_concluido.Contains('1'))
+                {
+                    concluido.IsEnabled = false;
+                    btnIncluir.IsEnabled = false;
+                    btnAlterar.IsEnabled = false;
+                    btnCopiar.IsEnabled = false;
+                }
+                else
+                {
+                    concluido.IsEnabled = true;
+                    btnIncluir.IsEnabled = true;
+                    btnAlterar.IsEnabled = true;
+                    btnCopiar.IsEnabled = true;
+                }
+
+
                 custo_historico.Text = dimensao?.custo_historico?.ToString();
                 preco_nf.Text = dimensao?.preco_nf?.ToString();
 
@@ -188,6 +207,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
 
     private void rasBoxPlanilha_TextChanged(object sender, Telerik.Windows.Controls.AutoSuggestBox.TextChangedEventArgs e)
     {
+        /*
         if (e.Reason == TextChangeReason.UserInput)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -208,10 +228,14 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.ComplementoAdicional = null;
             }
         }
+        */
+
+        
     }
 
     private async void rasBoxPlanilha_SuggestionChosen(object sender, SuggestionChosenEventArgs e)
     {
+        /*
         if (e.Suggestion is ProducaoRelPlanModel planilha)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -234,10 +258,12 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.Planilha = planilha;
             }
         }
+        */
     }
 
     private void rasBoxDescricaoProduto_TextChanged(object sender, Telerik.Windows.Controls.AutoSuggestBox.TextChangedEventArgs e)
     {
+        /*
         if (e.Reason == TextChangeReason.UserInput)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -255,10 +281,50 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.ComplementoAdicional = null;
             }
         }
+        */
+
+        /*
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        // 🔹 ClearButton ou Text limpo via código
+        if (string.IsNullOrWhiteSpace(rasBoxDescricaoProduto.Text))
+        {
+            this.rasBoxDescricaoProduto.ItemsSource = vm.GetByText(vm.Descricoes, x => x.descricao, this.rasBoxDescricaoProduto.Text);
+            rasBoxDescricaoAdicional.Text = null;
+            rasBoxComplementoAdicional.Text = null;
+            txtUnidade.Text = null;
+
+            vm.DescricaoAdicionais = [];
+            vm.ComplementoAdicionais = [];
+
+            vm.Descricao = null;
+            vm.DescricaoAdicional = null;
+            vm.ComplementoAdicional = null;
+            return;
+        }
+
+        // 🔹 Digitação manual
+        if (e.Reason == TextChangeReason.UserInput)
+        {
+            this.rasBoxDescricaoProduto.ItemsSource = vm.GetByText(vm.Descricoes, x => x.descricao, this.rasBoxDescricaoProduto.Text);
+            rasBoxDescricaoAdicional.Text = null;
+            rasBoxComplementoAdicional.Text = null;
+            txtUnidade.Text = null;
+
+            vm.DescricaoAdicionais = [];
+            vm.ComplementoAdicionais = [];
+
+            vm.Descricao = null;
+            vm.DescricaoAdicional = null;
+            vm.ComplementoAdicional = null;
+        }
+        */
     }
 
     private async void rasBoxDescricaoProduto_SuggestionChosen(object sender, SuggestionChosenEventArgs e)
     {
+        /*
         if (e.Suggestion is ProducaoProdutoModel descricao)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -278,10 +344,12 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.Descricao = descricao;
             }
         }
+        */
     }
 
     private void rasBoxDescricaoAdicionalo_TextChanged(object sender, Telerik.Windows.Controls.AutoSuggestBox.TextChangedEventArgs e)
     {
+        /*
         if (e.Reason == TextChangeReason.UserInput)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -296,10 +364,43 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.ComplementoAdicional = null;
             }
         }
+        */
+        /*
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        // 🔹 ClearButton ou Text limpo via código
+        if (string.IsNullOrWhiteSpace(rasBoxDescricaoAdicional.Text))
+        {
+            this.rasBoxDescricaoAdicional.ItemsSource = vm.GetByText(vm.DescricaoAdicionais, x => x.descricao_adicional, this.rasBoxDescricaoAdicional.Text);
+            rasBoxComplementoAdicional.Text = null;
+            txtUnidade.Text = null;
+
+            vm.ComplementoAdicionais = [];
+
+            vm.DescricaoAdicional = null;
+            vm.ComplementoAdicional = null;
+            return;
+        }
+
+        // 🔹 Digitação manual
+        if (e.Reason == TextChangeReason.UserInput)
+        {
+            this.rasBoxDescricaoAdicional.ItemsSource = vm.GetByText(vm.DescricaoAdicionais, x => x.descricao_adicional, this.rasBoxDescricaoAdicional.Text);
+            rasBoxComplementoAdicional.Text = null;
+            txtUnidade.Text = null;
+
+            vm.ComplementoAdicionais = [];
+
+            vm.DescricaoAdicional = null;
+            vm.ComplementoAdicional = null;
+        }
+        */
     }
 
     private async void rasBoxDescricaoAdicionalo_SuggestionChosen(object sender, SuggestionChosenEventArgs e)
     {
+        /*
         if (e.Suggestion is ProducaoDescAdicionalModel descAdicional)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -316,10 +417,12 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.DescricaoAdicional = descAdicional;
             }
         }
+        */
     }
 
     private void rasBoxComplementoAdicional_TextChanged(object sender, Telerik.Windows.Controls.AutoSuggestBox.TextChangedEventArgs e)
     {
+        /*
         if (e.Reason == TextChangeReason.UserInput)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -329,10 +432,33 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.ComplementoAdicional = null;
             }
         }
+        */
+        /*
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        // 🔹 ClearButton ou Text limpo via código
+        if (string.IsNullOrWhiteSpace(rasBoxComplementoAdicional.Text))
+        {
+            this.rasBoxComplementoAdicional.ItemsSource = vm.GetByText(vm.ComplementoAdicionais, x => x.complementoadicional, this.rasBoxComplementoAdicional.Text);
+            txtUnidade.Text = null;
+            vm.ComplementoAdicional = null;
+            return;
+        }
+
+        // 🔹 Digitação manual
+        if (e.Reason == TextChangeReason.UserInput)
+        {
+            this.rasBoxComplementoAdicional.ItemsSource = vm.GetByText(vm.ComplementoAdicionais, x => x.complementoadicional, this.rasBoxComplementoAdicional.Text);
+            txtUnidade.Text = null;
+            vm.ComplementoAdicional = null;
+        }
+        */
     }
 
     private void rasBoxComplementoAdicional_SuggestionChosen(object sender, SuggestionChosenEventArgs e)
     {
+        /*
         if (e.Suggestion is ProducaoComplementoAdicionalModel compleAdicional)
         {
             if (DataContext is CadastroHomologacaoProdutoComercialViewModel vm)
@@ -342,6 +468,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 vm.ComplementoAdicional = compleAdicional;
             }
         }
+        */
     }
 
     private void rasBox_GotFocus(object sender, RoutedEventArgs e)
@@ -353,10 +480,17 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
     {
         var vm = DataContext as CadastroHomologacaoProdutoComercialViewModel;
         this.txtOrdem.Text = string.Empty;
-        this.rasBoxPlanilha.Text = string.Empty;
+        //this.rasBoxPlanilha.Text = string.Empty;
+
+        /*
         this.rasBoxDescricaoProduto.Text = string.Empty;
         this.rasBoxDescricaoAdicional.Text = string.Empty;
         this.rasBoxComplementoAdicional.Text = string.Empty;
+        */
+        this.rcBoxPlanilha.SelectedItem = null;
+        this.rcBoxDescricaoProduto.SelectedItem = null;
+        this.rcBoxDescricaoAdicional.SelectedItem = null;
+        this.rcBoxComplementoAdicional.SelectedItem = null;
         this.txtUnidade.Text = string.Empty;
         this.txtQuantidade.Text = string.Empty;
         vm.Descricoes = [];
@@ -445,19 +579,23 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 await vm.CarregarDescricoesByCodComplAdicionalAsync(item.codcompladicional);
 
                 vm.Planilha = vm.Planilhas.FirstOrDefault(f => f.planilha == vm.ProducaoDescricao.planilha);
-                rasBoxPlanilha.Text = vm.ProducaoDescricao.planilha;
+                //rasBoxPlanilha.Text = vm.ProducaoDescricao.planilha;
+                rcBoxPlanilha.SelectedItem = vm.Planilha;
 
                 await vm.CarregarDescricoesAsync(vm.ProducaoDescricao.planilha);
                 vm.Descricao = vm.Descricoes.FirstOrDefault(f => f.codigo == vm.ProducaoDescricao.codigo);
-                rasBoxDescricaoProduto.Text = vm.ProducaoDescricao.descricao;
+                //rasBoxDescricaoProduto.Text = vm.ProducaoDescricao.descricao;
+                rcBoxDescricaoProduto.SelectedItem = vm.Descricao;
 
                 await vm.CarregarDescricaoAdicionaisAsync(vm.ProducaoDescricao.codigo);
                 vm.DescricaoAdicional = vm.DescricaoAdicionais.FirstOrDefault(f => f.coduniadicional == vm.ProducaoDescricao.coduniadicional);
-                rasBoxDescricaoAdicional.Text = vm.ProducaoDescricao.descricao_adicional;
+                //rasBoxDescricaoAdicional.Text = vm.ProducaoDescricao.descricao_adicional;
+                rcBoxDescricaoAdicional.SelectedItem = vm.DescricaoAdicional;
 
                 await vm.CarregarComplementoAdicionaisAsync(vm.ProducaoDescricao.coduniadicional);
                 vm.ComplementoAdicional = vm.ComplementoAdicionais.FirstOrDefault(f => f.codcompladicional == item.codcompladicional);
-                rasBoxComplementoAdicional.Text = vm.ProducaoDescricao.complementoadicional;
+                //rasBoxComplementoAdicional.Text = vm.ProducaoDescricao.complementoadicional;
+                rcBoxComplementoAdicional.SelectedItem = vm.ComplementoAdicional;
 
                 txtOrdem.Text = item.id;
                 txtUnidade.Text = item.unidade;
@@ -529,6 +667,127 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         {
             MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    private void concluido_Click(object sender, RoutedEventArgs e)
+    {
+
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm) return;
+        var concluidoCheck = sender as CheckBox; //{System.Windows.Controls.CheckBox Content:FINALIZADO IsChecked:True}
+        if (concluidoCheck?.IsChecked == true)
+        {
+
+        }
+
+        //concluido_por
+        //concluido_data
+
+        /*
+         * 
+         * concluido.IsChecked = dimensao.insumo_concluido.Contains("1") ? true : false;
+         * concluido_por.Text = dimensao?.insumo_concluido_por?.ToString();
+         * concluido_data.DateTimeText = dimensao?.insumo_concluido_data?.ToString("dd/MM/yyyy");
+         * 
+         */
+
+    }
+
+    private async void rcBoxPlanilha_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        if (e.AddedItems.Count == 0)
+            return;
+
+        if (e.AddedItems[0] is not ProducaoRelPlanModel planilha)
+            return;
+
+        this.rcBoxDescricaoProduto.SelectedItem = null;
+        this.rcBoxDescricaoAdicional.SelectedItem = null;
+        this.rcBoxComplementoAdicional.SelectedItem = null;
+        this.txtUnidade.Text = string.Empty;
+        vm.Descricoes = [];
+        vm.DescricaoAdicionais = [];
+        vm.ComplementoAdicionais = [];
+        vm.Planilha = null;
+        vm.Descricao = null;
+        vm.DescricaoAdicional = null;
+        vm.ComplementoAdicional = null;
+
+        await vm.CarregarDescricoesAsync(planilha.planilha);
+        //rasBoxDescricaoProduto.Focus();
+        //rasBoxDescricaoProduto.IsDropDownOpen = true;
+        vm.Planilha = planilha;
+
+    }
+
+    private async void rcBoxDescricaoProduto_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        if(e.AddedItems.Count == 0)
+            return;
+
+        if (e.AddedItems[0] is not ProducaoProdutoModel descricao)
+            return;
+
+        this.rcBoxDescricaoAdicional.SelectedItem = null;
+        this.rcBoxComplementoAdicional.SelectedItem = null;
+        this.txtUnidade.Text = string.Empty;
+        vm.DescricaoAdicionais = [];
+        vm.ComplementoAdicionais = [];
+        vm.Descricao = null;
+        vm.DescricaoAdicional = null;
+        vm.ComplementoAdicional = null;
+
+        await vm.CarregarDescricaoAdicionaisAsync(descricao.codigo);
+        //rasBoxDescricaoAdicional.Focus();
+        //rasBoxDescricaoAdicional.IsDropDownOpen = true;
+        vm.Descricao = descricao;
+          
+    }
+
+    private async void rcBoxDescricaoAdicional_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        if (e.AddedItems.Count == 0)
+            return;
+
+        if (e.AddedItems[0] is not ProducaoDescAdicionalModel descAdicional)
+            return;
+
+        this.rcBoxComplementoAdicional.SelectedItem = null;
+        this.txtUnidade.Text = string.Empty;
+        vm.ComplementoAdicionais = [];
+        vm.DescricaoAdicional = null;
+        vm.ComplementoAdicional = null;
+
+        await vm.CarregarComplementoAdicionaisAsync(descAdicional.coduniadicional);
+        //rasBoxComplementoAdicional.Focus();
+        //rasBoxComplementoAdicional.IsDropDownOpen = true;
+        vm.DescricaoAdicional = descAdicional;
+
+    }
+
+    private void rcBoxComplementoAdicional_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm)
+            return;
+
+        if (e.AddedItems.Count == 0)
+            return;
+
+        if (e.AddedItems[0] is not ProducaoComplementoAdicionalModel compleAdicional)
+            return;
+
+        txtUnidade.Text = compleAdicional.unidade;
+        txtQuantidade.Focus();
+        vm.ComplementoAdicional = compleAdicional;
+
     }
 }
 
@@ -637,6 +896,9 @@ public partial class CadastroHomologacaoProdutoComercialViewModel : ObservableOb
 
     public List<T> GetByText<T>(IEnumerable<T> source, Expression<Func<T, string>> propertySelector, string searchText)
     {
+        if (string.IsNullOrWhiteSpace(searchText))
+            return [.. source];
+
         var lowerText = searchText.ToLowerInvariant();
         var compiledSelector = propertySelector.Compile();
 
@@ -741,7 +1003,21 @@ public partial class CadastroHomologacaoProdutoComercialViewModel : ObservableOb
                 { "planilha", planilha },
                 { "inativo", "0"}
             };
-            var lista = await _repo.GetWhereAsync<ProducaoProdutoModel>(conn, filtros, "descricao", false);
+            //var lista = await _repo.GetWhereAsync<ProducaoProdutoModel>(conn, filtros, "descricao", false);
+            //[Table("producao.produtos")]
+
+            string sql = @$"
+                SELECT 
+                    *
+                FROM producao.produtos
+                WHERE planilha = '{planilha}' AND inativo = '0'
+                ORDER BY descricao;
+            ";
+
+            var lista = await conn.QueryAsync<ProducaoProdutoModel>(
+                sql
+            );
+
             Descricoes = new ObservableCollection<ProducaoProdutoModel>(lista);
         }
         catch (RepositoryException ex)

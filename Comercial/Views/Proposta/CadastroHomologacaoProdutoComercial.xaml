@@ -204,9 +204,9 @@
 
                     <TextBlock Grid.Column="0" Text="ORDEM:" VerticalAlignment="Center" Margin="5,0,5,0"/>
                     <TextBox x:Name="txtOrdem" Grid.Column="1" Margin="0,0,10,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-                    
+
                     <TextBlock Grid.Column="2" Text="PLANILHA:" VerticalAlignment="Center" Margin="5,0,5,0"/>
-                    <telerik:RadAutoSuggestBox
+                    <!--<telerik:RadAutoSuggestBox
                         x:Name="rasBoxPlanilha" 
                         ItemsSource="{Binding Planilhas}"
                         TextChanged="rasBoxPlanilha_TextChanged"
@@ -215,10 +215,19 @@
                         Grid.Row="0" Grid.Column="3"
                         QueryButtonVisibility="Collapsed"
                         SuggestionChosen="rasBoxPlanilha_SuggestionChosen"
-                        GotFocus="rasBox_GotFocus"/>
-                    
+                        GotFocus="rasBox_GotFocus"/>-->
+                    <telerik:RadComboBox
+                        x:Name="rcBoxPlanilha" 
+                        Grid.Row="0" Grid.Column="3"
+                        ItemsSource="{Binding Planilhas}"
+                        DisplayMemberPath="planilha"
+                        SelectedValuePath="planilha" 
+                        TextSearchMode="Contains" 
+                        IsFilteringEnabled="True"
+                        SelectionChanged="rcBoxPlanilha_SelectionChanged"/>
+
                     <TextBlock Grid.Column="4" Text="DESCRIÇÃO:" VerticalAlignment="Center" Margin="5,0,5,0"/>
-                    <telerik:RadAutoSuggestBox
+                    <!--<telerik:RadAutoSuggestBox
                         x:Name="rasBoxDescricaoProduto" 
                         ItemsSource="{Binding Descricoes}"
                         TextChanged="rasBoxDescricaoProduto_TextChanged"
@@ -227,7 +236,16 @@
                         Grid.Row="0" Grid.Column="5" 
                         QueryButtonVisibility="Collapsed"
                         SuggestionChosen="rasBoxDescricaoProduto_SuggestionChosen"
-                        GotFocus="rasBox_GotFocus"/>
+                        GotFocus="rasBox_GotFocus"/>-->
+                    <telerik:RadComboBox
+                        x:Name="rcBoxDescricaoProduto" 
+                        Grid.Row="0" Grid.Column="5"
+                        ItemsSource="{Binding Descricoes}"
+                        DisplayMemberPath="descricao"
+                        SelectedValuePath="descricao" 
+                        TextSearchMode="Contains" 
+                        IsFilteringEnabled="True"
+                        SelectionChanged="rcBoxDescricaoProduto_SelectionChanged"/>
                 </Grid>
 
                 <!-- LINHA 2 -->
@@ -238,7 +256,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0" Text="DESCRIÇÃO ADICIONAL:" VerticalAlignment="Center" Margin="-4,0,5,0"/>
-                    <telerik:RadAutoSuggestBox
+                    <!--<telerik:RadAutoSuggestBox
                         x:Name="rasBoxDescricaoAdicional" 
                         ItemsSource="{Binding DescricaoAdicionais}"
                         TextChanged="rasBoxDescricaoAdicionalo_TextChanged"
@@ -247,7 +265,16 @@
                         Grid.Row="0" Grid.Column="1" 
                         QueryButtonVisibility="Collapsed"
                         SuggestionChosen="rasBoxDescricaoAdicionalo_SuggestionChosen"
-                        GotFocus="rasBox_GotFocus"/>
+                        GotFocus="rasBox_GotFocus"/>-->
+                    <telerik:RadComboBox
+                        x:Name="rcBoxDescricaoAdicional" 
+                        Grid.Row="0" Grid.Column="1"
+                        ItemsSource="{Binding DescricaoAdicionais}"
+                        DisplayMemberPath="descricao_adicional"
+                        SelectedValuePath="descricao_adicional" 
+                        TextSearchMode="Contains" 
+                        IsFilteringEnabled="True"
+                        SelectionChanged="rcBoxDescricaoAdicional_SelectionChanged"/>
 
                 </Grid>
 
@@ -263,7 +290,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0" Text="COMPLEMENTO ADICIONAL:" VerticalAlignment="Center" Margin="5,0,5,0"/>
-                    <telerik:RadAutoSuggestBox
+                    <!--<telerik:RadAutoSuggestBox
                         x:Name="rasBoxComplementoAdicional" 
                         ItemsSource="{Binding ComplementoAdicionais}"
                         TextChanged="rasBoxComplementoAdicional_TextChanged"
@@ -272,7 +299,16 @@
                         Grid.Row="0" Grid.Column="1"
                         QueryButtonVisibility="Collapsed"
                         SuggestionChosen="rasBoxComplementoAdicional_SuggestionChosen"
-                        GotFocus="rasBox_GotFocus"/>
+                        GotFocus="rasBox_GotFocus"/>-->
+                    <telerik:RadComboBox
+                        x:Name="rcBoxComplementoAdicional" 
+                        Grid.Row="0" Grid.Column="1"
+                        ItemsSource="{Binding ComplementoAdicionais}"
+                        DisplayMemberPath="complementoadicional"
+                        SelectedValuePath="complementoadicional" 
+                        TextSearchMode="Contains" 
+                        IsFilteringEnabled="True"
+                        SelectionChanged="rcBoxComplementoAdicional_SelectionChanged"/>
 
                     <TextBlock Grid.Column="2" Text="UNIDADE:" VerticalAlignment="Center" Margin="5,0,5,0"/>
                     <TextBox 
@@ -309,19 +345,19 @@
                         x:Name="concluido" 
                         Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" 
                         Content="FINALIZADO" 
-                        VerticalAlignment="Center" Margin="5,0,5,0"/>
+                        VerticalAlignment="Center" Margin="5,0,5,0" Click="concluido_Click"/>
 
                     <TextBlock Grid.Row="0" Grid.Column="1" Text="FINALIZADO POR:" Margin="5,0,5,0"/>
                     <TextBox 
                         x:Name="concluido_por" 
                         Grid.Row="0" Grid.Column="2" 
-                        IsReadOnly="True" Margin="5,0,5,5"/>
+                        IsReadOnly="True" Margin="5,0,5,0" IsEnabled="False"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="FINALIZADO DATA:" Margin="5,0,5,0"/>
                     <telerik:RadDatePicker 
                         x:Name="concluido_data" 
                         Grid.Row="1" Grid.Column="2" 
-                        IsReadOnly="True" Margin="5,0,5,5"/>
+                        IsReadOnly="True" Margin="5,0,5,5" IsEnabled="False"/>
 
                 </Grid>
             </Grid>
