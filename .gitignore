@@ -362,8 +362,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/Comercial/Output/Comercial.exe
-/Comercial/publish/Comercial.deps.json
-/Comercial/publish/Comercial.dll
-/Comercial/publish/Comercial.exe
-/Comercial/publish/Comercial.pdb
+/Comercial/Output/
+/Comercial/publish/
