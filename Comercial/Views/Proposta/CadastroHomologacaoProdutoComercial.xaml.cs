@@ -4,6 +4,7 @@ using Comercial.Data.Model.Dto;
 using Comercial.DataBase;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Npgsql;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
@@ -698,26 +699,45 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         }
     }
 
-    private void concluido_Click(object sender, RoutedEventArgs e)
+    private async void concluido_Click(object sender, RoutedEventArgs e)
     {
 
-        if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm) return;
-        var concluidoCheck = sender as CheckBox; //{System.Windows.Controls.CheckBox Content:FINALIZADO IsChecked:True}
-        if (concluidoCheck?.IsChecked == true)
+        try
         {
+            if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm) return;
+            var concluidoCheck = sender as CheckBox; 
+            if (concluidoCheck?.IsChecked == true)
+            {
+                await vm.FinalizarHomologacaoAsync(
+                    vm.DimenssaoComercial.coddimensao, 
+                    BaseSettings.Username, 
+                    DateTime.Now.Date, 
+                    concluidoCheck.IsChecked
+                    );
 
+            }
+
+            //concluido_por
+            //concluido_data
+
+            /*
+             * 
+             * concluido.IsChecked = dimensao.insumo_concluido.Contains("1") ? true : false;
+             * concluido_por.Text = dimensao?.insumo_concluido_por?.ToString();
+             * concluido_data.DateTimeText = dimensao?.insumo_concluido_data?.ToString("dd/MM/yyyy");
+             * 
+             */
+        }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        //concluido_por
-        //concluido_data
-
-        /*
-         * 
-         * concluido.IsChecked = dimensao.insumo_concluido.Contains("1") ? true : false;
-         * concluido_por.Text = dimensao?.insumo_concluido_por?.ToString();
-         * concluido_data.DateTimeText = dimensao?.insumo_concluido_data?.ToString("dd/MM/yyyy");
-         * 
-         */
+        
 
     }
 
@@ -1190,5 +1210,22 @@ public partial class CadastroHomologacaoProdutoComercialViewModel : ObservableOb
                   item.somax,
                   item.somapeso_
               });
+    }
+
+    public async Task FinalizarHomologacaoAsync(long coddimensao, string concluido_por, DateTime concluido_data, bool? concluido)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+
+        await conn.ExecuteAsync(
+            @"UPDATE comercial.proposta_dimensaodescricaocomercial
+	                SET insumo_concluido = @concluido, insumo_concluido_por = @concluido_por, insumo_concluido_data = @concluido_data
+	                WHERE coddimensao = @coddimensao;",
+            new
+            {
+                coddimensao,
+                concluido_por,
+                concluido_data,
+                concluido = (bool)concluido ? "1" : "0"
+            });
     }
 }
