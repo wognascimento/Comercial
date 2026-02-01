@@ -183,7 +183,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 concluido_data.DateTimeText = dimensao?.insumo_concluido_data?.ToString("dd/MM/yyyy");
                 if(dimensao.insumo_concluido.Contains('1'))
                 {
-                    concluido.IsEnabled = false;
+                    //concluido.IsEnabled = false;
                     btnIncluir.IsEnabled = false;
                     btnAlterar.IsEnabled = false;
                     btnExcluir.IsEnabled = false;
@@ -191,7 +191,7 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
                 }
                 else
                 {
-                    concluido.IsEnabled = true;
+                    //concluido.IsEnabled = true;
                     btnIncluir.IsEnabled = true;
                     btnAlterar.IsEnabled = true;
                     btnExcluir.IsEnabled = true;
@@ -705,28 +705,66 @@ public partial class CadastroHomologacaoProdutoComercial : UserControl
         try
         {
             if (DataContext is not CadastroHomologacaoProdutoComercialViewModel vm) return;
-            var concluidoCheck = sender as CheckBox; 
-            if (concluidoCheck?.IsChecked == true)
+
+            var concluidoCheck = sender as CheckBox;
+
+            if (concluidoCheck.IsChecked == true)
             {
-                await vm.FinalizarHomologacaoAsync(
-                    vm.DimenssaoComercial.coddimensao, 
-                    BaseSettings.Username, 
-                    DateTime.Now.Date, 
-                    concluidoCheck.IsChecked
-                    );
+                var confirmResult = MessageBox.Show("Tem certeza que deseja finalizar homologação?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                {
+                    concluidoCheck.IsChecked = false;
+                    concluido_por.Text = string.Empty;
+                    concluido_data.DateTimeText = string.Empty;
+                    return;
+                }
+                if (concluidoCheck?.IsChecked == true)
+                {
+                    await vm.FinalizarHomologacaoAsync(
+                        vm.DimenssaoComercial.coddimensao,
+                        BaseSettings.Username,
+                        DateTime.Now.Date,
+                        concluidoCheck.IsChecked
+                        );
+                    MessageBox.Show("Homologação finalizada com sucesso!", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+                    concluido_por.Text = BaseSettings.Username;
+                    concluido_data.DateTimeText = DateTime.Now.Date.ToString("dd/MM/yyyy");
+                    btnIncluir.IsEnabled = false;
+                    btnAlterar.IsEnabled = false;
+                    btnExcluir.IsEnabled = false;
+                    btnCopiar.IsEnabled = false;
+                }
 
             }
+            else if (concluidoCheck.IsChecked == false)
+            {
+                var confirmResult = MessageBox.Show("Tem certeza que deseja reabrir homologação?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                {
+                    concluidoCheck.IsChecked = true;
+                    concluido_por.Text = vm.DimenssaoComercial.insumo_concluido_por;
+                    concluido_data.DateTimeText = vm.DimenssaoComercial.insumo_concluido_data?.ToString("dd/MM/yyyy");
+                    return;
+                }
+                if (concluidoCheck?.IsChecked == false)
+                {
+                    await vm.FinalizarHomologacaoAsync(
+                        vm.DimenssaoComercial.coddimensao,
+                        string.Empty,
+                        null,
+                        concluidoCheck.IsChecked
+                        );
+                    MessageBox.Show("Homologação reaberta com sucesso!", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+                    concluido_por.Text = string.Empty;
+                    concluido_data.DateTimeText = string.Empty;
+                    btnIncluir.IsEnabled = true;
+                    btnAlterar.IsEnabled = true;
+                    btnExcluir.IsEnabled = true;
+                    btnCopiar.IsEnabled = true;
+                }
+            }   
 
-            //concluido_por
-            //concluido_data
 
-            /*
-             * 
-             * concluido.IsChecked = dimensao.insumo_concluido.Contains("1") ? true : false;
-             * concluido_por.Text = dimensao?.insumo_concluido_por?.ToString();
-             * concluido_data.DateTimeText = dimensao?.insumo_concluido_data?.ToString("dd/MM/yyyy");
-             * 
-             */
         }
         catch (RepositoryException ex)
         {
@@ -1212,7 +1250,7 @@ public partial class CadastroHomologacaoProdutoComercialViewModel : ObservableOb
               });
     }
 
-    public async Task FinalizarHomologacaoAsync(long coddimensao, string concluido_por, DateTime concluido_data, bool? concluido)
+    public async Task FinalizarHomologacaoAsync(long coddimensao, string concluido_por, DateTime? concluido_data, bool? concluido)
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
 
