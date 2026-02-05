@@ -36,7 +36,7 @@ New-Item -ItemType Directory -Path $publishPath -Force
 
 # Obter versão atual
 $version = Get-ApplicationVersion
-$zipFileName = "application-$version.zip"
+$zipFileName = "comercial-$version.zip"
 $zipFullPath = "$projectPath\$zipFileName"
 $issFile = "$projectPath\Setup.iss"
 
