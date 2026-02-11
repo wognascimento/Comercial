@@ -66,8 +66,15 @@ public partial class PropostaQuadroPreco : UserControl
                 btnExcluir.IsEnabled = true;
                 btnCopiar.IsEnabled = true;
 
+                this.dtInicio.SelectionChanged -= dtInicial_SelectionChanged;
+                this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
+
                 this.dtInicio.SelectedValue = null;
                 this.dtConclusao.SelectedValue = null;
+
+                this.dtInicio.SelectionChanged += dtInicial_SelectionChanged;
+                this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
+
 
                 if (e.AddedItems.Count > 0 && e.AddedItems[0] is PropostaBriefingQuadroDto selectedBriefing)
                 {
@@ -106,7 +113,7 @@ public partial class PropostaQuadroPreco : UserControl
                     this.dtInicio.SelectedDate = selectedTema.data_inicio_preco;
                     this.dtConclusao.SelectedDate = selectedTema.data_conclusao_preco;
                     
-                    dtInicio.SelectionChanged += dtInicial_SelectionChanged;
+                    this.dtInicio.SelectionChanged += dtInicial_SelectionChanged;
                     this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
 
 
@@ -221,6 +228,7 @@ public partial class PropostaQuadroPreco : UserControl
                 await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
                 await vm.CarregarResumoCustoPropostaAsync(vm.SelectedBriefing.codbriefing);
                 await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+                LimparCampos();
             }
 
         }
@@ -234,14 +242,73 @@ public partial class PropostaQuadroPreco : UserControl
         }
     }
 
-    private void OnIncluirClick(object sender, RoutedEventArgs e)
+    private async void OnIncluirClick(object sender, RoutedEventArgs e)
     {
+        try
+        {
+            if (DataContext is PropostaQuadroPrecoViewModel vm)
+            {
+                bool camposValidos = await ValidarCamposAsync();
+                if (!camposValidos)
+                    return;
 
+                var codQuadroPreco = await vm.InserirItemPropostaAsync(
+                    new PropostaQuadroPrecoModel
+                    {
+                        codbrief = vm.SelectedBriefing.codbriefing,
+                        sigla = vm.SelectedBriefing.sigla,
+                        tema = vm.SelectedBriefingTema.temas,
+                        tipo = cbTipo.SelectedItem as string,
+                        item = txtItem.Text,
+                        local = cbLocal.SelectedItem as string,
+                        localdetalhe = txtLocalDetalhes.SearchText,
+                        coddimensao = vm.DimenssaoComercial?.coddimensao,
+                        qtd = double.Parse(txtQuantidade.Text),
+                        obs = txtObservacao.Text,
+                        obsinterna = txtObservacaoInterna.Text,
+                        ledml = cbLED.SelectedItem as string,
+                        desconto = 0,
+                        bloco = cbBloco.SelectedItem as string,
+                        idtema = vm.SelectedBriefingTema.idtema,
+                        cadastradopor = BaseSettings.Username,
+                        datacadastro = DateTime.Now
+                    });
+
+                await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+                await vm.CarregarResumoCustoPropostaAsync(vm.SelectedBriefing.codbriefing);
+                await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+
+                // Assumindo que o ItemsSource do grid é uma coleção de objetos (ex.: List<MinhaEntidade>)
+                var itemParaSelecionar = itensProposta.Items.Cast<QuadroPrecoDto>().FirstOrDefault(item => item.codquadro_preco == codQuadroPreco);
+
+                if (itemParaSelecionar != null)
+                {
+                    // Limpa seleções anteriores (opcional)
+                    itensProposta.SelectedItems.Clear();
+
+                    // Seleciona o item encontrado
+                    itensProposta.SelectedItem = itemParaSelecionar;
+
+                    // Opcional: Rola o grid pra deixar o item visível
+                    itensProposta.ScrollIntoView(itemParaSelecionar);
+                }
+
+                LimparCampos();
+            }
+        }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void OnLimparClick(object sender, RoutedEventArgs e)
     {
-
+        LimparCampos();
     }
 
     private void OnExcluirClick(object sender, RoutedEventArgs e)
@@ -342,6 +409,33 @@ public partial class PropostaQuadroPreco : UserControl
         }
 
         return Task.FromResult(true);
+    }
+
+    private void LimparCampos()
+    {
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            txtItem.Text = null;
+            txtQuantidade.Text = null;
+            cbLocal.SelectedItem = null;
+            txtLocalDetalhes.SelectedItem = null;
+            txtLocalDetalhes.SearchText = null;
+            cbTipo.SelectedItem = null;
+            cbBloco.SelectedItem = null;
+            cbFamilia.SelectedItem = null;
+            cbDescricao.SelectedItem = null;
+            cbDimenssao.SelectedItem = null;
+            cbLED.SelectedItem = null;
+            txtObservacao.Text = null;
+            txtObservacaoInterna.Text = null;
+            txtObservacaoObrigatoria.Text = null;
+
+            vm.DescricoesComercial = [];
+            vm.DimensoesComercial = [];
+            vm.DimenssaoComercial = null;
+
+            txtItem.Focus();
+        }
     }
 }
 
@@ -618,10 +712,26 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                     desconto = @desconto,
                     bloco = @bloco,
                     idtema = @idtema
-                WHERE codquadro_quantitativo = @codquadro_quantitativo;
+                WHERE codquadro_preco = @codquadro_preco;
                 ";
         return await conn.ExecuteAsync(sql, model);
     }
 
+    public async Task<long> InserirItemPropostaAsync(PropostaQuadroPrecoModel model)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"
+                INSERT INTO comercial.proposta_quadro_preco
+                (codbrief, sigla, tema, tipo, item, local, localdetalhe, coddimensao,
+                 qtd, obs, obsinterna, ledml, desconto, bloco, idtema, cadastradopor, datacadastro)
+                VALUES
+                (@codbrief, @sigla, @tema, @tipo, @item, @local, @localdetalhe, @coddimensao,
+                 @qtd, @obs, @obsinterna, @ledml, @desconto, @bloco, @idtema, @cadastradopor, @datacadastro)
+                RETURNING codquadro_preco;
+            ";
+
+        return await conn.ExecuteScalarAsync<long>(sql, model);
+
+    }
 
 }
