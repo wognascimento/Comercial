@@ -18,6 +18,7 @@ namespace Comercial.Views.Proposta;
 public partial class PropostaQuadroPreco : UserControl
 {
     private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
+    private CancellationTokenSource _ctsCarregarDados;
 
     public PropostaQuadroPreco()
     {
@@ -64,7 +65,6 @@ public partial class PropostaQuadroPreco : UserControl
                 btnIncluir.IsEnabled = true;
                 btnLimpar.IsEnabled = true;
                 btnExcluir.IsEnabled = true;
-                btnCopiar.IsEnabled = true;
 
                 this.dtInicio.SelectionChanged -= dtInicial_SelectionChanged;
                 this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
@@ -123,7 +123,6 @@ public partial class PropostaQuadroPreco : UserControl
                         btnIncluir.IsEnabled = false;
                         btnLimpar.IsEnabled = false;
                         btnExcluir.IsEnabled = false;
-                        btnCopiar.IsEnabled = false;
                     }
                     else
                     {
@@ -131,7 +130,6 @@ public partial class PropostaQuadroPreco : UserControl
                         btnIncluir.IsEnabled = true;
                         btnLimpar.IsEnabled = true;
                         btnExcluir.IsEnabled = true;
-                        btnCopiar.IsEnabled = true;
                     }
                 }
             }
@@ -311,29 +309,190 @@ public partial class PropostaQuadroPreco : UserControl
         LimparCampos();
     }
 
-    private void OnExcluirClick(object sender, RoutedEventArgs e)
+    private async void OnExcluirClick(object sender, RoutedEventArgs e)
     {
+        try
+        {
+            if (DataContext is PropostaQuadroPrecoViewModel vm)
+            {
+                var confirmResult = MessageBox.Show("Confirma a exclusão deste item?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                    return;
 
+                await vm.ExcluirItemPropostaAsync(vm.ItemProposta.codquadro_quantitativo);
+                await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+                await vm.CarregarResumoCustoPropostaAsync(vm.SelectedBriefing.codbriefing);
+                await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+                LimparCampos();
+            }
+        }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
-    private void OnCopiarClick(object sender, RoutedEventArgs e)
+    private async void dtInicial_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                var inicioData = e.AddedItems?.Cast<object>().FirstOrDefault();
+                if (inicioData == null)
+                {
+                    var confirmResult = MessageBox.Show("Remover a data de inicio permitirá alterações no quadro quantitativo. Deseja continuar?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (confirmResult != MessageBoxResult.Yes)
+                    {
+                        // Reverter a seleção para a data anterior
+                        this.dtConclusao.SelectedValue = vm.SelectedBriefingTema.data_conclusao;
+                        //this.dtConclusao.SelectedDate = vm.SelectedBriefingTema.data_conclusao;
+                        return;
+                    }
+                    await vm.InicioProjetoAsync(null, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
+                    btnAlterar.IsEnabled = true;
+                    btnIncluir.IsEnabled = true;
+                    btnLimpar.IsEnabled = true;
+                    btnExcluir.IsEnabled = true;
+                }
+                else
+                {
+                    var confirmResult = MessageBox.Show("Ao definir a data de inicio, o quadro quantitativo será bloqueado para alterações. Deseja continuar?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (confirmResult != MessageBoxResult.Yes)
+                    {
+                        // Reverter a seleção para a data anterior
+                        this.dtConclusao.SelectedValue = vm.SelectedBriefingTema.data_conclusao;
+                        return;
+                    }
+                    DateTime selectedDate = (DateTime)inicioData;
+                    await vm.InicioProjetoAsync(selectedDate, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
+                    btnAlterar.IsEnabled = false;
+                    btnIncluir.IsEnabled = false;
+                    btnLimpar.IsEnabled = false;
+                    btnExcluir.IsEnabled = false;
+                }
+            }
+            catch (RepositoryException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
-    private void dtInicial_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void dtConclusao_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                var conclusaoData = e.AddedItems?.Cast<object>().FirstOrDefault();
+                if (conclusaoData == null)
+                {
+                    var confirmResult = MessageBox.Show("Remover a data de conclusão permitirá alterações no quadro revisão. Deseja continuar?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (confirmResult != MessageBoxResult.Yes)
+                    {
+                        // Reverter a seleção para a data anterior
+                        this.dtInicio.SelectedValue = vm.SelectedBriefingTema.data_inicio_preco;
+                        return;
+                    }
+                    await vm.ConcluirProjetoAsync(null, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
+                    btnAlterar.IsEnabled = true;
+                    btnIncluir.IsEnabled = true;
+                    btnLimpar.IsEnabled = true;
+                    btnExcluir.IsEnabled = true;
+                }
+                else
+                {
+                    var confirmResult = MessageBox.Show("Ao definir data de conclusão, o quadro revisão será bloqueado para alterações. Deseja continuar?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (confirmResult != MessageBoxResult.Yes)
+                    {
+                        // Reverter a seleção para a data anterior
+                        this.dtConclusao.SelectedValue = vm.SelectedBriefingTema.data_conclusao_preco;
+                        return;
+                    }
+                    DateTime selectedDate = (DateTime)conclusaoData;
+                    await vm.ConcluirProjetoAsync(selectedDate, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
+                    btnAlterar.IsEnabled = false;
+                    btnIncluir.IsEnabled = false;
+                    btnLimpar.IsEnabled = false;
+                    btnExcluir.IsEnabled = false;
+                }
+            }
+            catch (RepositoryException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
-    private void dtConclusao_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void itensProposta_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
+        try
+        {
+            _ctsCarregarDados?.Cancel();
+            _ctsCarregarDados = new CancellationTokenSource();
+            var token = _ctsCarregarDados.Token;
 
-    }
+            if (DataContext is PropostaQuadroPrecoViewModel vm)
+            {
+                var selectedItem = itensProposta.SelectedItem as QuadroPrecoDto;
 
-    private void itensProposta_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
+                if (selectedItem == null)
+                    return;
 
+                // Campos síncronos
+                this.txtItem.Text = selectedItem.item;
+                this.txtQuantidade.Text = selectedItem.qtd.ToString();
+                this.cbLocal.SelectedItem = selectedItem.local;
+                this.txtLocalDetalhes.SelectedItem = selectedItem.localdetalhe;
+                this.cbTipo.SelectedItem = selectedItem.tipo;
+                this.cbBloco.SelectedItem = selectedItem.bloco;
+                this.cbFamilia.SelectedItem = vm.ComercialPropostaFamilias.FirstOrDefault(f => f.familia == selectedItem.familia);
+
+                // Carrega descrições
+                await vm.CarregarDescricaoAsync(
+                    vm.ComercialPropostaFamilias.FirstOrDefault(f => f.familia == selectedItem.familia),
+                    token
+                );
+                if (token.IsCancellationRequested) return;
+
+                // Define descrição (use SelectedItem se possível)
+                this.cbDescricao.SelectedItem = vm.DescricoesComercial.FirstOrDefault(d => d.descricaocomercial == selectedItem.descricaocomercial);
+
+                // Carrega dimensões
+                await vm.CarregarDimensoesAsync(selectedItem.coddesccoml, token);
+                if (token.IsCancellationRequested) return;
+
+                // Define dimensão (use SelectedItem)
+                this.cbDimenssao.SelectedItem = vm.DimensoesComercial.FirstOrDefault(d => d.dimensao == selectedItem.dimensao);
+
+                // Resto dos campos
+                this.cbLED.SelectedItem = selectedItem.ledml;
+                this.txtObservacao.Text = selectedItem.obs;
+                this.txtObservacaoInterna.Text = selectedItem.obsinterna;
+            }
+        }
+        catch (OperationCanceledException) { /* Ignora */ }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void RadGridView_AddingNewDataItem(object sender, Telerik.Windows.Controls.GridView.GridViewAddingNewEventArgs e)
@@ -578,7 +737,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         var sqlQuadro = @"
             SELECT
                 *
-            FROM comercial.proposta_view_quadropreco
+            FROM comercial.view_quadro_preco
             WHERE codbrief = @codbrief AND idtema = @idtema;";
         var sqlIlustracoes = @"
             SELECT
@@ -655,7 +814,6 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                 })]
         );
         ItensProposta = resultado;
-
     }
 
     public async Task CarregarDescricaoAsync(ComercialPropostaFamiliaModel familia, CancellationToken cancellationToken = default)
@@ -731,7 +889,38 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
             ";
 
         return await conn.ExecuteScalarAsync<long>(sql, model);
+    }
 
+    public async Task<long> ExcluirItemPropostaAsync(long codquadro_preco)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"DELETE FROM comercial.proposta_quadro_preco WHERE codquadro_preco = @codquadro_preco;";
+        return await conn.ExecuteAsync(sql, new { codquadro_preco });
+    }
+
+    public async Task<long> InicioProjetoAsync(DateTime? inicio, long briefing, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"
+                UPDATE comercial.propostas
+                SET 
+                    data_inicio_preco = @inicio
+                WHERE codproposta = @briefing AND idtema = @idtema;
+                ";
+        return await conn.ExecuteAsync(sql, new { inicio, briefing, idtema });
+    }
+
+    public async Task<long> ConcluirProjetoAsync(DateTime? conclusao, long briefing, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"
+                UPDATE comercial.propostas
+                SET 
+                    data_conclusao_preco = @conclusao,
+                    resp_conclusao_preco = @conclusaopor
+                WHERE codproposta = @briefing AND idtema = @idtema;
+                ";
+        return await conn.ExecuteAsync(sql, new { conclusao, conclusaopor = BaseSettings.Username, briefing, idtema });
     }
 
 }

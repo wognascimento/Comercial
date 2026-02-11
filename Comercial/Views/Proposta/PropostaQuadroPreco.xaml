@@ -248,7 +248,6 @@
                             <telerik:RadButton x:Name="btnIncluir" Content="INCLUIR" Margin="2" Click="OnIncluirClick"/>
                             <telerik:RadButton x:Name="btnLimpar" Content="LIMPAR" Margin="2" Click="OnLimparClick"/>
                             <telerik:RadButton x:Name="btnExcluir" Content="EXCLUIR" Margin="2" Click="OnExcluirClick"/>
-                            <telerik:RadButton x:Name="btnCopiar" Content="COPIAR" Margin="2" Click="OnCopiarClick"/>
 
                         </StackPanel>
 
