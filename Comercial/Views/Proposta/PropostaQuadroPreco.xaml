@@ -91,7 +91,8 @@
                         Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="6" Margin="2"
                         DisplayMemberPath="temas"
                         ItemsSource="{Binding PropostaBriefingTemas}"
-                        SelectedItem="{Binding SelectedBriefingTema}" SelectionChanged="boxBrienfingTema_SelectionChanged"/>
+                        SelectedItem="{Binding SelectedBriefingTema}" 
+                        SelectionChanged="boxBrienfingTema_SelectionChanged"/>
                 </Grid>
             </Border>
 
@@ -333,15 +334,13 @@
                             x:Name="dtInicio" 
                             InputMode="DatePicker" 
                             TodayButtonVisibility="Visible"
-                            Grid.Column="1" Grid.Row="16" 
-                            SelectionChanged="dtInicial_SelectionChanged" />
+                            Grid.Column="1" Grid.Row="16"  />
                         <TextBlock Grid.Column="0" Grid.Row="17" Text="Data Conclusão:" FontWeight="Bold" Margin="0,5,0,0" Opacity="0.5"/>
                         <telerik:RadDateTimePicker 
                             x:Name="dtConclusao" 
                             InputMode="DatePicker" 
                             TodayButtonVisibility="Visible"
-                            Grid.Column="1" Grid.Row="17" 
-                            SelectionChanged="dtConclusao_SelectionChanged" />
+                            Grid.Column="1" Grid.Row="17"  />
 
                         <!--<DatePicker x:Name="dtConclusao"
                                     SelectedDateFormat="Short"

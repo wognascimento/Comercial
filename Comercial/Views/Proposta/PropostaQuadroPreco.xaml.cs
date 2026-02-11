@@ -8,6 +8,7 @@ using Npgsql;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using Telerik.Windows.Controls;
 
 namespace Comercial.Views.Proposta;
 
@@ -16,6 +17,8 @@ namespace Comercial.Views.Proposta;
 /// </summary>
 public partial class PropostaQuadroPreco : UserControl
 {
+    private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
+
     public PropostaQuadroPreco()
     {
         InitializeComponent();
@@ -63,6 +66,9 @@ public partial class PropostaQuadroPreco : UserControl
                 btnExcluir.IsEnabled = true;
                 btnCopiar.IsEnabled = true;
 
+                this.dtInicio.SelectedValue = null;
+                this.dtConclusao.SelectedValue = null;
+
                 if (e.AddedItems.Count > 0 && e.AddedItems[0] is PropostaBriefingQuadroDto selectedBriefing)
                 {
                     await vm.CarregarBrifinTemasAsync(selectedBriefing.codbriefing);
@@ -83,19 +89,149 @@ public partial class PropostaQuadroPreco : UserControl
         }
     }
 
-    private void boxBrienfingTema_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void boxBrienfingTema_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                if (e.AddedItems.Count > 0 && e.AddedItems[0] is PropostaBriefingTemaDto selectedTema)
+                {
+                    await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, selectedTema.idtema);
+                    await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, selectedTema.idtema);
 
+                    this.dtInicio.SelectionChanged -= dtInicial_SelectionChanged;
+                    this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
+
+                    this.dtInicio.SelectedDate = selectedTema.data_inicio_preco;
+                    this.dtConclusao.SelectedDate = selectedTema.data_conclusao_preco;
+                    
+                    dtInicio.SelectionChanged += dtInicial_SelectionChanged;
+                    this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
+
+
+                    if ((selectedTema?.data_conclusao_preco != null) || selectedTema.ativo)
+                    {
+                        btnAlterar.IsEnabled = false;
+                        btnIncluir.IsEnabled = false;
+                        btnLimpar.IsEnabled = false;
+                        btnExcluir.IsEnabled = false;
+                        btnCopiar.IsEnabled = false;
+                    }
+                    else
+                    {
+                        btnAlterar.IsEnabled = true;
+                        btnIncluir.IsEnabled = true;
+                        btnLimpar.IsEnabled = true;
+                        btnExcluir.IsEnabled = true;
+                        btnCopiar.IsEnabled = true;
+                    }
+                }
+            }
+            catch (RepositoryException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
-    private void rasBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private async void rasBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-
+        var box = (sender as RadComboBox);
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                if (box.DisplayMemberPath == "familia")
+                {
+                    if (e.AddedItems?.Cast<ComercialPropostaFamiliaModel>().FirstOrDefault() is ComercialPropostaFamiliaModel familia) //e.AddedItems?.Cast<ComercialPropostaFamiliaModel>().FirstOrDefault()
+                    {
+                        vm.DimensoesComercial = [];
+                        vm.DescricoesComercial = [];
+                        await vm.CarregarDescricaoAsync(familia);
+                    }
+                }
+                else if (box.DisplayMemberPath == "descricaocomercial")
+                {
+                    if (e.AddedItems?.Cast<ComercialPropostaDescricaoComercialModel>().FirstOrDefault() is ComercialPropostaDescricaoComercialModel descricaoComercial) //e.AddedItems?.Cast<ComercialPropostaDescricaoComercialModel>().FirstOrDefault()
+                    {
+                        await vm.CarregarDimensoesAsync(descricaoComercial.coddesccoml);
+                    }
+                }
+                else if (box.DisplayMemberPath == "descricaocomercial")
+                {
+                    if (e.AddedItems?.Cast<ComercialPropostaDimensaoDescricaoComercialModel>().FirstOrDefault() is ComercialPropostaDimensaoDescricaoComercialModel descricaoComercial) //e.AddedItems?.Cast<ComercialPropostaDimensaoDescricaoComercialModel>().FirstOrDefault()
+                    {
+                        vm.DescricoesComercial = [];
+                    }
+                }
+            }
+            catch (RepositoryException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
-    private void OnAlterarClick(object sender, RoutedEventArgs e)
+    private async void OnAlterarClick(object sender, RoutedEventArgs e)
     {
+        try
+        {
+            if (DataContext is PropostaQuadroPrecoViewModel vm)
+            {
+                bool camposValidos = await ValidarCamposAsync();
+                if (!camposValidos)
+                    return;
 
+                var confirmResult = MessageBox.Show("Confirma a alteração deste item?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                    return;
+
+                await vm.AtualizarPropostaAsync(
+                    new PropostaQuadroPrecoModel
+                    {
+                        codquadro_preco = vm.ItemProposta.codquadro_preco,
+                        codbrief = vm.SelectedBriefing.codbriefing,
+                        sigla = vm.SelectedBriefing.sigla,
+                        tema = vm.SelectedBriefingTema.temas,
+                        tipo = cbTipo.SelectedItem as string,
+                        item = txtItem.Text,
+                        local = cbLocal.SelectedItem as string,
+                        localdetalhe = txtLocalDetalhes.SearchText,
+                        coddimensao = vm.DimenssaoComercial?.coddimensao,
+                        qtd = double.Parse(txtQuantidade.Text),
+                        obs = txtObservacao.Text,
+                        obsinterna = txtObservacaoInterna.Text,
+                        ledml = cbLED.SelectedItem as string,
+                        //desconto = 0,
+                        bloco = cbBloco.SelectedItem as string,
+                        idtema = vm.SelectedBriefingTema.idtema,
+                        cadastradopor = BaseSettings.Username,
+                        datacadastro = DateTime.Now
+                    });
+
+                await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+                await vm.CarregarResumoCustoPropostaAsync(vm.SelectedBriefing.codbriefing);
+                await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+            }
+
+        }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void OnIncluirClick(object sender, RoutedEventArgs e)
@@ -142,6 +278,71 @@ public partial class PropostaQuadroPreco : UserControl
     {
 
     }
+
+    private Task<bool> ValidarCamposAsync()
+    {
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            if (vm.SelectedBriefing == null)
+            {
+                MessageBox.Show("Selecione um briefing.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (vm.SelectedBriefingTema == null)
+            {
+                MessageBox.Show("Selecione um tema do briefing.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (string.IsNullOrWhiteSpace(txtItem.Text))
+            {
+                MessageBox.Show("Informe o item.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (string.IsNullOrWhiteSpace(txtQuantidade.Text))
+            {
+                MessageBox.Show("Informe uma quantidade válida.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (cbLocal.SelectedItem == null)
+            {
+                MessageBox.Show("Selecione um local.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (cbTipo.SelectedItem == null)
+            {
+                MessageBox.Show("Selecione um tipo.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (cbBloco.SelectedItem == null)
+            {
+                MessageBox.Show("Selecione um bloco.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (cbFamilia.SelectedItem == null)
+            {
+                MessageBox.Show("Selecione uma família.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (cbDescricao.SelectedItem == null)
+            {
+                MessageBox.Show("Selecione uma descrição comercial.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (cbDimenssao.SelectedItem == null)
+            {
+                MessageBox.Show("Selecione uma dimensão.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return Task.FromResult(false);
+            }
+            else if (!string.IsNullOrEmpty(vm.DimenssaoComercial.obsobrigatoria) && string.IsNullOrEmpty(txtObservacao.Text))
+            {
+                MessageBox.Show("Esta descrição requer uma observação.\nFavor informa-la", "Atenção", MessageBoxButton.OK, MessageBoxImage.Error
+                );
+                return Task.FromResult(false);
+            }
+        }
+
+        return Task.FromResult(true);
+    }
 }
 
 public partial class PropostaQuadroPrecoViewModel : ObservableObject
@@ -162,17 +363,28 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
     private PropostaBriefingTemaDto selectedBriefingTema;
 
     [ObservableProperty]
-    private ObservableCollection<QuadroQuantitativoDto> itensProposta = [];
+    private ObservableCollection<QuadroPrecoDto> itensProposta = [];
 
     [ObservableProperty]
-    private QuadroQuantitativoDto itemProposta;
+    private QuadroPrecoDto itemProposta;
 
     [ObservableProperty]
     private ObservableCollection<QuadroQuantitativoResumoDto> resumosProposta = [];
 
-
     [ObservableProperty]
     private ObservableCollection<ComercialPropostaFamiliaModel> comercialPropostaFamilias = [];
+
+    [ObservableProperty]
+    private ObservableCollection<ComercialPropostaDescricaoComercialModel> descricoesComercial = [];
+
+    [ObservableProperty]
+    private ComercialPropostaDescricaoComercialModel descricaoComercial;
+
+    [ObservableProperty]
+    private ObservableCollection<ComercialPropostaDimensaoDescricaoComercialModel> dimensoesComercial = [];
+
+    [ObservableProperty]
+    private ComercialPropostaDimensaoDescricaoComercialModel dimenssaoComercial;
 
     [ObservableProperty]
     private ObservableCollection<string> comercialPropostaBlocos = [];
@@ -185,6 +397,9 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<string> comercialPropostaLeds = ["LED AZ", "LED AZ/ML", "LED BC", "LED BC/COL", "LED BC/ML", "LED BC QUENTE", "LED BC QUENTE/ML", "LED COL", "LED COL/ML"];
+
+    [ObservableProperty]
+    private ObservableCollection<string> comercialPropostaDetalhesLocais = [];
 
 
     public async Task CarregarBrifinsAsync()
@@ -252,6 +467,160 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var itens = await conn.QueryAsync<string>(@"SELECT local FROM comercial.proposta_local ORDER BY local;");
         ComercialPropostaLocais = new ObservableCollection<string>(itens);
+    }
+
+    public async Task CarregarDetalhesLocalDetalhesLocaisAsync(long codbrief, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var parametros = new { codbrief, idtema };
+        var itens = await conn.QueryAsync<string>(@"SELECT localdetalhe	FROM comercial.proposta_quadro_preco	WHERE codbrief = @codbrief AND idtema = @idtema GROUP BY localdetalhe ORDER BY localdetalhe;", parametros);
+        ComercialPropostaDetalhesLocais = new ObservableCollection<string>(itens);
+    }
+
+    public async Task CarregarItensPropostaAsync(long codbrief, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var parametros = new { codbrief, idtema };
+        var sqlQuadro = @"
+            SELECT
+                *
+            FROM comercial.proposta_view_quadropreco
+            WHERE codbrief = @codbrief AND idtema = @idtema;";
+        var sqlIlustracoes = @"
+            SELECT
+                *
+            FROM comercial.proposta_ilustracoes
+            WHERE codbriefing = @codbrief AND idtema = @idtema;";
+        // busca ambas as listas em paralelo
+        var quadroTask = await conn.QueryAsync<QuadroPrecoDto>(sqlQuadro, parametros);
+        var iluminacaoTask = await conn.QueryAsync<PropostaIlustracaoModel>(sqlIlustracoes, parametros);
+        var quadroList = (quadroTask).ToList();
+        var iluminacaoList = (iluminacaoTask).ToList();
+        ObservableCollection<PropostaIlustracaoModel> MapearIlustracoes(long codQuadroQuantitativo)
+        {
+            var cargasParaSigla = iluminacaoList
+                .Where(c => c.codquadro_quantitativo == codQuadroQuantitativo)
+                .OrderBy(c => c.codilustracao)
+                .ToList();
+            return new ObservableCollection<PropostaIlustracaoModel>(cargasParaSigla);
+        }
+        var resultado = new ObservableCollection<QuadroPrecoDto>(
+            [.. quadroList.Select(q => new QuadroPrecoDto {
+                     codquadro_quantitativo = q.codquadro_quantitativo,
+                     ordem = q.ordem,
+                     sigla = q.sigla,
+                     tipo =  q.tipo,
+                     familia = q.familia,
+                     item = q.item,
+                     localitem = q.localitem,
+                     local = q.local,
+                     localdetalhe = q.localdetalhe,
+                     descricao = q.descricao,
+                     descricaocomercial = q.descricaocomercial,
+                     nomefantasia = q.nomefantasia,
+                     qtd = q.qtd,
+                     qtdanterior = q.qtdanterior,
+                     dimensao = q.dimensao,
+                     obs = q.obs,
+                     obsinterna = q.obsinterna,
+                     custounitarioapurado = q.custounitarioapurado,
+                     custounitarioestimado = q.custounitarioestimado,
+                     custo_total = q.custo_total,
+                     custo_item = q.custo_item,
+                     vlr_indice = q.vlr_indice,
+                     ledml = q.ledml,
+                     vlr_led = q.vlr_led,
+                     desconto = q.desconto,
+                     custo_tot_item = q.custo_tot_item,
+                     total_desc = q.total_desc,
+                     codbrief = q.codbrief,
+                     tema = q.tema,
+                     produtocliente_cod = q.produtocliente_cod,
+                     produtocliente_qtd = q.produtocliente_qtd,
+                     coddesccoml = q.coddesccoml,
+                     coddimensao = q.coddimensao,
+                     dimensaofantasia = q.dimensaofantasia,
+                     bloco = q.bloco,
+                     obsobrigatoria = q.obsobrigatoria,
+                     ilustracao = q.ilustracao,
+                     fecha_atualiza_desc = q.fecha_atualiza_desc,
+                     fecha_atualiza_dimensao = q.fecha_atualiza_dimensao,
+                     fecha_atualiza_local = q.fecha_atualiza_local,
+                     idtema = q.idtema,
+                     cubagem = q.cubagem,
+                     m3_total = q.m3_total,
+                     projecao_area = q.projecao_area,
+                     valor_desconto_area_projecao = q.valor_desconto_area_projecao,
+                     custo_historico = q.custo_historico,
+                     preco_nf = q.preco_nf,
+                     custo_historico_total = q.custo_historico_total,
+                     preco_nf_total = q.preco_nf_total,
+                     preco_excel = q.preco_excel,
+                     preco_excel_total = q.preco_excel_total,
+                    Ilustracoes = MapearIlustracoes(q.codquadro_quantitativo)
+                })]
+        );
+        ItensProposta = resultado;
+
+    }
+
+    public async Task CarregarDescricaoAsync(ComercialPropostaFamiliaModel familia, CancellationToken cancellationToken = default)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var filtros = new Dictionary<string, object>
+                {
+                    { "id_familia", familia.id }
+                };
+        var descricoes = await _repo.GetWhereAsync<ComercialPropostaDescricaoComercialModel>(conn, filtros, "descricaocomercial", false);
+        DescricoesComercial = new ObservableCollection<ComercialPropostaDescricaoComercialModel>(descricoes);
+        // Atualiza a coleção (não recria!)
+        /*DescricoesComercial.Clear();
+        foreach (var desc in descricoes)
+        {
+            DescricoesComercial.Add(desc);
+        }*/
+    }
+
+    public async Task CarregarDimensoesAsync(long coddesccoml, CancellationToken cancellationToken = default)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var filtros = new Dictionary<string, object>
+                {
+                    { "coddesccoml", coddesccoml }
+                };
+        var dimensoes = await _repo.GetWhereAsync<ComercialPropostaDimensaoDescricaoComercialModel>(conn, filtros, "dimensao", false);
+        DimensoesComercial = new ObservableCollection<ComercialPropostaDimensaoDescricaoComercialModel>(dimensoes);
+        /*DimensoesComercial.Clear();
+        foreach (var dim in dimensoes)
+        {
+            DimensoesComercial.Add(dim);
+        }*/
+    }
+
+    public async Task<long> AtualizarPropostaAsync(PropostaQuadroPrecoModel model)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"
+                UPDATE comercial.proposta_quadro_preco
+                SET 
+                    codbrief = @codbrief,
+                    sigla = @sigla,
+                    tema = @tema,
+                    tipo = @tipo,
+                    item = @item,
+                    local = @local,
+                    localdetalhe = @localdetalhe,
+                    coddimensao = @coddimensao,
+                    qtd = @qtd,
+                    obs = @obs,
+                    obsinterna = @obsinterna,
+                    ledml = @ledml,
+                    desconto = @desconto,
+                    bloco = @bloco,
+                    idtema = @idtema
+                WHERE codquadro_quantitativo = @codquadro_quantitativo;
+                ";
+        return await conn.ExecuteAsync(sql, model);
     }
 
 
