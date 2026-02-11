@@ -332,8 +332,7 @@
                             x:Name="dtConclusao" 
                             InputMode="DatePicker" 
                             TodayButtonVisibility="Visible"
-                            Grid.Column="1" Grid.Row="16" 
-                            SelectionChanged="dtConclusao_SelectionChanged" />
+                            Grid.Column="1" Grid.Row="16"  />
 
                         <!--<DatePicker x:Name="dtConclusao"
                                     SelectedDateFormat="Short"

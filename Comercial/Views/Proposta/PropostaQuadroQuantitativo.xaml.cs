@@ -69,6 +69,12 @@ namespace Comercial.Views.Proposta
                     vm.ResumosProposta = [];
                     vm.ItensProposta = [];
 
+                    this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
+                    this.dtConclusao.SelectedValue = null;
+                    this.dtConclusao.IsEnabled = true;
+                    this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
+
+
                     btnAlterar.IsEnabled = true;
                     btnIncluir.IsEnabled = true;
                     btnLimpar.IsEnabled = true;
@@ -108,9 +114,16 @@ namespace Comercial.Views.Proposta
 
                         //this.dtConclusao.SelectedValue = selectedTema.data_conclusao;
                         //this.dtConclusao.SelectedDate = selectedTema.data_conclusao;
-                        this.dtConclusao.CurrentDateTimeText = selectedTema.data_conclusao.Value.Date.ToString("dd/MM/yyyy");
+                        //this.dtConclusao.CurrentDateTimeText = selectedTema.data_conclusao.Value.Date.ToString("dd/MM/yyyy");
                         //this.dtConclusao.DisplayDate = selectedTema.data_conclusao.Value.Date;
                         //this.dtConclusao.DateTimeText = selectedTema.data_conclusao.Value.Date.ToString("dd/MM/yyyy");
+
+                        this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
+
+                        this.dtConclusao.SelectedDate = selectedTema.data_conclusao;
+
+                        this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
+
                         if (selectedTema?.data_inicio_preco != null)
                             this.dtConclusao.IsEnabled = false;
                         else
@@ -422,7 +435,7 @@ namespace Comercial.Views.Proposta
                             obs = txtObservacao.Text,
                             obsinterna = txtObservacaoInterna.Text,
                             ledml = cbLED.SelectedItem as string,
-                            desconto = 0,
+                            //desconto = 0,
                             bloco = cbBloco.SelectedItem as string,
                             idtema = vm.SelectedBriefingTema.idtema,
                             cadastradopor = BaseSettings.Username,
@@ -1013,7 +1026,6 @@ namespace Comercial.Views.Proposta
                     obs = @obs,
                     obsinterna = @obsinterna,
                     ledml = @ledml,
-                    desconto = @desconto,
                     bloco = @bloco,
                     idtema = @idtema
                 WHERE codquadro_quantitativo = @codquadro_quantitativo;
