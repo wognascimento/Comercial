@@ -445,6 +445,8 @@ namespace Comercial.Views.Proposta
                     await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
                     await vm.CarregarResumoCustoPropostaAsync(vm.SelectedBriefing.codbriefing);
                     await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+
+                    LimparCampos();
                 }
 
             }
