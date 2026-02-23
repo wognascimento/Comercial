@@ -222,6 +222,7 @@
                         ItemsSource="{Binding Planilhas}"
                         DisplayMemberPath="planilha"
                         SelectedValuePath="planilha" 
+                        IsEditable="True"
                         TextSearchMode="Contains" 
                         IsFilteringEnabled="True"
                         SelectionChanged="rcBoxPlanilha_SelectionChanged"/>
@@ -243,6 +244,7 @@
                         ItemsSource="{Binding Descricoes}"
                         DisplayMemberPath="descricao"
                         SelectedValuePath="descricao" 
+                        IsEditable="True"
                         TextSearchMode="Contains" 
                         IsFilteringEnabled="True"
                         SelectionChanged="rcBoxDescricaoProduto_SelectionChanged"/>
@@ -272,6 +274,7 @@
                         ItemsSource="{Binding DescricaoAdicionais}"
                         DisplayMemberPath="descricao_adicional"
                         SelectedValuePath="descricao_adicional" 
+                        IsEditable="True"
                         TextSearchMode="Contains" 
                         IsFilteringEnabled="True"
                         SelectionChanged="rcBoxDescricaoAdicional_SelectionChanged"/>
@@ -306,6 +309,7 @@
                         ItemsSource="{Binding ComplementoAdicionais}"
                         DisplayMemberPath="complementoadicional"
                         SelectedValuePath="complementoadicional" 
+                        IsEditable="True"
                         TextSearchMode="Contains" 
                         IsFilteringEnabled="True"
                         SelectionChanged="rcBoxComplementoAdicional_SelectionChanged"/>
