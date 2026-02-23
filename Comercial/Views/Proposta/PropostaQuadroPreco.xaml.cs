@@ -452,6 +452,8 @@ public partial class PropostaQuadroPreco : UserControl
                 if (selectedItem == null)
                     return;
 
+                cbDescricao.SelectionChanged -= rasBoxSelectionChanged;
+
                 // Campos síncronos
                 this.txtItem.Text = selectedItem.item;
                 this.txtQuantidade.Text = selectedItem.qtd.ToString();
