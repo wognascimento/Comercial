@@ -54,12 +54,14 @@
 	  <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 	  <PackageReference Include="Dapper" Version="2.1.66" />
 	  <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
+	  <PackageReference Include="DocumentFormat.OpenXml" Version="3.4.1" />
 	  <PackageReference Include="Mapster" Version="7.4.0" />
 	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
       <PackageReference Include="Syncfusion.Presentation.Wpf" Version="27.1.58" />
       <PackageReference Include="Syncfusion.UI.WPF.NET" Version="27.1.58" />
       <PackageReference Include="System.DirectoryServices.AccountManagement" Version="9.0.10" />
 	  <PackageReference Include="Telerik.UI.for.Wpf.80.Xaml" Version="2025.2.521" />
+	  <PackageReference Include="Xceed.Words.NET" Version="5.2.25608.6677" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,11 +80,15 @@
     <None Update="imagem_1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Modelos\MODELO_PROJ_COM.docx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Impressos\" />
     <Folder Include="Resources\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -26,12 +26,16 @@
             <!-- Painel direito ocupa o restante -->
         </Grid.ColumnDefinitions>
 
-        <!--
+        
         <telerik:RadMenu Grid.Row="0" Grid.ColumnSpan="2" Margin="5" >
-            <telerik:RadMenuItem Header="Imprimir"  />
-            <telerik:RadMenuItem Header="Família"  />
+            
+            <!--<telerik:RadMenuItem Header="Quadro Revisao Excel"  />-->
+            <telerik:RadMenuItem Header="Enviar para Word" Click="RadMenuItem_Click"  />
+            <telerik:RadMenuItem Header="Quadro de Precos"  />
+            <telerik:RadMenuItem Header="Quadro de Custos"  />
+            <telerik:RadMenuItem Header="Enviar Tema para Fecha"  />
         </telerik:RadMenu>
--->
+
 
         <!-- ==================== PAINEL ESQUERDO ==================== -->
         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Margin="0,0,10,0">

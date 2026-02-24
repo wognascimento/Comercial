@@ -2,6 +2,8 @@
 using Comercial.Data.Model;
 using Comercial.Data.Model.Dto;
 using Comercial.DataBase;
+using Comercial.Repositores;
+using Comercial.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
 using Npgsql;
@@ -84,6 +86,8 @@ public partial class PropostaQuadroPreco : UserControl
                     vm.ItemProposta = null;
 
                 }
+
+                LimparCampos();
             }
             catch (RepositoryException ex)
             {
@@ -115,6 +119,8 @@ public partial class PropostaQuadroPreco : UserControl
                     
                     this.dtInicio.SelectionChanged += dtInicial_SelectionChanged;
                     this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
+
+                    LimparCampos();
 
 
                     if ((selectedTema?.data_conclusao_preco != null) || selectedTema.ativo)
@@ -167,11 +173,11 @@ public partial class PropostaQuadroPreco : UserControl
                         await vm.CarregarDimensoesAsync(descricaoComercial.coddesccoml);
                     }
                 }
-                else if (box.DisplayMemberPath == "descricaocomercial")
+                else if (box.DisplayMemberPath == "dimensao")
                 {
-                    if (e.AddedItems?.Cast<ComercialPropostaDimensaoDescricaoComercialModel>().FirstOrDefault() is ComercialPropostaDimensaoDescricaoComercialModel descricaoComercial) //e.AddedItems?.Cast<ComercialPropostaDimensaoDescricaoComercialModel>().FirstOrDefault()
+                    if (e.AddedItems?.Cast<ComercialPropostaDimensaoDescricaoComercialModel>().FirstOrDefault() is ComercialPropostaDimensaoDescricaoComercialModel dimensaoDescricaoComercial) //e.AddedItems?.Cast<ComercialPropostaDimensaoDescricaoComercialModel>().FirstOrDefault()
                     {
-                        vm.DescricoesComercial = [];
+                        vm.DimenssaoComercial = dimensaoDescricaoComercial;
                     }
                 }
             }
@@ -452,7 +458,9 @@ public partial class PropostaQuadroPreco : UserControl
                 if (selectedItem == null)
                     return;
 
+                cbFamilia.SelectionChanged -= rasBoxSelectionChanged;
                 cbDescricao.SelectionChanged -= rasBoxSelectionChanged;
+                cbDimenssao.SelectionChanged -= rasBoxSelectionChanged;
 
                 // Campos síncronos
                 this.txtItem.Text = selectedItem.item;
@@ -484,6 +492,12 @@ public partial class PropostaQuadroPreco : UserControl
                 this.cbLED.SelectedItem = selectedItem.ledml;
                 this.txtObservacao.Text = selectedItem.obs;
                 this.txtObservacaoInterna.Text = selectedItem.obsinterna;
+                this.txtObservacaoObrigatoria.Text = selectedItem.obsobrigatoria;
+
+                cbFamilia.SelectionChanged += rasBoxSelectionChanged;
+                cbDescricao.SelectionChanged += rasBoxSelectionChanged;
+                cbDimenssao.SelectionChanged += rasBoxSelectionChanged;
+
             }
         }
         catch (OperationCanceledException) { /* Ignora */ }
@@ -563,8 +577,7 @@ public partial class PropostaQuadroPreco : UserControl
             }
             else if (!string.IsNullOrEmpty(vm.DimenssaoComercial.obsobrigatoria) && string.IsNullOrEmpty(txtObservacao.Text))
             {
-                MessageBox.Show("Esta descrição requer uma observação.\nFavor informa-la", "Atenção", MessageBoxButton.OK, MessageBoxImage.Error
-                );
+                MessageBox.Show("Esta descrição requer uma observação.\nFavor informá-la.", "Atenção", MessageBoxButton.OK, MessageBoxImage.Error);
                 return Task.FromResult(false);
             }
         }
@@ -576,6 +589,10 @@ public partial class PropostaQuadroPreco : UserControl
     {
         if (DataContext is PropostaQuadroPrecoViewModel vm)
         {
+            cbFamilia.SelectionChanged -= rasBoxSelectionChanged;
+            cbDescricao.SelectionChanged -= rasBoxSelectionChanged;
+            cbDimenssao.SelectionChanged -= rasBoxSelectionChanged;
+
             txtItem.Text = null;
             txtQuantidade.Text = null;
             cbLocal.SelectedItem = null;
@@ -596,6 +613,48 @@ public partial class PropostaQuadroPreco : UserControl
             vm.DimenssaoComercial = null;
 
             txtItem.Focus();
+
+            cbFamilia.SelectionChanged += rasBoxSelectionChanged;
+            cbDescricao.SelectionChanged += rasBoxSelectionChanged;
+            cbDimenssao.SelectionChanged += rasBoxSelectionChanged;
+        }
+    }
+
+    private DocumentoWordService _docService;
+    private QuadroRepository _repo;
+
+    private async void RadMenuItem_Click(object sender, Telerik.Windows.RadRoutedEventArgs e)
+    {
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                _repo = new QuadroRepository();
+                _docService = new DocumentoWordService();
+
+                var temas = await _repo.GetTemasAsync(vm.SelectedBriefing.codbriefing);
+
+                string template = $@"{BaseSettings.CaminhoSistema}Modelos\MODELO_PROJ_COM.docx";
+                string destino = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_PROJ_COM_{BaseSettings.Username}.docx"; //2026_01_28_PIR_PROJ_COM_nina_bordenalli.doc
+
+                await _docService.CriarDocumentoFormatado(
+                    template,
+                    destino,
+                    temas,
+                    async (idTema, tipo) =>
+                        await _repo.GetItensTabelaAsync(vm.SelectedBriefing.codbriefing, idTema, tipo)
+                );
+            }
+            catch (OperationCanceledException) { /* Ignora */ }
+            catch (RepositoryException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            
         }
     }
 }
