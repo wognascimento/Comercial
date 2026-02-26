@@ -4,11 +4,8 @@ using Comercial.Data.Model.Dto;
 using Comercial.DataBase;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
-using DocumentFormat.OpenXml.VariantTypes;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using System;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows;
@@ -89,6 +86,8 @@ namespace Comercial.Views.Proposta
                         vm.ItemProposta = null;
 
                     }
+
+                    LimparCampos();
                 }
                 catch (RepositoryException ex)
                 {
@@ -112,12 +111,6 @@ namespace Comercial.Views.Proposta
                         await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, selectedTema.idtema);
                         await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, selectedTema.idtema);
 
-                        //this.dtConclusao.SelectedValue = selectedTema.data_conclusao;
-                        //this.dtConclusao.SelectedDate = selectedTema.data_conclusao;
-                        //this.dtConclusao.CurrentDateTimeText = selectedTema.data_conclusao.Value.Date.ToString("dd/MM/yyyy");
-                        //this.dtConclusao.DisplayDate = selectedTema.data_conclusao.Value.Date;
-                        //this.dtConclusao.DateTimeText = selectedTema.data_conclusao.Value.Date.ToString("dd/MM/yyyy");
-
                         this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
 
                         this.dtConclusao.SelectedDate = selectedTema.data_conclusao;
@@ -128,6 +121,8 @@ namespace Comercial.Views.Proposta
                             this.dtConclusao.IsEnabled = false;
                         else
                             this.dtConclusao.IsEnabled = true;
+
+                        LimparCampos();
 
                         if ((selectedTema?.data_conclusao != null) || selectedTema.ativo)
                         {
@@ -311,6 +306,10 @@ namespace Comercial.Views.Proposta
         {
             if (DataContext is PropostaQuadroQuantitativoViewModel vm)
             {
+                cbFamilia.SelectionChanged -= rasBoxSelectionChanged;
+                cbDescricao.SelectionChanged -= rasBoxSelectionChanged;
+                cbDimenssao.SelectionChanged -= rasBoxSelectionChanged;
+
                 txtItem.Text = null;
                 txtQuantidade.Text = null;
                 cbLocal.SelectedItem = null;
@@ -331,6 +330,10 @@ namespace Comercial.Views.Proposta
                 vm.DimenssaoComercial = null;
 
                 txtItem.Focus();
+
+                cbFamilia.SelectionChanged += rasBoxSelectionChanged;
+                cbDescricao.SelectionChanged += rasBoxSelectionChanged;
+                cbDimenssao.SelectionChanged += rasBoxSelectionChanged;
 
             }
 
@@ -562,6 +565,10 @@ namespace Comercial.Views.Proposta
                     if (selectedItem == null)
                         return;
 
+                    cbFamilia.SelectionChanged -= rasBoxSelectionChanged;
+                    cbDescricao.SelectionChanged -= rasBoxSelectionChanged;
+                    cbDimenssao.SelectionChanged -= rasBoxSelectionChanged;
+
                     // Campos síncronos
                     this.txtItem.Text = selectedItem.item;
                     this.txtQuantidade.Text = selectedItem.qtd.ToString();
@@ -592,6 +599,11 @@ namespace Comercial.Views.Proposta
                     this.cbLED.SelectedItem = selectedItem.ledml;
                     this.txtObservacao.Text = selectedItem.obs;
                     this.txtObservacaoInterna.Text = selectedItem.obsinterna;
+                    this.txtObservacaoObrigatoria.Text = selectedItem.obsobrigatoria;
+
+                    cbFamilia.SelectionChanged += rasBoxSelectionChanged;
+                    cbDescricao.SelectionChanged += rasBoxSelectionChanged;
+                    cbDimenssao.SelectionChanged += rasBoxSelectionChanged;
                 }
             }
             catch (OperationCanceledException) { /* Ignora */ }
