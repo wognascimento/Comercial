@@ -34,6 +34,7 @@
             <telerik:RadMenuItem Header="Quadro de Precos"  />
             <telerik:RadMenuItem Header="Quadro de Custos"  />
             <telerik:RadMenuItem Header="Enviar Tema para Fecha"  />
+            <telerik:RadMenuItem Header="Esqueleto Pré-Proposta"  />
         </telerik:RadMenu>
 
 
