@@ -1,10 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Comercial.DataBase;
 using Comercial.Repositores;
-using DocumentFormat.OpenXml.ExtendedProperties;
 using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 
 
 namespace Comercial.Services;
@@ -12,21 +9,15 @@ namespace Comercial.Services;
 public class ExcelQuadroPrecoService
 {
     private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-    private readonly XLWorkbook _workbook;
-    private readonly IXLWorksheet ws;
-    private QuadroRepository _repo;
+    private QuadroRepository? _repo;
 
-    public ExcelQuadroPrecoService()
+
+    public async Task GerarExcelCusto(string caminho, long codBrief)
     {
-
-        _workbook = new XLWorkbook();
-        ws = _workbook.Worksheets.Add("CUSTO");
         _repo = new QuadroRepository();
+        using var _workbook = new XLWorkbook();
+        var ws = _workbook.Worksheets.Add("CUSTO");
 
-    }
-
-    public async void GerarExcelCusto(string caminho, long codBrief)
-    {
         ws.Column("B").Width = 60;
         ws.Column("C").Width = 23;
 
@@ -503,12 +494,10 @@ public class ExcelQuadroPrecoService
         Borda(range, corFonte: XLColor.Red, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center);
 
         range = ws.Range("E55");
-        range.Merge();
         range.Value = $"Condição de Pagto.";
         Borda(range, corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("E56");
-        range.Merge();
         range.Value = $"8 X a partir de Maio";
         Borda(range, corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
@@ -538,36 +527,30 @@ public class ExcelQuadroPrecoService
         Borda(range, corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("J56");
-        range.Merge();
         range.Value = $"N.º de Parcelas";
         Borda(range, corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("E57");
-        range.Merge();
         range.Value = $"";
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("F57");
-        range.Merge();
         range.Value = $"";
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("G57");
-        range.Merge();
         range.Value = $"";
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("H57");
-        range.Merge();
         range.Value = $"";
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("J57");
-        range.Merge();
         range.Value = $"4 OU 6";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
@@ -828,13 +811,6 @@ public class ExcelQuadroPrecoService
         );
 
         _workbook.SaveAs(caminho);
-
-
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = caminho,
-            UseShellExecute = true
-        });
     }
 
     private static void GerarColunaFormula(

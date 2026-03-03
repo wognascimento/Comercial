@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
 using Npgsql;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using Telerik.Windows.Controls;
@@ -661,8 +662,6 @@ public partial class PropostaQuadroPreco : UserControl
 
     private async void RadMenuItem_Click_1(object sender, Telerik.Windows.RadRoutedEventArgs e)
     {
-        
-
         if (DataContext is PropostaQuadroPrecoViewModel vm)
         {
             try
@@ -671,7 +670,12 @@ public partial class PropostaQuadroPreco : UserControl
 
                 string caminho = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_PREÇO_{BaseSettings.Username}.xlsx";
 
-                _excelService.GerarExcelCusto(caminho, vm.SelectedBriefing.codbriefing);
+               await _excelService.GerarExcelCusto(caminho, vm.SelectedBriefing.codbriefing);
+               Process.Start(new ProcessStartInfo
+               {
+                   FileName = caminho,
+                   UseShellExecute = true
+               });
             }
             catch (OperationCanceledException) { /* Ignora */ }
             catch (RepositoryException ex)
