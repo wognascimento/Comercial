@@ -646,6 +646,12 @@ public partial class PropostaQuadroPreco : UserControl
                     async (idTema, tipo) =>
                         await _repo.GetItensTabelaAsync(vm.SelectedBriefing.codbriefing, idTema, tipo)
                 );
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = destino,
+                    UseShellExecute = true
+                });
             }
             catch (OperationCanceledException) { /* Ignora */ }
             catch (RepositoryException ex)

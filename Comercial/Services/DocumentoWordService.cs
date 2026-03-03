@@ -187,11 +187,7 @@ public class DocumentoWordService
 
         doc.MainDocumentPart.Document.Save();
 
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = destinoPath,
-            UseShellExecute = true
-        });
+        
     }
 
     private Table CriarTabelaLegenda()
