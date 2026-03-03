@@ -621,6 +621,7 @@ public partial class PropostaQuadroPreco : UserControl
     }
 
     private DocumentoWordService _docService;
+    private ExcelQuadroPrecoService _excelService;
     private QuadroRepository _repo;
 
     private async void RadMenuItem_Click(object sender, Telerik.Windows.RadRoutedEventArgs e)
@@ -657,6 +658,34 @@ public partial class PropostaQuadroPreco : UserControl
             
         }
     }
+
+    private async void RadMenuItem_Click_1(object sender, Telerik.Windows.RadRoutedEventArgs e)
+    {
+        
+
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                _excelService = new ExcelQuadroPrecoService();
+
+                string caminho = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_PREÇO_{BaseSettings.Username}.xlsx";
+
+                _excelService.GerarExcelCusto(caminho, vm.SelectedBriefing.codbriefing);
+            }
+            catch (OperationCanceledException) { /* Ignora */ }
+            catch (RepositoryException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+    }
+
 }
 
 public partial class PropostaQuadroPrecoViewModel : ObservableObject

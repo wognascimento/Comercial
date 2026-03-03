@@ -31,7 +31,7 @@
             
             <!--<telerik:RadMenuItem Header="Quadro Revisao Excel"  />-->
             <telerik:RadMenuItem Header="Enviar para Word" Click="RadMenuItem_Click"  />
-            <telerik:RadMenuItem Header="Quadro de Precos"  />
+            <telerik:RadMenuItem Header="Quadro de Preço" Click="RadMenuItem_Click_1"  />
             <telerik:RadMenuItem Header="Quadro de Custos"  />
             <telerik:RadMenuItem Header="Enviar Tema para Fecha"  />
             <telerik:RadMenuItem Header="Esqueleto Pré-Proposta"  />
