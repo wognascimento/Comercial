@@ -1,15 +1,83 @@
 ﻿using ClosedXML.Excel;
 using Comercial.DataBase;
 using Comercial.Repositores;
-using System.Diagnostics;
 
 
 namespace Comercial.Services;
 
 public class ExcelQuadroPrecoService
 {
-    private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
     private QuadroRepository? _repo;
+
+    private List<string> colunas =
+    [
+        "BLOCO",
+        "FAMILIA",
+        "ITEM",
+        "LOCAL",
+        "DESCRICAO",
+        "QTD",
+        "INICIO",
+        "PROPOSTAS",
+        "FECHA",
+        "SALDO",
+        "DIMENSAO",
+        "OBS",
+        "OBS INTERNA",
+        "CUSTO UNITARIO APURADO",
+        "CUSTO UNITARIO ESTIMADO",
+        "CUSTO MATERIAL UNITARIO",
+        "CUSTO MATERIAL TOTAL",
+        "PRECO EXCEL",
+        "PRECO TOTAL EXCEL 12%",
+        "DESCONTO AREA PROJECAO",
+        "MAJORACAO",
+        "VLR INDICE",
+        "M3 UNITARIO",
+        "CUBAGEM ESTIMADA",
+        "M3 TOTAL",
+        "N PESS HOMOLOGADA",
+        "CUSTO TOTAL MOMADES",
+        "N PESS ESTIMADO P M3",
+        "CUSTO MO MOMADES",
+        "CUSTO TOT MOM",
+        "PRO+MMD",
+        "PROJ ESTIMA +7,5%",
+        $"{DateTime.Now.Year-1} RATEADO",
+        $"{DateTime.Now.Year} ESTIMADO",
+        "PRO+MMD+OPE+PROJ",
+        "MARG 1,9",
+        "MARG 2,0",
+        "MARG 2,10",
+        "MARG 2,20",
+        "MARG 2,30",
+        "MARG 2,40",
+        "MARG 2,50",
+        "MARG 2,70",
+        "PREÇO EXCEL",
+        "PRECO NF",
+        "PRECO NF TOTAL",
+        "CUSTO HISTORICO TOTAL",
+        "PESO",
+        "VALOR UNITARIO",
+        "CUSTO TOT ITEM",
+        "DESCONTO",
+        "TOTAL",
+        "VLRUNIDSUGERIDO",
+        "CUSTO ITEM",
+        "LEDML",
+        "VLR LED",
+        "TOTAL DESC",
+        "ANOTACOES",
+        "CUSTO TOTAL",
+        "CUSTO HISTORICO",
+        "CUSTO/M3",
+        "PREÇO/M3",
+        "PROJECAO AREA",
+        "VALOR DESCONTO AREA PROJECAO",
+        "PREÇO AREA PROJECAO",
+    ];
+
 
 
     public async Task GerarExcelCusto(string caminho, long codBrief)
@@ -813,6 +881,179 @@ public class ExcelQuadroPrecoService
         _workbook.SaveAs(caminho);
     }
 
+
+    public async Task GerarExcelCustoDetalhado(string caminho, long codBrief)
+    {
+        _repo = new QuadroRepository();
+
+        using var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add("CUSTO");
+
+        int linha = 1;
+        int inicio = 0;
+        int lInicio = 0;
+        int lFim = 0;
+
+        var temas = await _repo.GetTemasDetalheAsync(codBrief);
+
+        foreach (var tema in temas)
+        {
+            var tipos = await _repo.GetTiposAsync(tema.codproposta, tema.idtema_ordem);
+
+            foreach (var tipo in tipos)
+            {
+                // 🔹 Cabeçalho igual VBA
+                var headerRange = ws.Range($"A{linha}:BM{linha}");
+                headerRange.Merge();
+                headerRange.Value = $"{tema.sigla} - {tema.tema_escolhido} - {tipo.Tipo.ToUpper()}";
+
+                headerRange.Style.Font.FontSize = 20;
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Font.FontColor = XLColor.Blue;
+                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+
+                linha++;
+
+                var dados = await _repo.GetQuadroAsync(
+                    tema.codproposta,
+                    tema.idtema_ordem,
+                    tipo.Tipo);
+
+                var blocos = dados.GroupBy(b => b.bloco).Select(b => b.Key).ToList();
+                bool escreveuCabecalho = false;
+
+                int primeiraLinhaTipo = 0;
+
+                // logo após escrever o cabeçalho do tipo
+                lInicio = linha; // primeira linha de dados do tipo
+
+                foreach (var bloco in blocos)
+                {
+
+                    var sTotal = dados.Where(b => b.bloco == bloco).Count();
+                    
+
+                    foreach (var row in dados.Where(b => b.bloco == bloco))
+                    {
+                        if (!escreveuCabecalho)
+                        {
+                            int col = 1;
+                            foreach (var coluna in colunas)
+                            {
+                                ws.Cell(linha, col).Value = coluna;
+                                ws.Cell(linha, col).Style.Font.Bold = true;
+                                col++;
+                            }
+                            escreveuCabecalho = true;
+                            linha++;
+                            //lInicio = inicio;
+                            //inicio = linha;
+                        }
+
+                        if (primeiraLinhaTipo == 0)
+                            primeiraLinhaTipo = linha;
+
+                        ws.Cell(linha, "A").Value = row.bloco;
+                        ws.Cell(linha, "B").Value = row.familia;
+                        ws.Cell(linha, "C").Value = row.item;
+                        ws.Cell(linha, "D").Value = row.localitem;
+                        ws.Cell(linha, "E").Value = row.descricao;
+                        ws.Cell(linha, "F").Value = row.qtd;
+                        ws.Cell(linha, "G").Value = row.inicio;
+                        ws.Cell(linha, "H").Value = row.propostas;
+                        ws.Cell(linha, "I").Value = row.fecha;
+                        ws.Cell(linha, "J").FormulaA1 = $"=G{linha}-I{linha}-H{linha}-F{linha}";
+                        ws.Cell(linha, "K").Value = row.dimensao;
+                        ws.Cell(linha, "L").Value = row.obs;
+                        ws.Cell(linha, "M").Value = row.obsinterna;
+                        ws.Cell(linha, "N").Value = row.custounitarioapurado;
+                        ws.Cell(linha, "O").Value = row.custounitarioestimado;
+                        ws.Cell(linha, "P").Value = row.custo_material_unitario;
+                        ws.Cell(linha, "Q").FormulaA1 = $"=P{linha}*F{linha}";
+                        ws.Cell(linha, "R").Value = row.preco_excel;
+                        ws.Cell(linha, "S").FormulaA1 = $"=R{linha}*F{linha}";
+                        ws.Cell(linha, "T").Value = row.desconto_area_projecao;
+                        ws.Cell(linha, "U").Value = row.majoracao;
+                        ws.Cell(linha, "V").Value = row.vlr_indice;
+                        ws.Cell(linha, "W").Value = row.m3_unitario;
+                        ws.Cell(linha, "X").Value = row.cubagem_estimada;
+                        ws.Cell(linha, "Y").FormulaA1 = $"=W{linha}*F{linha}";
+                        ws.Cell(linha, "Z").Value = row.n_pess_homologada;
+                        ws.Cell(linha, "AA").FormulaA1 = $"=Z{linha}*245";
+                        ws.Cell(linha, "AB").FormulaA1 = $"=Y{linha}*1.5";
+                        ws.Cell(linha, "AC").FormulaA1 = $"=AB{linha}*245";
+                        ws.Cell(linha, "AD").FormulaA1 = $"=IF(AA{linha}=0,AC{linha},AA{linha})";
+                        ws.Cell(linha, "AE").FormulaA1 = $"=AD{linha}+Q{linha}";
+                        ws.Cell(linha, "AF").FormulaA1 = $"=AE{linha}*0.078";
+                        ws.Cell(linha, "AG").FormulaA1 = $"=0*AE{linha}";
+                        ws.Cell(linha, "AH").FormulaA1 = $"=0*Q{linha}";
+                        ws.Cell(linha, "AI").FormulaA1 = $"=AE{linha}+AF{linha}+AH{linha}";
+                        ws.Cell(linha, "AJ").FormulaA1 = $"=AI{linha}*1.9";
+                        ws.Cell(linha, "AK").FormulaA1 = $"=AI{linha}*2";
+                        ws.Cell(linha, "AL").FormulaA1 = $"=AI{linha}*2.1";
+                        ws.Cell(linha, "AM").FormulaA1 = $"=AI{linha}*2.2";
+                        ws.Cell(linha, "AN").FormulaA1 = $"=AI{linha}*2.3";
+                        ws.Cell(linha, "AO").FormulaA1 = $"=AI{linha}*2.4";
+                        ws.Cell(linha, "AP").FormulaA1 = $"=AI{linha}*2.5";
+                        ws.Cell(linha, "AQ").FormulaA1 = $"=AI{linha}*2.7";
+                        ws.Cell(linha, "AR").Value = row.preco_excel;
+                        ws.Cell(linha, "AS").Value = row.preco_nf;
+                        ws.Cell(linha, "AT").Value = row.preco_nf_total;
+                        ws.Cell(linha, "AU").Value = row.custo_historico_total;
+                        ws.Cell(linha, "AV").Value = row.peso;
+                        ws.Cell(linha, "AW").Value = row.valor_unitario;
+                        ws.Cell(linha, "AX").Value = row.custo_tot_item;
+                        ws.Cell(linha, "AY").Value = row.desconto;
+                        ws.Cell(linha, "AZ").Value = row.total;
+                        ws.Cell(linha, "BA").Value = row.vlrunidsugerido;
+                        ws.Cell(linha, "BB").Value = row.custo_item;
+                        ws.Cell(linha, "BC").Value = row.ledml;
+                        ws.Cell(linha, "BD").Value = row.vlr_led;
+                        ws.Cell(linha, "BE").Value = row.total_desc;
+                        ws.Cell(linha, "BF").Value = row.anotacoes;
+                        ws.Cell(linha, "BG").Value = row.custo_total;
+                        ws.Cell(linha, "BH").Value = row.custo_historico;
+                        ws.Cell(linha, "BI").FormulaA1 = $"=Q{linha}/Y{linha}";
+                        ws.Cell(linha, "BJ").FormulaA1 = $"=S{linha}/Y{linha}";
+                        ws.Cell(linha, "BK").Value = row.projecao_area;
+                        ws.Cell(linha, "BL").Value = row.valor_desconto_area_projecao;
+                        ws.Cell(linha, "BM").FormulaA1 = $"=(BL{linha}*F{linha})*3";
+
+                        linha++;
+                    }
+
+                    // subtotal do bloco
+                    int linhaFinalBloco = linha - 1;
+                    int linhaInicialBloco = linhaFinalBloco - sTotal + 1;
+
+                    ws.Cell(linha, "A").Value = $"{bloco} Total";
+
+                    ws.Cell(linha, "F").FormulaA1 = $"SUBTOTAL(109, F{linhaInicialBloco}:F{linhaFinalBloco})";
+                    ws.Range($"A{linha}:BM{linha}").Style.Fill.BackgroundColor = XLColor.Yellow;
+                    ws.Range($"A{linha}:BM{linha}").Style.Font.Bold = true;
+
+                    linha++; // espaçamento
+                }
+
+                // 🔹 subtotal geral do tipo
+                int ultimaLinhaTipo = linha - 1;
+
+                ws.Cell(linha, "A").Value = $"Total Geral";
+
+                ws.Cell(linha, "F").FormulaA1 =$"SUBTOTAL(109, F{primeiraLinhaTipo}:F{ultimaLinhaTipo})";
+                ws.Range($"A{linha}:BM{linha}").Style.Fill.BackgroundColor = XLColor.Orange;
+                ws.Range($"A{linha}:BM{linha}").Style.Font.Bold = true;
+
+                linha++;
+
+            }
+            //linha += 2;
+        }
+
+        ws.Columns().AdjustToContents();
+        wb.SaveAs(caminho);
+    }
+
     private static void GerarColunaFormula(
         IXLWorksheet ws,
         int colunaInicial,
@@ -852,82 +1093,22 @@ public class ExcelQuadroPrecoService
         );
     }
 
-    /*
-    public static void Borda(
+    private void AplicarBorda(
         IXLRange range,
-        XLColor corFundo = null,
-        XLColor corFonte = null,
-        bool mesclado = false,
-        int fontSize = 9,
-        bool negrito = false,
-        XLAlignmentHorizontalValues alinhamento = XLAlignmentHorizontalValues.Left,
-        bool bloqueado = false,
-        bool quebraLinha = false,
-        string formatoNumero = null)
+        bool bold = false,
+        XLAlignmentHorizontalValues align = XLAlignmentHorizontalValues.Center,
+        XLColor background = null)
     {
-        if (range == null)
-            return;
-
-        AplicarEstilo(range, corFundo, corFonte, mesclado, fontSize,
-            negrito, alinhamento, bloqueado, quebraLinha, formatoNumero);
-    }
-
-    public static void Borda(
-        IXLCell cell,
-        XLColor corFundo = null,
-        XLColor corFonte = null,
-        int fontSize = 9,
-        bool negrito = false,
-        XLAlignmentHorizontalValues alinhamento = XLAlignmentHorizontalValues.Left,
-        bool bloqueado = false,
-        bool quebraLinha = false,
-        string formatoNumero = null)
-    {
-        if (cell == null)
-            return;
-
-        AplicarEstilo(cell.AsRange(), corFundo, corFonte, false, fontSize,
-            negrito, alinhamento, bloqueado, quebraLinha, formatoNumero);
-    }
-
-    private static void AplicarEstilo(
-        IXLRange range,
-        XLColor corFundo,
-        XLColor corFonte,
-        bool mesclado,
-        int fontSize,
-        bool negrito,
-        XLAlignmentHorizontalValues alinhamento,
-        bool bloqueado,
-        bool quebraLinha,
-        string formatoNumero)
-    {
-        if (mesclado)
-            range.Merge();
-
-        range.Style.Alignment.Horizontal = alinhamento;
+        range.Style.Alignment.Horizontal = align;
         range.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-        range.Style.Alignment.WrapText = quebraLinha;
-        range.Style.Protection.Locked = bloqueado;
-
-        range.Style.Font.FontName = "Verdana";
-        range.Style.Font.FontSize = fontSize;
-        range.Style.Font.Bold = negrito;
-
-        if (corFonte != null)
-            range.Style.Font.FontColor = corFonte;
+        range.Style.Font.Bold = bold;
 
         range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-        range.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-        if (corFundo != null)
-            range.Style.Fill.BackgroundColor = corFundo;
-
-        if (!string.IsNullOrWhiteSpace(formatoNumero))
-            range.Style.NumberFormat.Format = formatoNumero;
+        if (background != null)
+            range.Style.Fill.BackgroundColor = background;
     }
-    */
-    
+
     public static void Borda(
         IXLRange range,
         XLColor corFundo = null,
