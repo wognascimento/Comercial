@@ -1047,10 +1047,199 @@ public class ExcelQuadroPrecoService
                 linha++;
 
             }
+
             //linha += 2;
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"M3 {DateTime.Now.Year -1}";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange());
+            
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"M3 {DateTime.Now.Year}";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=Y{linha - 3}*1.05";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MOBRA (M3X1,58)";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 1}*1.58";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PRAÇA";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange());
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"VALOR MOBRA UNIT PRAÇA";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange());
+            ws.Cell(linha, "L").Value = 280;
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MOBRA VALOR (MOBRAXPUNIT PRAÇA)";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 1}*L{linha-3}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MOBRA MMD {DateTime.Now.Year}";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=AB{linha - 8}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"OPERA {DateTime.Now.Year -1}";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange());
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"OPERA {DateTime.Now.Year} (ESTIMATIVA {DateTime.Now.Year})";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange());
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"CUSTO PROJETOS";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=AF{linha - 11}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"CUSTO TOTAL (OPE {DateTime.Now.Year} + MOBRA + PROJ + CUSTO MAT)";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 1}+L{linha - 2}+L{linha - 5}+Q{linha - 12}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"CUSTO P/ M3";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 1}/L{linha - 9}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PREÇO IDEAL (2.2)";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 2}*2.2";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PREÇO EXCEL ZEFI";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=S{linha - 15}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PREÇO P M3";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 1}/L{linha - 12}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PREÇO EXCEL DESC 10%";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha - 2}*0.9";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PREÇO P M3 {DateTime.Now.Year}";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 2150;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true);
+            ws.Cell(linha, "L").FormulaA1 = $"=L{linha-1}/L{linha - 15}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"PREÇO  ATUAL  POR MÉDIA  M3";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3000;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(112, 48, 160));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 16}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 1";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3100;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(255, 0, 0));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 17}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 2";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3200;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(255, 192, 0));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 18}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 3";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3300;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(218, 238, 243));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 19}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 4";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3400;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(255, 255, 0));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 20}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 5";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3500;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(146, 208, 80));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 21}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 6";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3600;
+            Borda(ws.Cell(linha, "L").AsRange(), bloqueado: true, corFundo: XLColor.FromArgb(0, 176, 80));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha - 22}";
+            linha++;
+
+            ws.Cell(linha, "J").Value = $"MÉDIA PREÇO M3 NIVEL 7";
+            Borda(ws.Cell(linha, "J").AsRange());
+            Borda(ws.Cell(linha, "K").AsRange());
+            ws.Cell(linha, "K").Value = 3700;
+            Borda(ws.Cell(linha, "L").AsRange(),bloqueado: true, corFundo: XLColor.FromArgb(0, 176, 240));
+            ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha-23}";
+            linha++;
+
+            linha += 2;
+
+
         }
 
-        ws.Columns().AdjustToContents();
+        //ws.Range("F:BM").Style.NumberFormat.Format = "#,##0.00;(#,##0.00);-";
+        ws.Range($"F1:BM{linha}").Style.NumberFormat.Format = "#,##0.00;-#,##0.00;0.00";
+        //ws.Columns().AdjustToContents();
         wb.SaveAs(caminho);
     }
 
