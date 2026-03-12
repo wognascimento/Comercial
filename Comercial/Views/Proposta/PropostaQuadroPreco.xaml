@@ -202,12 +202,18 @@
                             ItemsSource="{Binding ComercialPropostaFamilias}"
                             SelectionChanged="rasBoxSelectionChanged"/>
 
-                        <TextBlock Text="Descrição:" Grid.Column="4" Grid.Row="3" Margin="2,0,2,2"/>
+                        <telerik:RadButton 
+                            Content="..." 
+                            Grid.Column="4" 
+                            Grid.Row="3" 
+                            Margin="2" Click="RadButton_Click"/>
+
+                        <TextBlock Text="Descrição:" Grid.Column="5" Grid.Row="3" Margin="2,0,2,2"/>
                         <telerik:RadComboBox
                             x:Name="cbDescricao" 
                             ItemsSource="{Binding DescricoesComercial}"
                             DisplayMemberPath="descricaocomercial"
-                            Grid.Column="5" Grid.Row="3"  Grid.ColumnSpan="3" 
+                            Grid.Column="6" Grid.Row="3"  Grid.ColumnSpan="3" 
                             Margin="0,0,0,2"
                             IsEditable="True"
                             TextSearchMode="Contains"

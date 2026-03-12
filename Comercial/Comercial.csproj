@@ -88,7 +88,6 @@
   <ItemGroup>
     <Folder Include="Impressos\" />
     <Folder Include="Resources\" />
-    <Folder Include="Utils\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,6 +2,7 @@
 using Comercial.Data.Model;
 using Comercial.Data.Model.Dto;
 using Comercial.DataBase;
+using Comercial.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
@@ -729,6 +730,89 @@ namespace Comercial.Views.Proposta
             }
         }
 
+        private void RadButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                _ctsCarregarDados?.Cancel();
+                _ctsCarregarDados = new CancellationTokenSource();
+                var token = _ctsCarregarDados.Token;
+
+                if (DataContext is PropostaQuadroQuantitativoViewModel vm)
+                {
+                    PropostaDescricaoDimensaoDto? resultado = null;
+                    var meuUserControl = new BuscaDescricaoComercial();
+                    RadWindow radWindow = new()
+                    {
+                        Content = meuUserControl,
+                        Header = $"Buscar Descrição",
+                        Width = 1000,
+                        Height = 600,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                        Owner = Application.Current.MainWindow,
+                        RestrictedAreaMargin = new Thickness(0),
+                        IsRestricted = false,
+                        ResizeMode = ResizeMode.NoResize,
+                        CanClose = true,
+                        HideMinimizeButton = true,
+                        HideMaximizeButton = true
+                    };
+
+                    // captura seleção
+                    meuUserControl.ItemSelecionado += async item =>
+                    {
+                        resultado = item;
+
+                        Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                        cbFamilia.SelectionChanged -= rasBoxSelectionChanged;
+                        cbDescricao.SelectionChanged -= rasBoxSelectionChanged;
+                        cbDimenssao.SelectionChanged -= rasBoxSelectionChanged;
+
+                        this.cbFamilia.SelectedItem = vm.ComercialPropostaFamilias.FirstOrDefault(f => f.familia == resultado.familia);
+
+                        // Carrega descrições
+                        await vm.CarregarDescricaoAsync(
+                            vm.ComercialPropostaFamilias.FirstOrDefault(f => f.familia == resultado.familia),
+                            token
+                        );
+                        if (token.IsCancellationRequested) return;
+
+                        // Define descrição (use SelectedItem se possível)
+                        this.cbDescricao.SelectedItem = vm.DescricoesComercial.FirstOrDefault(d => d.descricaocomercial == resultado.descricaocomercial);
+
+                        // Carrega dimensões
+                        await vm.CarregarDimensoesAsync(resultado.coddesccoml, token);
+                        if (token.IsCancellationRequested) return;
+
+                        // Define dimensão (use SelectedItem)
+                        this.cbDimenssao.SelectedItem = vm.DimensoesComercial.FirstOrDefault(d => d.dimensao == resultado.dimensao);
+
+                        // Resto dos campos
+                        this.txtObservacaoObrigatoria.Text = resultado.obsobrigatoria;
+
+                        cbFamilia.SelectionChanged += rasBoxSelectionChanged;
+                        cbDescricao.SelectionChanged += rasBoxSelectionChanged;
+                        cbDimenssao.SelectionChanged += rasBoxSelectionChanged;
+
+                        Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                    };
+
+                    // Abre como modal
+                    radWindow.ShowDialog();
+                }
+            }
+            catch (RepositoryException ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     public partial class PropostaQuadroQuantitativoViewModel : ObservableObject
