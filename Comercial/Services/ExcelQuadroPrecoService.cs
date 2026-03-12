@@ -1232,6 +1232,46 @@ public class ExcelQuadroPrecoService
             ws.Cell(linha, "L").FormulaA1 = $"=K{linha}*L{linha-23}";
             linha++;
 
+            ws.Cell(linha-25, "N").Value = $"MÉDIA";
+            Borda(ws.Cell(linha-25, "N").AsRange());
+
+            ws.Cell(linha-24, "N").FormulaA1 = $"=SUM(L{linha-13}, L{linha-5}, S{linha-27}, AM{linha-27}, AZ{linha-27})";
+            Borda(ws.Cell(linha-24, "N").AsRange(), bloqueado: true);
+
+            ws.Cell(linha-23, "N").FormulaA1 = $"=N{linha-24}/5";
+            Borda(ws.Cell(linha-23, "N").AsRange(), bloqueado: true);
+
+            ws.Cell(linha-21, "N").FormulaA1 = $"=N{linha-23}/S{linha-27}";
+            Borda(ws.Cell(linha-21, "N").AsRange(), bloqueado: true);
+
+            ws.Cell(linha - 21, "O").Value = $"COMPARAÇÃO PREÇO X MÉDIA";
+            //Borda(ws.Cell(linha - 21, "O").AsRange());
+
+            ws.Cell(linha - 17, "N").Value = $"% DESCONTO {DateTime.Now.Year-1}";
+            Borda(ws.Cell(linha - 17, "N").AsRange());
+
+            ws.Cell(linha - 17, "O").Value = $"DESCONTO {DateTime.Now.Year-1}";
+            Borda(ws.Cell(linha - 17, "O").AsRange());
+
+            ws.Cell(linha - 17, "P").Value = $"LÍQUIDO {DateTime.Now.Year-1}";
+            Borda(ws.Cell(linha - 17, "P").AsRange());
+
+            //ws.Cell(linha - 16, "N").Value = $"";
+            Borda(ws.Cell(linha - 16, "N").AsRange());
+
+            //ws.Cell(linha - 16, "O").Value = $"";
+            Borda(ws.Cell(linha - 16, "O").AsRange());
+
+            //ws.Cell(linha - 16, "P").Value = $"";
+            Borda(ws.Cell(linha - 16, "P").AsRange());
+
+            ws.Cell(linha - 14, "Y").FormulaA1 = $"Y{linha-27}*1.05";
+            ws.Cell(linha - 14, "Z").Value = $"PROD";
+
+            ws.Cell(linha - 13, "Y").FormulaA1 = $"Y{linha-27}*1.5";
+            ws.Cell(linha - 13, "Z").Value = $"MOMADES";
+
+
             linha += 2;
 
 
