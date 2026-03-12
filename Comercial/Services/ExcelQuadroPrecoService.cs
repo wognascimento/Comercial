@@ -1265,11 +1265,77 @@ public class ExcelQuadroPrecoService
             //ws.Cell(linha - 16, "P").Value = $"";
             Borda(ws.Cell(linha - 16, "P").AsRange());
 
-            ws.Cell(linha - 14, "Y").FormulaA1 = $"Y{linha-27}*1.05";
+            ws.Cell(linha - 15, "AA").Value = $"{DateTime.Now.Year - 1}";
+            ws.Cell(linha - 15, "AB").Value = $"{DateTime.Now.Year}";
+
+            ws.Cell(linha - 14, "Y").FormulaA1 = $"=Y{linha-27}*1.05";
             ws.Cell(linha - 14, "Z").Value = $"PROD";
+
+            ws.Cell(linha - 14, "AC").FormulaA1 = $"=AB{linha - 14}*Y{linha - 14}";
 
             ws.Cell(linha - 13, "Y").FormulaA1 = $"Y{linha-27}*1.5";
             ws.Cell(linha - 13, "Z").Value = $"MOMADES";
+
+            ws.Cell(linha - 13, "AC").FormulaA1 = $"=AB{linha - 13}*Y{linha - 13}";
+
+            ws.Cell(linha - 12, "AC").FormulaA1 = $"=SUM(AC{linha - 13},AC{linha - 14})"; //=SOMA(AC34:AC35)
+            ws.Cell(linha - 12, "AD").FormulaA1 = $"=Y{linha-14}/AC{linha-12}";
+
+            ws.Cell(linha - 11, "AA").Value = $"{DateTime.Now.Year - 1}";
+            ws.Cell(linha - 11, "AB").Value = $"{DateTime.Now.Year}";
+            ws.Cell(linha - 11, "AC").Value = $"FAT LIQ";
+            ws.Cell(linha - 11, "AD").Value = $"IMP";
+            ws.Cell(linha - 11, "AE").Value = $"LBRUTO";
+            ws.Cell(linha - 11, "AF").Value = $"MARG B";
+            ws.Cell(linha - 11, "AG").Value = $"FAT PREVISTO";
+            ws.Cell(linha - 11, "AH").Value = $"CFIXO + DIV";
+            ws.Cell(linha - 11, "AI").Value = $"M3 PREVISTO";
+
+            ws.Cell(linha-10, "Y").FormulaA1 = $"Y{linha-14}";
+            ws.Cell(linha-10, "AC").FormulaA1 = $"Y{linha-10}*AB{linha-10}";
+            ws.Cell(linha-10, "AD").FormulaA1 = $"AC{linha-10}*0.11";
+            ws.Cell(linha-10, "AE").FormulaA1 = $"AC{linha-10}*0.9-AC{linha-12}";
+            ws.Cell(linha-10, "AF").FormulaA1 = $"AE{linha - 10}/AC{linha-10}";
+            ws.Cell(linha-10, "AG").FormulaA1 = $"14000000/AF{linha-10}";
+            ws.Cell(linha-10, "AI").FormulaA1 = $"AG{linha-10}/AB{linha-10}";
+            ws.Range($"Y{linha-10}:AI{linha-10}").Style.Fill.SetBackgroundColor(XLColor.FromArgb(255, 0, 0));
+
+            ws.Cell(linha-9, "Y").FormulaA1 = $"Y{linha-14}";
+            ws.Cell(linha-9, "AC").FormulaA1 = $"Y{linha-9}*AB{linha-9}";
+            ws.Cell(linha-9, "AD").FormulaA1 = $"AC{linha-9}*0.11";
+            ws.Cell(linha-9, "AE").FormulaA1 = $"AC{linha-9}*0.9-AC{linha-12}";
+            ws.Cell(linha-9, "AF").FormulaA1 = $"AE{linha - 9}/AC{linha-9}";
+            ws.Cell(linha-9, "AG").FormulaA1 = $"14000000/AF{linha-9}";
+            ws.Cell(linha-9, "AI").FormulaA1 = $"AG{linha-9}/AB{linha-9}";
+            ws.Range($"Y{linha-9}:AI{linha-9}").Style.Fill.SetBackgroundColor(XLColor.FromArgb(250, 191, 143));
+
+            ws.Cell(linha-8, "Y").FormulaA1 = $"Y{linha-14}";
+            ws.Cell(linha-8, "AC").FormulaA1 = $"Y{linha-8}*AB{linha-8}";
+            ws.Cell(linha-8, "AD").FormulaA1 = $"AC{linha-8}*0.11";
+            ws.Cell(linha-8, "AE").FormulaA1 = $"AC{linha-8}*0.8-AC{linha-12}";
+            ws.Cell(linha-8, "AF").FormulaA1 = $"AE{linha - 8}/AC{linha-8}";
+            ws.Cell(linha-8, "AG").FormulaA1 = $"14000000/AF{linha-8}";
+            ws.Cell(linha-8, "AI").FormulaA1 = $"AG{linha-8}/AB{linha-8}";
+            ws.Range($"Y{linha-8}:AI{linha-8}").Style.Fill.SetBackgroundColor(XLColor.FromArgb(255, 255, 204));
+
+            ws.Cell(linha-7, "Y").FormulaA1 = $"Y{linha-14}";
+            ws.Cell(linha-7, "AC").FormulaA1 = $"Y{linha-7}*AB{linha-7}";
+            ws.Cell(linha-7, "AD").FormulaA1 = $"AC{linha-7}*0.11";
+            ws.Cell(linha-7, "AE").FormulaA1 = $"AC{linha-7}*0.8-AC{linha-12}";
+            ws.Cell(linha-7, "AF").FormulaA1 = $"AE{linha - 7}/AC{linha-7}";
+            ws.Cell(linha-7, "AG").FormulaA1 = $"14000000/AF{linha-7}";
+            ws.Cell(linha-7, "AI").FormulaA1 = $"AG{linha-7}/AB{linha-7}";
+            ws.Range($"Y{linha-7}:AI{linha-7}").Style.Fill.SetBackgroundColor(XLColor.FromArgb(196, 215, 155));
+
+            ws.Cell(linha-6, "Y").FormulaA1 = $"Y{linha-14}";
+            ws.Cell(linha-6, "AC").FormulaA1 = $"Y{linha-6}*AB{linha-6}";
+            ws.Cell(linha-6, "AD").FormulaA1 = $"AC{linha-6}*0.11";
+            ws.Cell(linha-6, "AE").FormulaA1 = $"AC{linha-6}*0.8-AC{linha-12}";
+            ws.Cell(linha-6, "AF").FormulaA1 = $"AE{linha - 6}/AC{linha-6}";
+            ws.Cell(linha-6, "AG").FormulaA1 = $"14000000/AF{linha-6}";
+            ws.Cell(linha-6, "AI").FormulaA1 = $"AG{linha-6}/AB{linha-6}";
+            ws.Range($"Y{linha-6}:AI{linha-6}").Style.Fill.SetBackgroundColor(XLColor.FromArgb(146, 205, 220));
+
 
 
             linha += 2;
