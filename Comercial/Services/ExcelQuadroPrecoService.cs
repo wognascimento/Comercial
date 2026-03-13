@@ -896,6 +896,9 @@ public class ExcelQuadroPrecoService
 
         var temas = await _repo.GetTemasDetalheAsync(codBrief);
 
+        int colInicio = XLHelper.GetColumnNumberFromLetter("N");
+        int colFim = XLHelper.GetColumnNumberFromLetter("BM");
+
         foreach (var tema in temas)
         {
             var tipos = await _repo.GetTiposAsync(tema.codproposta, tema.idtema_ordem);
@@ -1028,7 +1031,12 @@ public class ExcelQuadroPrecoService
 
                     ws.Cell(linha, "A").Value = $"{bloco} Total";
 
-                    ws.Cell(linha, "F").FormulaA1 = $"SUBTOTAL(109, F{linhaInicialBloco}:F{linhaFinalBloco})";
+                    // N AO BM
+                    //ws.Cell(linha, "F").FormulaA1 = $"SUBTOTAL(109, F{linhaInicialBloco}:F{linhaFinalBloco})";
+                    
+                    for (int col = colInicio; col <= colFim; col++)
+                        ws.Cell(linha, col).FormulaA1 = $"SUBTOTAL(109, {ws.Cell(linhaInicialBloco, col).Address}:{ws.Cell(linhaFinalBloco, col).Address})";
+
                     ws.Range($"A{linha}:BM{linha}").Style.Fill.BackgroundColor = XLColor.Yellow;
                     ws.Range($"A{linha}:BM{linha}").Style.Font.Bold = true;
 
@@ -1040,7 +1048,13 @@ public class ExcelQuadroPrecoService
 
                 ws.Cell(linha, "A").Value = $"Total Geral";
 
-                ws.Cell(linha, "F").FormulaA1 =$"SUBTOTAL(109, F{primeiraLinhaTipo}:F{ultimaLinhaTipo})";
+                //ws.Cell(linha, "F").FormulaA1 =$"SUBTOTAL(109, F{primeiraLinhaTipo}:F{ultimaLinhaTipo})";
+                colInicio = XLHelper.GetColumnNumberFromLetter("N");
+                colFim = XLHelper.GetColumnNumberFromLetter("BM");
+
+                for (int col = colInicio; col <= colFim; col++)
+                    ws.Cell(linha, col).FormulaA1 = $"SUBTOTAL(109, {ws.Cell(primeiraLinhaTipo, col).Address}:{ws.Cell(ultimaLinhaTipo, col).Address})";
+
                 ws.Range($"A{linha}:BM{linha}").Style.Fill.BackgroundColor = XLColor.Orange;
                 ws.Range($"A{linha}:BM{linha}").Style.Font.Bold = true;
 
@@ -1335,6 +1349,63 @@ public class ExcelQuadroPrecoService
             ws.Cell(linha-6, "AG").FormulaA1 = $"14000000/AF{linha-6}";
             ws.Cell(linha-6, "AI").FormulaA1 = $"AG{linha-6}/AB{linha-6}";
             ws.Range($"Y{linha-6}:AI{linha-6}").Style.Fill.SetBackgroundColor(XLColor.FromArgb(146, 205, 220));
+
+
+            ws.Cell(linha-25, "AI").Value = $"IMPOSTOS 11,5";
+            ws.Cell(linha-25, "AJ").FormulaA1 = $"AJ{linha-27}*0.115";
+            ws.Cell(linha-25, "AK").FormulaA1 = $"AK{linha-27}*0.115";
+            ws.Cell(linha-25, "AL").FormulaA1 = $"AL{linha-27}*0.115";
+            ws.Cell(linha-25, "AM").FormulaA1 = $"AM{linha-27}*0.115";
+            ws.Cell(linha-25, "AN").FormulaA1 = $"AN{linha-27}*0.115";
+            ws.Cell(linha-25, "AO").FormulaA1 = $"AO{linha-27}*0.115";
+            ws.Cell(linha-25, "AP").FormulaA1 = $"AP{linha-27}*0.115";
+            ws.Cell(linha-25, "AQ").FormulaA1 = $"AQ{linha-27}*0.115";
+
+            ws.Cell(linha-24, "AI").Value = $"RECEITA LÍQUIDA";
+            ws.Cell(linha-24, "AJ").FormulaA1 = $"AJ{linha-27}-AJ{linha-25}";
+            ws.Cell(linha-24, "AK").FormulaA1 = $"AK{linha-27}-AK{linha-25}";
+            ws.Cell(linha-24, "AL").FormulaA1 = $"AL{linha-27}-AL{linha-25}";
+            ws.Cell(linha-24, "AM").FormulaA1 = $"AM{linha-27}-AM{linha-25}";
+            ws.Cell(linha-24, "AN").FormulaA1 = $"AN{linha-27}-AN{linha-25}";
+            ws.Cell(linha-24, "AO").FormulaA1 = $"AO{linha-27}-AO{linha-25}";
+            ws.Cell(linha-24, "AP").FormulaA1 = $"AP{linha-27}-AP{linha-25}";
+            ws.Cell(linha-24, "AQ").FormulaA1 = $"AQ{linha-27}-AQ{linha-25}";
+
+            ws.Cell(linha-23, "AI").Value = $"CUSTO";
+            ws.Cell(linha-23, "AJ").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AK").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AL").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AM").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AN").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AO").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AP").FormulaA1 = $"AI{linha-27}";
+            ws.Cell(linha-23, "AQ").FormulaA1 = $"AI{linha-27}";
+
+            ws.Cell(linha-22, "AI").Value = $"LUCRO BRUTO";
+            ws.Cell(linha-22, "AJ").FormulaA1 = $"AJ{linha-24}-AJ{linha-23}";
+            ws.Cell(linha-22, "AK").FormulaA1 = $"AK{linha-24}-AK{linha-23}";
+            ws.Cell(linha-22, "AL").FormulaA1 = $"AL{linha-24}-AL{linha-23}";
+            ws.Cell(linha-22, "AM").FormulaA1 = $"AM{linha-24}-AM{linha-23}";
+            ws.Cell(linha-22, "AN").FormulaA1 = $"AN{linha-24}-AN{linha-23}";
+            ws.Cell(linha-22, "AO").FormulaA1 = $"AO{linha-24}-AO{linha-23}";
+            ws.Cell(linha-22, "AP").FormulaA1 = $"AP{linha-24}-AP{linha-23}";
+            ws.Cell(linha-22, "AQ").FormulaA1 = $"AQ{linha-24}-AQ{linha-23}";
+
+            ws.Cell(linha-21, "AI").Value = $"MARGEM BRUTA";
+            ws.Cell(linha-21, "AJ").FormulaA1 = $"AJ{linha-22}/AJ{linha-23}";
+            ws.Cell(linha-21, "AK").FormulaA1 = $"AK{linha-22}/AK{linha-23}";
+            ws.Cell(linha-21, "AL").FormulaA1 = $"AL{linha-22}/AL{linha-23}";
+            ws.Cell(linha-21, "AM").FormulaA1 = $"AM{linha-22}/AM{linha-23}";
+            ws.Cell(linha-21, "AN").FormulaA1 = $"AN{linha-22}/AN{linha-23}";
+            ws.Cell(linha-21, "AO").FormulaA1 = $"AO{linha-22}/AO{linha-23}";
+            ws.Cell(linha-21, "AP").FormulaA1 = $"AP{linha-22}/AP{linha-23}";
+            ws.Cell(linha-21, "AQ").FormulaA1 = $"AQ{linha-22}/AQ{linha-23}";
+
+
+
+            //Borda(ws.Cell(linha, "J").AsRange());
+            //Borda(ws.Cell(linha, "K").AsRange());
+            //Borda(ws.Cell(linha, "L").AsRange());
 
 
 
