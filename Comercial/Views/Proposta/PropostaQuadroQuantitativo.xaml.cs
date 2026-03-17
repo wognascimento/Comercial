@@ -1172,7 +1172,7 @@ namespace Comercial.Views.Proposta
 
                 var sqlUpdateQuadro = @"UPDATE comercial.proposta_quadro_quantitativo
 	                                        SET ilustracao='SIM'
-	                                        WHERE codquadro_quantitativo=codquadro_quantitativo;";
+	                                        WHERE codquadro_quantitativo=@codquadro_quantitativo;";
                 await conn.ExecuteScalarAsync(sqlUpdateQuadro, model);
             }
             else
