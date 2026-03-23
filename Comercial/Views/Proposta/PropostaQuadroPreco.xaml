@@ -33,8 +33,8 @@
             <telerik:RadMenuItem Header="Enviar para Word" Click="RadMenuItem_Click"  />
             <telerik:RadMenuItem Header="Quadro de Preço" Click="RadMenuItem_Click_1"  />
             <telerik:RadMenuItem Header="Quadro de Custos" Click="RadMenuItem_Click_2" />
+            <telerik:RadMenuItem Header="Esqueleto Pré-Proposta" Click="RadMenuItem_Click_3"  />
             <telerik:RadMenuItem Header="Enviar Tema para Fecha"  />
-            <telerik:RadMenuItem Header="Esqueleto Pré-Proposta"  />
         </telerik:RadMenu>
 
 

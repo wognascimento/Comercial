@@ -7,9 +7,12 @@ using Comercial.Services;
 using Comercial.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Syncfusion.Presentation;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -809,6 +812,106 @@ public partial class PropostaQuadroPreco : UserControl
         {
             Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void RadMenuItem_Click_3(object sender, Telerik.Windows.RadRoutedEventArgs e)
+    {
+        try
+        {
+
+            if (DataContext is PropostaQuadroPrecoViewModel vm)
+            {
+
+
+                //using Context context = new();
+                using var context = new NpgsqlConnection(BaseSettings.ConnectionString);
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                //var temas = await context.PropostaViewQuadroPrecos.AsNoTracking().Where(x => x.codbrief == vm.SelectedBriefing.codbriefing).GroupBy(x => x.tema).Select(x => x.Key).ToListAsync();
+
+                //string caminho = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_CUSTO_{BaseSettings.Username}.xlsx";
+
+                // Abre a apresentação
+                IPresentation presentation = Presentation.Open($@"{BaseSettings.CaminhoSistema}Modelos\BASE.pptx");
+
+                // Obtém todos os masters da apresentação
+                //ISlideMaster slideMaster = presentation.Masters[0]; // Use o índice apropriado
+                IMasterSlide slideMaster = presentation.Masters[0]; // Use o índice apropriado
+
+                // ESTA PARTE PRECISA SER DENTRO DO LOOP TEMAS
+                foreach (var tema in vm.PropostaBriefingTemas)
+                {
+                    // Obtém o layout desejado do master
+                    ILayoutSlide layoutSlide = slideMaster.LayoutSlides[0]; // Use o índice apropriado para o layout desejado
+
+                    // Adiciona um novo slide usando o layout específico
+                    presentation.Slides.Add(slideMaster.LayoutSlides[6]);
+                    ISlide slide = presentation.Slides.Add(slideMaster.LayoutSlides[1]);
+
+                    // Método 1: Encontrar por nome ou índice específico (se você conhece a posição)
+                    IShape textBoxShape = (IShape)slide.Shapes[0];
+                    // Limpa o texto existente
+                    textBoxShape.TextBody.Paragraphs.Clear();
+                    // Adiciona o novo texto
+                    IParagraph paragraph = textBoxShape.TextBody.AddParagraph();
+                    paragraph.AddTextPart(tema.temas);
+
+                    //var locais = await context.PropostaViewQuadroPrecos.AsNoTracking().Where(x => x.codbrief == vm.SelectedBriefing.codbriefing && x.tema == tema).GroupBy(x => x.localitem).Select(x => x.Key).ToListAsync();
+                    await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, tema.idtema);
+                    // ESTA PARTE PRECISA SER DENTRO DO LOOP ITENS
+                    foreach (var item in vm.ItensProposta)
+                    {
+                        // Obtém o layout desejado do master
+                        ILayoutSlide lSItem = slideMaster.LayoutSlides[0]; // Use o índice apropriado para o layout desejado
+
+                        // Adiciona um novo slide usando o layout específico
+                        //presentation.Slides.Add(slideMaster.LayoutSlides[2]);
+                        ISlide sItem = presentation.Slides.Add(slideMaster.LayoutSlides[2]);
+
+                        // Método 1: Encontrar por nome ou índice específico (se você conhece a posição)
+                        IShape tBSItem = (IShape)sItem.Shapes[0];
+                        // Limpa o texto existente
+                        tBSItem.TextBody.Paragraphs.Clear();
+                        // Adiciona o novo texto
+                        IParagraph pItem = tBSItem.TextBody.AddParagraph();
+                        pItem.AddTextPart($@"{item.localitem} - {item.descricaocomercial}");
+
+                        //FileStream pictureStream = new("imagem_1.png", FileMode.Open);
+
+                        //IPicture? imagem = sItem.Pictures.AddPicture(pictureStream, 85.322992125984257, 87.023779527559057, 1269.356220472441, 714.04834645669291);
+                        //pictureStream.Close();
+                        //imagem = null;
+                    }
+
+                }
+                // Adiciona um novo slide usando o layout específico
+                presentation.Slides.Add(slideMaster.LayoutSlides[5]);
+                //presentation.Slides.Add(slideMaster.LayoutSlides[6]);
+
+
+                // Salva e fecha
+                presentation.Save($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+                presentation.Close();
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+
+                MessageBox.Show("APRENTAÇÃO PPT GERADA COM SUCESSO!!!");
+
+                Process.Start("explorer", $@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+            }
+
+        }
+        catch (DbUpdateException ex)
+        {
+            Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        catch (Exception ex)  // Para qualquer outro erro
+        {
+            Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
