@@ -12,7 +12,6 @@ using Npgsql;
 using Syncfusion.Presentation;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -136,6 +135,7 @@ public partial class PropostaQuadroPreco : UserControl
                         btnIncluir.IsEnabled = false;
                         btnLimpar.IsEnabled = false;
                         btnExcluir.IsEnabled = false;
+                        itensProposta.IsReadOnly = true;
                     }
                     else
                     {
@@ -143,6 +143,7 @@ public partial class PropostaQuadroPreco : UserControl
                         btnIncluir.IsEnabled = true;
                         btnLimpar.IsEnabled = true;
                         btnExcluir.IsEnabled = true;
+                        itensProposta.IsReadOnly = false;
                     }
                 }
             }
