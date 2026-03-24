@@ -902,9 +902,14 @@ namespace Comercial.Views.Proposta
 	                 verbamaxint, verbaintdefinidapor, verbaminext, 
 	                 verbamaxext, verbaextdefinidapor, verbaunicadefinidapor, verba_nao_definida, 
 	                 moeda, verbaunica, cancelado, diretorcliente, 
-	                 responsavelprojeto, tema, valorfechainterno, indiceproposta, 
-	                 novo, tot_cenografia, vlr_inicial, praca, tipo_evento
+	                 responsavelprojeto, tot_cenografia, vlr_inicial, praca, tipo_evento
               FROM comercial.proposta_briefing_quadro
+              GROUP BY sigla, nome, codbriefing, verbaminint, 
+                       verbamaxint, verbaintdefinidapor, verbaminext, 
+                       verbamaxext, verbaextdefinidapor, verbaunicadefinidapor, verba_nao_definida, 
+                       moeda, verbaunica, cancelado, diretorcliente, 
+                       responsavelprojeto, 
+                       tot_cenografia, vlr_inicial, praca, tipo_evento
               ORDER BY sigla, codbriefing;");
             PropostaBriefings = new ObservableCollection<PropostaBriefingQuadroDto>(itens);
         }

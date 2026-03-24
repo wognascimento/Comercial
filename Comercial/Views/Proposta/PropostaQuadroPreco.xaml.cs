@@ -331,7 +331,7 @@ public partial class PropostaQuadroPreco : UserControl
                 if (confirmResult != MessageBoxResult.Yes)
                     return;
 
-                await vm.ExcluirItemPropostaAsync(vm.ItemProposta.codquadro_quantitativo);
+                await vm.ExcluirItemPropostaAsync(vm.ItemProposta.codquadro_preco);
                 await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
                 await vm.CarregarResumoCustoPropostaAsync(vm.SelectedBriefing.codbriefing);
                 await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
@@ -1030,16 +1030,17 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         var iluminacaoTask = await conn.QueryAsync<PropostaIlustracaoModel>(sqlIlustracoes, parametros);
         var quadroList = (quadroTask).ToList();
         var iluminacaoList = (iluminacaoTask).ToList();
-        ObservableCollection<PropostaIlustracaoModel> MapearIlustracoes(long codQuadroQuantitativo)
+        ObservableCollection<PropostaIlustracaoModel> MapearIlustracoes(long codQuadroPreco)
         {
             var cargasParaSigla = iluminacaoList
-                .Where(c => c.codquadro_quantitativo == codQuadroQuantitativo)
+                .Where(c => c.codpreco == codQuadroPreco)
                 .OrderBy(c => c.codilustracao)
                 .ToList();
             return new ObservableCollection<PropostaIlustracaoModel>(cargasParaSigla);
         }
         var resultado = new ObservableCollection<QuadroPrecoDto>(
             [.. quadroList.Select(q => new QuadroPrecoDto {
+                    codquadro_preco = q.codquadro_preco,
                      codquadro_quantitativo = q.codquadro_quantitativo,
                      ordem = q.ordem,
                      sigla = q.sigla,
@@ -1091,7 +1092,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                      preco_nf_total = q.preco_nf_total,
                      preco_excel = q.preco_excel,
                      preco_excel_total = q.preco_excel_total,
-                    Ilustracoes = MapearIlustracoes(q.codquadro_quantitativo)
+                    Ilustracoes = MapearIlustracoes(q.codquadro_preco)
                 })]
         );
         ItensProposta = resultado;
