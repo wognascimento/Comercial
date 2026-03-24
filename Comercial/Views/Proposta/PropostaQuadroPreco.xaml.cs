@@ -17,6 +17,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Telerik.Windows.Controls;
+using Telerik.Windows.Controls.GridView;
 
 namespace Comercial.Views.Proposta;
 
@@ -515,6 +516,67 @@ public partial class PropostaQuadroPreco : UserControl
         {
             MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+
+    private object _oldValue;
+    private string _coluna;
+    private QuadroPrecoDto _item;
+
+    private async void itensProposta_CellEditEnded(object sender, GridViewCellEditEndedEventArgs e)
+    {
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            if (e.EditAction != GridViewEditAction.Commit)
+                return;
+
+            if (e.Cell?.DataContext is not QuadroPrecoDto item)
+                return;
+
+            var coluna = e.Cell.Column.UniqueName;
+
+            if (coluna != "item" && coluna != "qtd")
+                return;
+
+            var novoValor = e.NewData;
+
+            // evita salvar sem mudança real
+            if (Equals(novoValor, _oldValue))
+                return;
+
+            try
+            {
+                await vm.SalvarAsync(item, coluna, novoValor);
+            }
+            catch (Exception ex)
+            {
+                // 🔴 rollback
+                if (coluna == "item")
+                    item.item = (string)_oldValue;
+
+                if (coluna == "qtd")
+                    item.qtd = Convert.ToDouble(_oldValue);
+
+                MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
+            }
+        }
+
+    }
+
+    private void itensProposta_BeginningEdit(object sender, GridViewBeginningEditRoutedEventArgs e)
+    {
+        if (e.Cell?.DataContext is not QuadroPrecoDto item)
+            return;
+
+        _item = item;
+        _coluna = e.Cell.Column.UniqueName;
+
+        _oldValue = _coluna switch
+        {
+            "item" => item.item,
+            "qtd" => item.qtd,
+            _ => null
+        };
     }
 
     private void RadGridView_AddingNewDataItem(object sender, Telerik.Windows.Controls.GridView.GridViewAddingNewEventArgs e)
@@ -1203,6 +1265,25 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                 WHERE codproposta = @briefing AND idtema = @idtema;
                 ";
         return await conn.ExecuteAsync(sql, new { conclusao, conclusaopor = BaseSettings.Username, briefing, idtema });
+    }
+
+
+    public async Task SalvarAsync(QuadroPrecoDto item, string coluna, object novoValor)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+
+        string sql = coluna switch
+        {
+            "item" => "UPDATE comercial.proposta_quadro_preco SET item = @valor WHERE codquadro_preco = @codquadro_preco",
+            "qtd" => "UPDATE comercial.proposta_quadro_preco SET qtd  = @valor WHERE codquadro_preco = @codquadro_preco",
+            _ => throw new Exception("Coluna inválida")
+        };
+
+        await conn.ExecuteAsync(sql, new
+        {
+            valor = novoValor,
+            item.codquadro_preco
+        });
     }
 
 }

@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Telerik.Windows.Controls;
+using Telerik.Windows.Controls.GridView;
 
 namespace Comercial.Views.Proposta
 {
@@ -132,6 +133,7 @@ namespace Comercial.Views.Proposta
                             btnLimpar.IsEnabled = false;
                             btnExcluir.IsEnabled = false;
                             btnCopiar.IsEnabled = false;
+                            itensProposta.IsReadOnly = true;
                         }
                         else
                         {
@@ -140,6 +142,7 @@ namespace Comercial.Views.Proposta
                             btnLimpar.IsEnabled = true;
                             btnExcluir.IsEnabled = true;
                             btnCopiar.IsEnabled = true;
+                            itensProposta.IsReadOnly = false;
                         }
                     }
                 }
@@ -618,6 +621,66 @@ namespace Comercial.Views.Proposta
             }
         }
 
+        private object _oldValue;
+        private string _coluna;
+        private QuadroQuantitativoDto _item;
+
+        private async void itensProposta_CellEditEnded(object sender, GridViewCellEditEndedEventArgs e)
+        {
+            if (DataContext is PropostaQuadroQuantitativoViewModel vm)
+            {
+                if (e.EditAction != GridViewEditAction.Commit)
+                    return;
+
+                if (e.Cell?.DataContext is not QuadroQuantitativoDto item)
+                    return;
+
+                var coluna = e.Cell.Column.UniqueName;
+
+                if (coluna != "item" && coluna != "qtd")
+                    return;
+
+                var novoValor = e.NewData;
+
+                // evita salvar sem mudança real
+                if (Equals(novoValor, _oldValue))
+                    return;
+
+                try
+                {
+                    await vm.SalvarAsync(item, coluna, novoValor);
+                }
+                catch (Exception ex)
+                {
+                    // 🔴 rollback
+                    if (coluna == "item")
+                        item.item = (string)_oldValue;
+
+                    if (coluna == "qtd")
+                        item.qtd = Convert.ToDouble(_oldValue);
+
+                    MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
+                }
+            }
+            
+        }
+
+        private void itensProposta_BeginningEdit(object sender, GridViewBeginningEditRoutedEventArgs e)
+        {
+            if (e.Cell?.DataContext is not QuadroQuantitativoDto item)
+                return;
+
+            _item = item;
+            _coluna = e.Cell.Column.UniqueName;
+
+            _oldValue = _coluna switch
+            {
+                "item" => item.item,
+                "qtd" => item.qtd,
+                _ => null
+            };
+        }
+
         private Task<bool> ValidarCamposAsync()
         {
             if (DataContext is PropostaQuadroQuantitativoViewModel vm)
@@ -813,6 +876,7 @@ namespace Comercial.Views.Proposta
                 MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
     }
 
     public partial class PropostaQuadroQuantitativoViewModel : ObservableObject
@@ -1224,6 +1288,24 @@ namespace Comercial.Views.Proposta
                 ";
                 await conn.ExecuteAsync(sqlUpdate, model);
             }
+        }
+
+        public async Task SalvarAsync(QuadroQuantitativoDto item, string coluna, object novoValor)
+        {
+            using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+
+            string sql = coluna switch
+            {
+                "item" => "UPDATE comercial.proposta_quadro_quantitativo SET item = @valor WHERE codquadro_quantitativo = @codquadro_quantitativo",
+                "qtd" => "UPDATE comercial.proposta_quadro_quantitativo SET qtd  = @valor WHERE codquadro_quantitativo = @codquadro_quantitativo",
+                _ => throw new Exception("Coluna inválida")
+            };
+
+            await conn.ExecuteAsync(sql, new
+            {
+                valor = novoValor,
+                item.codquadro_quantitativo
+            });
         }
     }
 }

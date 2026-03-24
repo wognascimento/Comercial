@@ -419,7 +419,9 @@
                     HorizontalAlignment="Stretch" 
                     SelectionMode="Extended"
                     ClipboardCopyMode="Cells, Header"
-                    MouseDoubleClick="itensProposta_MouseDoubleClick">
+                    MouseDoubleClick="itensProposta_MouseDoubleClick"
+                    BeginningEdit="itensProposta_BeginningEdit"
+                    CellEditEnded="itensProposta_CellEditEnded">
                     <!--
                     <telerik:RadGridView.ColumnGroups>
                         <telerik:GridViewColumnGroup Name="PrecoExcel" Header="PREÇO EXCEL"/>
