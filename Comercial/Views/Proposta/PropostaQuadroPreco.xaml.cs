@@ -214,6 +214,17 @@ public partial class PropostaQuadroPreco : UserControl
                 if (confirmResult != MessageBoxResult.Yes)
                     return;
 
+                // 1. Removemos os prefixos conhecidos se eles existirem no início da string
+                string limpo = txtItem.Text.StartsWith("CTT") ? txtItem.Text.Substring(3) :
+                               txtItem.Text.StartsWith("C") ? txtItem.Text.Substring(1) :
+                               txtItem.Text;
+
+                // 2. Aplicamos a nova regra baseada no item selecionado
+                var tipo = cbTipo.SelectedItem.ToString();
+                var item = tipo == "Complemento" ? $"C{limpo}" :
+                           tipo == "Complemento para todos os temas" ? $"CTT{limpo}" :
+                           limpo;
+
                 await vm.AtualizarPropostaAsync(
                     new PropostaQuadroPrecoModel
                     {
@@ -222,7 +233,7 @@ public partial class PropostaQuadroPreco : UserControl
                         sigla = vm.SelectedBriefing.sigla,
                         tema = vm.SelectedBriefingTema.temas,
                         tipo = cbTipo.SelectedItem as string,
-                        item = txtItem.Text,
+                        item = item, //txtItem.Text,
                         local = cbLocal.SelectedItem as string,
                         localdetalhe = txtLocalDetalhes.SearchText,
                         coddimensao = vm.DimenssaoComercial?.coddimensao,
@@ -264,6 +275,17 @@ public partial class PropostaQuadroPreco : UserControl
                 if (!camposValidos)
                     return;
 
+                // 1. Removemos os prefixos conhecidos se eles existirem no início da string
+                string limpo = txtItem.Text.StartsWith("CTT") ? txtItem.Text.Substring(3) :
+                               txtItem.Text.StartsWith("C") ? txtItem.Text.Substring(1) :
+                               txtItem.Text;
+
+                // 2. Aplicamos a nova regra baseada no item selecionado
+                var tipo = cbTipo.SelectedItem.ToString();
+                var item = tipo == "Complemento" ? $"C{limpo}" :
+                           tipo == "Complemento para todos os temas" ? $"CTT{limpo}" :
+                           limpo;
+
                 var codQuadroPreco = await vm.InserirItemPropostaAsync(
                     new PropostaQuadroPrecoModel
                     {
@@ -271,7 +293,7 @@ public partial class PropostaQuadroPreco : UserControl
                         sigla = vm.SelectedBriefing.sigla,
                         tema = vm.SelectedBriefingTema.temas,
                         tipo = cbTipo.SelectedItem as string,
-                        item = txtItem.Text,
+                        item = item, //txtItem.Text,
                         local = cbLocal.SelectedItem as string,
                         localdetalhe = txtLocalDetalhes.SearchText,
                         coddimensao = vm.DimenssaoComercial?.coddimensao,
