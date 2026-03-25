@@ -60,14 +60,19 @@
                             GripVisibility="Collapsed" 
                             OverflowButtonVisibility="Collapsed">
             
-            <Button>
+            <Button Click="OnAlterarUsuarioClick">
                 <Image Source="/icones/icons8-usu_0025c3_0025a1rio-de-g_0025c3_0025aanero-neutro-windows-metro-16.png" />
             </Button>
-            <TextBlock x:Name="txtUsername" Text="USUÁRIO LOGADO" />
+            <TextBlock 
+                x:Name="txtUsername" 
+                Text="USUÁRIO LOGADO" />
 
 
-            <TextBlock x:Name="txtDataBase" Text="BANCO DE DADOS" telerik:RadToolBar.ItemAlignment="Right"/>
-            <Button telerik:RadToolBar.ItemAlignment="Right">
+            <TextBlock 
+                x:Name="txtDataBase" 
+                Text="BANCO DE DADOS" 
+                telerik:RadToolBar.ItemAlignment="Right"/>
+            <Button telerik:RadToolBar.ItemAlignment="Right" Click="OnAlterarBancoDadosClick">
                 <Image Source="/icones/configuracao-de-dados-windows-metro-16.png" />
             </Button>
 

@@ -1,6 +1,9 @@
 ﻿using BibliotecasSIG;
 using Comercial.DataBase;
 using Comercial.Views.Proposta;
+using Producao;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Reflection;
@@ -171,6 +174,42 @@ namespace Comercial
         private void OnAbrirQuadroRevisaoClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
             AbrirFormularioDinamico(typeof(PropostaQuadroPreco), "QUADRO REVISÃO");
+        }
+
+        private void OnAlterarUsuarioClick(object sender, RoutedEventArgs e)
+        {
+            Login window = new();
+            window.ShowDialog();
+            try
+            {
+                var appSettings = ConfigurationManager.GetSection("appSettings") as NameValueCollection;
+                //BaseSettings.Username = appSettings[0];
+                txtUsername.Text = BaseSettings.Username;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void OnAlterarBancoDadosClick(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Prompt(new DialogParameters()
+            {
+                Header = "Ano Sistema",
+                Content = "Alterar o Ano do Sistema",
+                Closed = (object sender, WindowClosedEventArgs e) =>
+                {
+                    if (e.PromptResult != null)
+                    {
+                        BaseSettings.Database = e.PromptResult;
+                        txtDataBase.Text = BaseSettings.Database;
+                        BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
+                        radDocking.Items.Clear();
+                    }
+                }
+            });
         }
     }
 }

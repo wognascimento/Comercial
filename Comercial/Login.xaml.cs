@@ -11,7 +11,7 @@ namespace Producao
     /// </summary>
     public partial class Login : RadWindow
     {
-        readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
+        DataBaseSettings BaseSettings = DataBaseSettings.Instance;
 
         public Login()
         {
@@ -27,6 +27,7 @@ namespace Producao
 
         private void OnLogar(object sender, RoutedEventArgs e)
         {
+
             if (!string.IsNullOrWhiteSpace(txtLogin.Text) && !string.IsNullOrWhiteSpace(txtSenha.Password))
             {
                 try
@@ -43,6 +44,9 @@ namespace Producao
                     config.AppSettings.Settings["Username"].Value = txtLogin.Text;
                     config.Save(ConfigurationSaveMode.Modified);
                     ConfigurationManager.RefreshSection("appSettings");
+
+                    BaseSettings.Username = txtLogin.Text;
+                    BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
 
                     this.DialogResult = true;
                     this.Close();
