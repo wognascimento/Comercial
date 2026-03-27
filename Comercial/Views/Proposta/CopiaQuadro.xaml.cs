@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Telerik.Windows.Documents.Spreadsheet.Expressions.Functions;
 
 namespace Comercial.Views.Proposta;
 

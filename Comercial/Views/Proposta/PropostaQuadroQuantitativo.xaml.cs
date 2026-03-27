@@ -79,6 +79,7 @@ namespace Comercial.Views.Proposta
                     btnLimpar.IsEnabled = true;
                     btnExcluir.IsEnabled = true;
                     btnCopiar.IsEnabled = true;
+                    itensProposta.IsReadOnly = false;
 
                     if (e.AddedItems.Count > 0 && e.AddedItems[0] is PropostaBriefingQuadroDto selectedBriefing)
                     {
@@ -181,6 +182,7 @@ namespace Comercial.Views.Proposta
                         btnLimpar.IsEnabled = true;
                         btnExcluir.IsEnabled = true;
                         btnCopiar.IsEnabled = true;
+                        itensProposta.IsReadOnly = false;
                     }
                     else
                     {
@@ -193,64 +195,13 @@ namespace Comercial.Views.Proposta
                         }
                         DateTime selectedDate = (DateTime)conclusaoData;
                         await vm.ConcluirProjetoAsync(selectedDate, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
+                        await vm.EnviarPrecoAsync(vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
                         btnAlterar.IsEnabled = false;
                         btnIncluir.IsEnabled = false;
                         btnLimpar.IsEnabled = false;
                         btnExcluir.IsEnabled = false;
                         btnCopiar.IsEnabled = false;
-                    }
-                }
-                catch (RepositoryException ex)
-                {
-                    MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async void dtConclusao_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (DataContext is PropostaQuadroQuantitativoViewModel vm)
-            {
-                try
-                {
-                    var conclusaoData = e.AddedItems?.Cast<object>().FirstOrDefault();
-                    if (conclusaoData == null)
-                    {
-                        var confirmResult = MessageBox.Show("Remover a data de conclusão permitirá alterações no quadro quantitativo. Deseja continuar?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        if (confirmResult != MessageBoxResult.Yes)
-                        {
-                            // Reverter a seleção para a data anterior
-                            //this.dtConclusao.SelectedValue = vm.SelectedBriefingTema.data_conclusao;
-                            this.dtConclusao.SelectedDate = vm.SelectedBriefingTema.data_conclusao;
-                            return;
-                        }
-                        await vm.ConcluirProjetoAsync(null, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
-                        btnAlterar.IsEnabled = true;
-                        btnIncluir.IsEnabled = true;
-                        btnLimpar.IsEnabled = true;
-                        btnExcluir.IsEnabled = true;
-                        btnCopiar.IsEnabled = true;
-                    }
-                    else
-                    {
-                        var confirmResult = MessageBox.Show("Ao definir uma data de conclusão, o quadro quantitativo será bloqueado para alterações. Deseja continuar?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                        if (confirmResult != MessageBoxResult.Yes)
-                        {
-                            // Reverter a seleção para a data anterior
-                            this.dtConclusao.SelectedDate = vm.SelectedBriefingTema.data_conclusao;
-                            return;
-                        }
-                        DateTime selectedDate = (DateTime)conclusaoData;
-                        await vm.ConcluirProjetoAsync(selectedDate, vm.SelectedBriefingTema.codbriefing, vm.SelectedBriefingTema.idtema);
-                        btnAlterar.IsEnabled = false;
-                        btnIncluir.IsEnabled = false;
-                        btnLimpar.IsEnabled = false;
-                        btnExcluir.IsEnabled = false;
-                        btnCopiar.IsEnabled = false;
+                        itensProposta.IsReadOnly = true;
                     }
                 }
                 catch (RepositoryException ex)
@@ -899,6 +850,7 @@ namespace Comercial.Views.Proposta
             }
         }
 
+
     }
 
     public partial class PropostaQuadroQuantitativoViewModel : ObservableObject
@@ -1239,6 +1191,37 @@ namespace Comercial.Views.Proposta
                 WHERE codproposta = @briefing AND idtema = @idtema;
                 ";
             return await conn.ExecuteAsync(sql, new { conclusao, briefing, idtema });
+        }
+
+        public async Task<long> EnviarPrecoAsync(long briefing, long idtema)
+        {
+            using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+            var sql = @"
+                INSERT INTO
+                    comercial.proposta_quadro_preco (
+                        codquadro_quantitativo, codbrief, sigla, idtema,
+                        tema, tipo, item, local,
+                        localdetalhe, coddimensao, qtd, qtdanterior,
+                        obs, obsinterna, ledml, desconto,
+                        bloco, tot_cenografia, cadastradopor, datacadastro,
+                        alteradopor, custo_item, vlr_indice, vlr_led,
+                        custo_tot_item, total_desc
+                    )
+                SELECT
+                    proposta_quadro_quantitativo.codquadro_quantitativo, proposta_quadro_quantitativo.codbrief, proposta_quadro_quantitativo.sigla, proposta_quadro_quantitativo.idtema,
+                    proposta_quadro_quantitativo.tema, proposta_quadro_quantitativo.tipo, proposta_quadro_quantitativo.item, proposta_quadro_quantitativo.local, 
+                    proposta_quadro_quantitativo.localdetalhe, proposta_quadro_quantitativo.coddimensao, proposta_quadro_quantitativo.qtd, proposta_quadro_quantitativo.qtdanterior,
+                    proposta_quadro_quantitativo.obs, proposta_quadro_quantitativo.obsinterna, proposta_quadro_quantitativo.ledml, proposta_quadro_quantitativo.desconto,
+                    proposta_quadro_quantitativo.bloco, proposta_quadro_quantitativo.tot_cenografia, proposta_quadro_quantitativo.cadastradopor, proposta_quadro_quantitativo.datacadastro,
+                    proposta_quadro_quantitativo.alteradopor, proposta_quadro_quantitativo.custo_item, proposta_quadro_quantitativo.vlr_indice, proposta_quadro_quantitativo.vlr_led,
+                    proposta_quadro_quantitativo.custo_tot_item, proposta_quadro_quantitativo.total_desc
+                FROM
+                    comercial.proposta_quadro_quantitativo
+                    LEFT JOIN comercial.proposta_quadro_preco ON comercial.proposta_quadro_quantitativo.codquadro_quantitativo = comercial.proposta_quadro_preco.codquadro_quantitativo
+                WHERE comercial.proposta_quadro_preco.codquadro_quantitativo IS NULL AND proposta_quadro_quantitativo.codbrief = @briefing AND proposta_quadro_quantitativo.idtema = @idtema
+                ORDER BY item;
+                ";
+            return await conn.ExecuteAsync(sql, new { briefing, idtema });
         }
 
         public async Task UpserIlustracao(PropostaIlustracaoModel model)

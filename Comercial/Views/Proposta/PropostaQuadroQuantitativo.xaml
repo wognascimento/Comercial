@@ -338,7 +338,7 @@
                             x:Name="dtConclusao" 
                             InputMode="DatePicker" 
                             TodayButtonVisibility="Visible"
-                            Grid.Column="1" Grid.Row="16"  />
+                            Grid.Column="1" Grid.Row="16"/>
 
                         <!--<DatePicker x:Name="dtConclusao"
                                     SelectedDateFormat="Short"
@@ -431,6 +431,29 @@
                         <telerik:GridViewDataColumn Header="UNITÁRIO" IsReadOnly="true" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding preco_excel}" DataFormatString="{}{0:N2}"/>
                         <telerik:GridViewDataColumn Header="TOTAL" IsReadOnly="true" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding preco_excel_total}" DataFormatString="{}{0:N2}"/>
                     </telerik:RadGridView.Columns>
+
+                    <telerik:RadGridView.RowStyle>
+                        <Style TargetType="telerik:GridViewRow">
+
+                            <!-- padrão -->
+                            <Setter Property="Foreground" Value="Black"/>
+
+                            <Style.Triggers>
+
+                                <!-- 🔵 Opcional -->
+                                <DataTrigger Binding="{Binding tipo}" Value="Opcional">
+                                    <Setter Property="Foreground" Value="Blue"/>
+                                </DataTrigger>
+
+                                <!-- 🔴 Complemento -->
+                                <DataTrigger Binding="{Binding tipo}" Value="Complemento">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+                    </telerik:RadGridView.RowStyle>
 
 
                     <!-- Definição da Hierarquia -->
