@@ -7,6 +7,9 @@ using Comercial.Services;
 using Comercial.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Presentation;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Syncfusion.Presentation;
@@ -73,6 +76,7 @@ public partial class PropostaQuadroPreco : UserControl
                 btnIncluir.IsEnabled = true;
                 btnLimpar.IsEnabled = true;
                 btnExcluir.IsEnabled = true;
+                itensProposta.IsReadOnly = false;
 
                 this.dtInicio.SelectionChanged -= dtInicial_SelectionChanged;
                 this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
@@ -444,6 +448,7 @@ public partial class PropostaQuadroPreco : UserControl
                     btnIncluir.IsEnabled = true;
                     btnLimpar.IsEnabled = true;
                     btnExcluir.IsEnabled = true;
+                    itensProposta.IsReadOnly = false;
                 }
                 else
                 {
@@ -460,6 +465,7 @@ public partial class PropostaQuadroPreco : UserControl
                     btnIncluir.IsEnabled = false;
                     btnLimpar.IsEnabled = false;
                     btnExcluir.IsEnabled = false;
+                    itensProposta.IsReadOnly = true;
                 }
             }
             catch (RepositoryException ex)
@@ -908,7 +914,7 @@ public partial class PropostaQuadroPreco : UserControl
             {
                 using var context = new NpgsqlConnection(BaseSettings.ConnectionString);
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                IPresentation presentation = Presentation.Open($@"{BaseSettings.CaminhoSistema}Modelos\MODELO-PADRAO.pptx");
+                IPresentation presentation = Syncfusion.Presentation.Presentation.Open($@"{BaseSettings.CaminhoSistema}Modelos\MODELO-PADRAO.pptx");
                 IMasterSlide slideMaster = presentation.Masters.First(x=>x.Name.Equals("pre-proposta")); // Use o índice apropriado
 
                 foreach (var tema in vm.PropostaBriefingTemas)
@@ -921,11 +927,13 @@ public partial class PropostaQuadroPreco : UserControl
                     textBoxShapeTema.TextBody.Paragraphs.Clear();
                     IParagraph paragraph = textBoxShapeTema.TextBody.AddParagraph();
                     paragraph.AddTextPart(tema.temas);
-                    
+                    //paragraph.Text = tema.temas;
+
                     IShape textBoxShapeShop = (IShape)slide.Shapes[1];
                     textBoxShapeShop.TextBody.Paragraphs.Clear();
                     IParagraph paragraphShop = textBoxShapeShop.TextBody.AddParagraph();
                     paragraphShop.AddTextPart(vm.SelectedBriefing.nome);
+                    //paragraphShop.Text = vm.SelectedBriefing.nome;
 
                     await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, tema.idtema);
                     
@@ -937,6 +945,7 @@ public partial class PropostaQuadroPreco : UserControl
                         tBSItem.TextBody.Paragraphs.Clear();
                         IParagraph pItem = tBSItem.TextBody.AddParagraph();
                         pItem.AddTextPart($@"{item.localitem} - {item.descricaocomercial}");
+                        //pItem.Text = $@"{item.localitem} - {item.descricaocomercial}";
                     }
                
                     vm.ItensProposta = [];
@@ -946,6 +955,9 @@ public partial class PropostaQuadroPreco : UserControl
 
                 presentation.Save($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
                 presentation.Close();
+
+                CorrigirIdiomaPpt($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
                 MessageBox.Show("APRENTAÇÃO PPT GERADA COM SUCESSO!!!");
                 Process.Start("explorer", $@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
@@ -961,6 +973,27 @@ public partial class PropostaQuadroPreco : UserControl
             Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    public static void CorrigirIdiomaPpt(string caminhoArquivo)
+    {
+        using var presentation = PresentationDocument.Open(caminhoArquivo, true);
+        var presentationPart = presentation.PresentationPart;
+
+        foreach (var slidePart in presentationPart.SlideParts)
+        {
+            var texts = slidePart.Slide.Descendants<Run>();
+
+            foreach (var run in texts)
+            {
+                run.RunProperties ??= new RunProperties();
+
+                run.RunProperties.Language = "pt-BR";
+                run.RunProperties.Dirty = false;
+            }
+        }
+
+        presentation.Save();
     }
 }
 
