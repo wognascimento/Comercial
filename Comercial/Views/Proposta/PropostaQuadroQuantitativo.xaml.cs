@@ -308,16 +308,22 @@ namespace Comercial.Views.Proposta
                     bool camposValidos = await ValidarCamposAsync();
                     if (!camposValidos)
                         return;
+                        
+                    // 1. Limpeza: remove QUALQUER prefixo conhecido do início (CTT, C ou E)
+                    string textoOriginal = txtItem.Text ?? "";
+                    string limpo = textoOriginal.StartsWith("CTT") ? textoOriginal.Substring(3) :
+                                   textoOriginal.StartsWith("C") ? textoOriginal.Substring(1) :
+                                   textoOriginal.StartsWith("E") ? textoOriginal.Substring(1) :
+                                   textoOriginal;
 
-                    // 1. Removemos os prefixos conhecidos se eles existirem no início da string
-                    string limpo = txtItem.Text.StartsWith("CTT") ? txtItem.Text.Substring(3) :
-                                   txtItem.Text.StartsWith("C") ? txtItem.Text.Substring(1) :
-                                   txtItem.Text;
+                    // 2. Definição das variáveis de contexto
+                    var tipo = cbTipo.SelectedItem?.ToString();
+                    var tema = vm.SelectedBriefingTema?.temas;
 
-                    // 2. Aplicamos a nova regra baseada no item selecionado
-                    var tipo = cbTipo.SelectedItem.ToString();
-                    var item = tipo == "Complemento" ? $"C{limpo}" :
-                               tipo == "Complemento para todos os temas" ? $"CTT{limpo}" :
+                    // 3. Aplicação da nova regra de prefixos
+                    var item = (tema.Contains("DECORAÇÃO EXTERNA")) ? $"E{limpo}" :
+                               (tipo == "Complemento para todos os temas") ? $"CTT{limpo}" :
+                               (tipo == "Complemento") ? $"C{limpo}" :
                                limpo;
 
                     var codQuadroQuantitativo = await vm.InserirItemPropostaAsync(
@@ -388,15 +394,21 @@ namespace Comercial.Views.Proposta
                     if (confirmResult != MessageBoxResult.Yes)
                         return;
 
-                    // 1. Removemos os prefixos conhecidos se eles existirem no início da string
-                    string limpo = txtItem.Text.StartsWith("CTT") ? txtItem.Text.Substring(3) :
-                                   txtItem.Text.StartsWith("C") ? txtItem.Text.Substring(1) :
-                                   txtItem.Text;
+                    // 1. Limpeza: remove QUALQUER prefixo conhecido do início (CTT, C ou E)
+                    string textoOriginal = txtItem.Text ?? "";
+                    string limpo = textoOriginal.StartsWith("CTT") ? textoOriginal.Substring(3) :
+                                   textoOriginal.StartsWith("C") ? textoOriginal.Substring(1) :
+                                   textoOriginal.StartsWith("E") ? textoOriginal.Substring(1) :
+                                   textoOriginal;
 
-                    // 2. Aplicamos a nova regra baseada no item selecionado
-                    var tipo = cbTipo.SelectedItem.ToString();
-                    var item = tipo == "Complemento" ? $"C{limpo}" :
-                               tipo == "Complemento para todos os temas" ? $"CTT{limpo}" :
+                    // 2. Definição das variáveis de contexto
+                    var tipo = cbTipo.SelectedItem?.ToString();
+                    var tema = vm.SelectedBriefingTema?.temas;
+
+                    // 3. Aplicação da nova regra de prefixos
+                    var item = (tema.Contains("DECORAÇÃO EXTERNA")) ? $"E{limpo}" :
+                               (tipo == "Complemento para todos os temas") ? $"CTT{limpo}" :
+                               (tipo == "Complemento") ? $"C{limpo}" :
                                limpo;
 
                     await vm.AtualizarPropostaAsync(
