@@ -39,8 +39,9 @@ public partial class CadastroDescricao : UserControl
 
         if (DataContext is CadastroDescricaoViewModel vm)
         {
-            await vm.CarregarDescricaoAsync(familia);
-            vm.IsActive = !(bool)(familia?.resp_descricao.Contains(BaseSettings.Username));
+            await vm.CarregarDescricaoAsync(familia); //todos
+
+            vm.IsActive = !(familia?.resp_descricao.Contains(BaseSettings.Username) == true || (familia?.resp_descricao == "todos") == true);
         }
     }
 
@@ -124,7 +125,13 @@ public partial class CadastroDescricao : UserControl
 
     private void rgView_AddingNewDataItem(object sender, GridViewAddingNewEventArgs e)
     {
-        var encontrado = (rcBox.SelectedItem as ComercialPropostaFamiliaModel)?.resp_descricao.Contains(BaseSettings.Username);
+        //var encontrado = (rcBox.SelectedItem as ComercialPropostaFamiliaModel)?.resp_descricao.Contains(BaseSettings.Username);
+
+        var familia = rcBox.SelectedItem as ComercialPropostaFamiliaModel;
+
+        var encontrado = familia?.resp_descricao?.Contains(BaseSettings.Username) == true ||
+                         familia?.resp_descricao?.Contains("todos") == true;
+
         e.Cancel = (bool)!encontrado;
         e.NewObject = new ComercialPropostaDescricaoComercialModel
         {

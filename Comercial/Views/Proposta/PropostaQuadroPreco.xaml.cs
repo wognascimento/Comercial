@@ -968,7 +968,7 @@ public partial class PropostaQuadroPreco : UserControl
                 presentation.Save($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
                 presentation.Close();
 
-                CorrigirIdiomaPpt($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+                //CorrigirIdiomaPpt($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
 
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
                 MessageBox.Show("APRENTAÇÃO PPT GERADA COM SUCESSO!!!");
