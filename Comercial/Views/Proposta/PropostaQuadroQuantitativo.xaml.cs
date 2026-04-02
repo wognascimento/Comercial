@@ -53,6 +53,7 @@ namespace Comercial.Views.Proposta
                 {
                     MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                Loaded -= PropostaQuadroQuantitativo_Loaded;
             }
         }
 

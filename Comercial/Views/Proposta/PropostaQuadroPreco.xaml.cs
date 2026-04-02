@@ -57,6 +57,7 @@ public partial class PropostaQuadroPreco : UserControl
             {
                 MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            Loaded -= PropostaQuadroPreco_Loaded;
         }
     }
 

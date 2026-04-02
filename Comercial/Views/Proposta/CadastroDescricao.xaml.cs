@@ -31,6 +31,8 @@ public partial class CadastroDescricao : UserControl
     {
         if (DataContext is CadastroDescricaoViewModel vm)
             await vm.CarregarFamiliaAsync();
+
+        Loaded -= CadastroDescricao_Loaded;
     }
 
     private async void rcBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
