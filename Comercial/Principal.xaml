@@ -33,7 +33,7 @@
                 <telerik:RadMenuItem Header="Proposta">
                     <telerik:RadMenuItem Header="Quantitativo" Click="OnAbrirQuadroQuantitativoClick" />
                     <telerik:RadMenuItem Header="Revisão" Click="OnAbrirQuadroRevisaoClick"/>
-                    <telerik:RadMenuItem Header="Fecha/Memorial" />
+                    <telerik:RadMenuItem Header="Fecha/Memorial" Click="OnAbrirQuadroFechaClick" />
                 </telerik:RadMenuItem>
                 
                 <telerik:RadMenuItem Header="Consulta">

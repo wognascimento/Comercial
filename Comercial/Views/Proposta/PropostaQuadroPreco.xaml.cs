@@ -1335,7 +1335,6 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         return await conn.ExecuteAsync(sql, new { conclusao, conclusaopor = BaseSettings.Username, briefing, idtema });
     }
 
-
     public async Task SalvarAsync(QuadroPrecoDto item, string coluna, object novoValor)
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);

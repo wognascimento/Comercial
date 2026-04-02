@@ -176,6 +176,12 @@ namespace Comercial
             AbrirFormularioDinamico(typeof(PropostaQuadroPreco), "QUADRO REVISÃO");
         }
 
+
+        private void OnAbrirQuadroFechaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            AbrirFormularioDinamico(typeof(PropostaQuadroFecha), "QUADRO FECHA");
+        }
+
         private void OnAlterarUsuarioClick(object sender, RoutedEventArgs e)
         {
             Login window = new();
@@ -211,5 +217,6 @@ namespace Comercial
                 }
             });
         }
+
     }
 }
