@@ -179,7 +179,7 @@ namespace Comercial
 
         private void OnAbrirQuadroFechaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
-            AbrirFormularioDinamico(typeof(PropostaQuadroFecha), "QUADRO FECHA");
+            //AbrirFormularioDinamico(typeof(PropostaQuadroFecha), "QUADRO FECHA");
         }
 
         private void OnAlterarUsuarioClick(object sender, RoutedEventArgs e)
