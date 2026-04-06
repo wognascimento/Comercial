@@ -780,14 +780,15 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var itens = await conn.QueryAsync<PropostaFechaSiglaDto>(
-        @"SELECT sigla, nome, codbriefing, verbaminint, 
-	                 verbamaxint, verbaintdefinidapor, verbaminext, 
-	                 verbamaxext, verbaextdefinidapor, verbaunicadefinidapor, verba_nao_definida, 
-	                 moeda, verbaunica, cancelado, diretorcliente, 
-	                 responsavelprojeto, tema, valorfechainterno, indiceproposta, 
-	                 novo, tot_cenografia, vlr_inicial, praca, tipo_evento
-              FROM comercial.proposta_briefing_quadro
-              ORDER BY sigla, codbriefing;");
+        @"SELECT 
+	        sigla, 
+	        nome, 
+	        codbriefing, 
+	        diretorcliente, 
+	        responsavelprojeto, 
+	        praca, 
+	        tipo_evento 
+        FROM comercial.proposta_fecha_siglas;");
         PropostaFechaSiglas = new ObservableCollection<PropostaFechaSiglaDto>(itens);
     }
 
@@ -818,9 +819,9 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         var parametros = new { codbriefing };
         var itens = await conn.QueryAsync<PropostaFechaTemaDto>(
         @"SELECT cod_brief, ordem_escolha, tema, faixapreco, resp_conclusao_preco, data_tema_fecha, indice, resp_tema, texto, idtema
-              FROM comercial.proposta_fecha_tema
-              WHERE cod_brief = @codbriefing AND data_conclusao IS NOT NULL
-              ORDER BY ordem_escolha;", parametros);
+	      FROM comercial.proposta_fecha_tema
+          WHERE cod_brief = @codbriefing
+          ORDER BY ordem_escolha;", parametros);
         PropostaFechaTemas = new ObservableCollection<PropostaFechaTemaDto>(itens);
     }
 
@@ -828,7 +829,7 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var parametros = new { codbrief, idtema };
-        var itens = await conn.QueryAsync<string>(@"SELECT detalhe_local FROM comercial.tbl_fecha_qd_quantitativo WHERE cod_brief = @codbrief AND idtema = @idtema GROUP BY localdetalhe ORDER BY localdetalhe;", parametros);
+        var itens = await conn.QueryAsync<string>(@"SELECT detalhe_local FROM comercial.tbl_fecha_qd_quantitativo WHERE cod_brief = @codbrief AND idtema = @idtema GROUP BY detalhe_local ORDER BY detalhe_local;", parametros);
         ComercialPropostaDetalhesLocais = new ObservableCollection<string>(itens);
     }
 

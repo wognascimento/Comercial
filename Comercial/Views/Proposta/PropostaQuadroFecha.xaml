@@ -83,7 +83,7 @@
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Tema:" VerticalAlignment="Center"/>
                     <telerik:RadComboBox x:Name="boxBrienfingTema" 
                         Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="6" Margin="2"
-                        DisplayMemberPath="temas"
+                        DisplayMemberPath="tema"
                         ItemsSource="{Binding PropostaFechaTemas}"
                         SelectedItem="{Binding SelectedFechaTema}" 
                         SelectionChanged="boxBrienfingTema_SelectionChanged"/>
@@ -397,20 +397,30 @@
                     CellEditEnded="itensProposta_CellEditEnded">
 
                     <telerik:RadGridView.Columns>
-                        <telerik:GridViewDataColumn Header="ILUSTRAÇÃO" IsReadOnly="true" DataMemberBinding="{Binding ilustracao}"/>
+                        
                         <telerik:GridViewDataColumn Header="TIPO" IsReadOnly="true" DataMemberBinding="{Binding tipo}"/>
                         <telerik:GridViewDataColumn Header="BLOCO" IsReadOnly="true" DataMemberBinding="{Binding bloco}"/>
                         <telerik:GridViewDataColumn Header="FAMÍLIA" IsReadOnly="true" DataMemberBinding="{Binding familia}"/>
                         <telerik:GridViewDataColumn Header="ITEM" DataMemberBinding="{Binding item}"/>
                         <telerik:GridViewDataColumn Header="LOCAL" IsReadOnly="true" DataMemberBinding="{Binding localitem}"/>
-                        <telerik:GridViewDataColumn Header="DESCRIÇÃO" IsReadOnly="true" Width="*" DataMemberBinding="{Binding descricaocomercial}"/>
+                        <telerik:GridViewDataColumn Header="DESCRIÇÃO" IsReadOnly="true" Width="*" DataMemberBinding="{Binding descricao}"/>
                         <telerik:GridViewDataColumn Header="DIMENSÃO" IsReadOnly="true" Width="*" DataMemberBinding="{Binding dimensao}"/>
                         <telerik:GridViewDataColumn Header="QTD" DataMemberBinding="{Binding qtd}"/>
-                        <telerik:GridViewDataColumn Header="QTD ANTERIOR" IsReadOnly="true" DataMemberBinding="{Binding qtdanterior}"/>
+                       
                         <telerik:GridViewDataColumn Header="OBSERVAÇÃO" IsReadOnly="true" DataMemberBinding="{Binding obs}"/>
-                        <telerik:GridViewDataColumn Header="OBSERVAÇÃO INTERNA" IsReadOnly="true" DataMemberBinding="{Binding obsinterna}"/>
-                        <telerik:GridViewDataColumn Header="UNITÁRIO" IsReadOnly="true" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding preco_excel}" DataFormatString="{}{0:N2}"/>
-                        <telerik:GridViewDataColumn Header="TOTAL" IsReadOnly="true" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding preco_excel_total}" DataFormatString="{}{0:N2}"/>
+                        <telerik:GridViewDataColumn Header="OBSERVAÇÃO INTERNA" IsReadOnly="true" DataMemberBinding="{Binding obs_interna}"/>
+                        <telerik:GridViewDataColumn Header="OBSERVAÇÃO MEMORIAL" IsReadOnly="true" DataMemberBinding="{Binding obs_memorial}"/>
+
+                        <telerik:GridViewDataColumn Header="CADASTRADO POR" IsReadOnly="true" DataMemberBinding="{Binding cadastrado_por}"/>
+                        <telerik:GridViewDataColumn Header="CADASTRADO EM" IsReadOnly="true" DataFormatString="{} {0:dd/MM/yyyy}" DataMemberBinding="{Binding data_cadastro}"/>
+
+                        <telerik:GridViewDataColumn Header="ALTERADO POR" IsReadOnly="true" DataMemberBinding="{Binding alterado_por}"/>
+                        <telerik:GridViewDataColumn Header="ALTERADO EM" IsReadOnly="true" DataFormatString="{} {0:dd/MM/yyyy}" DataMemberBinding="{Binding data_altera}"/>
+
+                        <telerik:GridViewDataColumn Header="CONFIRMADO ALTERAÇÃO POR" IsReadOnly="true" DataMemberBinding="{Binding confirma_alteracao_por}"/>
+                        <telerik:GridViewDataColumn Header="CONFIRMADO ALTERAÇÃO EM" IsReadOnly="true" DataFormatString="{} {0:dd/MM/yyyy}" DataMemberBinding="{Binding confirma_alteracao_data}"/>
+                        
+                        
                     </telerik:RadGridView.Columns>
 
 
@@ -419,6 +429,8 @@
 
                             <!-- padrão -->
                             <Setter Property="Foreground" Value="Black"/>
+                            <!-- padrão vira negrito -->
+                            <Setter Property="FontWeight" Value="Bold"/>
 
                             <Style.Triggers>
 
@@ -430,6 +442,11 @@
                                 <!-- 🔴 Complemento -->
                                 <DataTrigger Binding="{Binding tipo}" Value="Complemento">
                                     <Setter Property="Foreground" Value="Red"/>
+                                </DataTrigger>
+
+                                <!-- 🔴 Quando for NULL -->
+                                <DataTrigger Binding="{Binding alterado_por}" Value="{x:Null}">
+                                    <Setter Property="FontWeight" Value="Normal"/>
                                 </DataTrigger>
 
                             </Style.Triggers>

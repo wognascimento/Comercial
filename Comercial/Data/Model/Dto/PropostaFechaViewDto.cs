@@ -25,15 +25,15 @@ public class PropostaFechaViewDto
     public string obs_interna { get; set; }
     public long cod_brief { get; set; }
     public long cod_linha_qdfecha { get; set; }
-    public string cadastrado_por { get; set; }
-    public DateTime data_cadastro { get; set; }
-    public string alterado_por { get; set; }
-    public DateTime data_altera { get; set; }
+    public string? cadastrado_por { get; set; }
+    public DateTime? data_cadastro { get; set; }
+    public string? alterado_por { get; set; }
+    public DateTime? data_altera { get; set; }
     public string obs_alteracao { get; set; }
     public long bloco_revisao { get; set; }
     public string altera_ok { get; set; }
-    public string confirma_alteracao_por { get; set; }
-    public DateTime confirma_alteracao_data { get; set; }
+    public string? confirma_alteracao_por { get; set; }
+    public DateTime? confirma_alteracao_data { get; set; }
     public string sigla_serv { get; set; }
     public long coddesccoml { get; set; }
     public string obs_memorial { get; set; }
