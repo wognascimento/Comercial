@@ -160,7 +160,7 @@ public partial class CadastroDescricao : UserControl
 
         if (DataContext is not CadastroDescricaoViewModel vm) return;
 
-        
+        vm.IsActive = !(vm.ComercialPropostaFamilia?.resp_dimensao.Contains(BaseSettings.Username) == true || (vm.ComercialPropostaFamilia?.resp_descricao == "todos") == true);
 
         var meuUserControl = new CadastroDescricaoDimensao(vm.IsActive, itemSelecionado.coddesccoml);
         // Cria o RadWindow
@@ -190,6 +190,9 @@ public partial class CadastroDescricaoViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<ComercialPropostaFamiliaModel> comercialPropostaFamilias = [];
+
+    [ObservableProperty]
+    private ComercialPropostaFamiliaModel comercialPropostaFamilia;
 
     [ObservableProperty]
     private ObservableCollection<ComercialPropostaDescricaoComercialModel> descricoesComercial = [];

@@ -26,6 +26,7 @@
             <telerik:RadComboBox 
                 x:Name="rcBox" 
                 ItemsSource="{Binding ComercialPropostaFamilias}"
+                SelectedItem="{Binding ComercialPropostaFamilia, Mode=TwoWay}"
                 Margin="4" 
                 DisplayMemberPath="familia"
                 SelectedValuePath="id" 
