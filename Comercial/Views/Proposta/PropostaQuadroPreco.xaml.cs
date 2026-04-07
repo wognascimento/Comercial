@@ -7,9 +7,8 @@ using Comercial.Services;
 using Comercial.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dapper;
-using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Packaging;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Syncfusion.Presentation;
@@ -577,7 +576,7 @@ public partial class PropostaQuadroPreco : UserControl
 
             var coluna = e.Cell.Column.UniqueName;
 
-            if (coluna != "item" && coluna != "qtd")
+            if (coluna != "item" && coluna != "qtd" && coluna != "valor_unitario")
                 return;
 
             var novoValor = e.NewData;
@@ -599,6 +598,9 @@ public partial class PropostaQuadroPreco : UserControl
                 if (coluna == "qtd")
                     item.qtd = Convert.ToDouble(_oldValue);
 
+                if (coluna == "valor_unitario")
+                    item.valor_unitario = Convert.ToDouble(_oldValue);
+
                 MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
             }
         }
@@ -617,6 +619,7 @@ public partial class PropostaQuadroPreco : UserControl
         {
             "item" => item.item,
             "qtd" => item.qtd,
+            "valor_unitario" => item.valor_unitario,
             _ => null
         };
     }
@@ -1072,13 +1075,17 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var itens = await conn.QueryAsync<PropostaBriefingQuadroDto>(
         @"SELECT sigla, nome, codbriefing, verbaminint, 
-	                 verbamaxint, verbaintdefinidapor, verbaminext, 
-	                 verbamaxext, verbaextdefinidapor, verbaunicadefinidapor, verba_nao_definida, 
-	                 moeda, verbaunica, cancelado, diretorcliente, 
-	                 responsavelprojeto, tema, valorfechainterno, indiceproposta, 
-	                 novo, tot_cenografia, vlr_inicial, praca, tipo_evento
-              FROM comercial.proposta_briefing_quadro
-              ORDER BY sigla, codbriefing;");
+	           verbamaxint, verbaintdefinidapor, verbaminext, 
+	           verbamaxext, verbaextdefinidapor, verbaunicadefinidapor, verba_nao_definida, 
+	           moeda, verbaunica, cancelado, diretorcliente, 
+	           responsavelprojeto, tot_cenografia, vlr_inicial, praca, tipo_evento
+          FROM comercial.proposta_briefing_quadro
+          GROUP BY sigla, nome, codbriefing, verbaminint, 
+	           verbamaxint, verbaintdefinidapor, verbaminext, 
+	           verbamaxext, verbaextdefinidapor, verbaunicadefinidapor, verba_nao_definida, 
+	           moeda, verbaunica, cancelado, diretorcliente, 
+	           responsavelprojeto, tot_cenografia, vlr_inicial, praca, tipo_evento
+          ORDER BY sigla, codbriefing;");
         PropostaBriefings = new ObservableCollection<PropostaBriefingQuadroDto>(itens);
     }
 
@@ -1105,7 +1112,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                 SELECT 
 	                tema,
                     tipo,
-                    SUM(preco_excel_total) as total
+                    SUM(total) as total
                 FROM comercial.view_quadro_preco
                 WHERE codbrief = @codbrief
                 GROUP BY tema, tipo
@@ -1223,6 +1230,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                      preco_nf_total = q.preco_nf_total,
                      preco_excel = q.preco_excel,
                      preco_excel_total = q.preco_excel_total,
+                     valor_unitario = q.valor_unitario,
                     Ilustracoes = MapearIlustracoes(q.codquadro_preco)
                 })]
         );
@@ -1343,14 +1351,17 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         string sql = coluna switch
         {
             "item" => "UPDATE comercial.proposta_quadro_preco SET item = @valor WHERE codquadro_preco = @codquadro_preco",
-            "qtd" => "UPDATE comercial.proposta_quadro_preco SET qtd  = @valor WHERE codquadro_preco = @codquadro_preco",
+            "qtd" => "UPDATE comercial.proposta_quadro_preco SET qtd = @valor WHERE codquadro_preco = @codquadro_preco",
+            "valor_unitario" => "UPDATE comercial.proposta_quadro_preco SET valor_unitario = @valor WHERE codbrief = @codbrief AND coddimensao = @coddimensao",
             _ => throw new Exception("Coluna inválida")
         };
 
         await conn.ExecuteAsync(sql, new
         {
             valor = novoValor,
-            item.codquadro_preco
+            item.codquadro_preco,
+            item.codbrief,
+            item.coddimensao,
         });
     }
 

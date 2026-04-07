@@ -56,6 +56,7 @@ public class QuadroPrecoDto
     public double preco_nf_total { get; set; }
     public double preco_excel { get; set; }
     public double preco_excel_total { get; set; }
+    public double valor_unitario { get; set; }
 
     public ObservableCollection<PropostaIlustracaoModel> Ilustracoes { get; set; }
 

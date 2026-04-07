@@ -1217,21 +1217,21 @@ namespace Comercial.Views.Proposta
                         localdetalhe, coddimensao, qtd, qtdanterior,
                         obs, obsinterna, ledml, desconto,
                         bloco, tot_cenografia, cadastradopor, datacadastro,
-                        alteradopor, custo_item, vlr_indice, vlr_led,
-                        custo_tot_item, total_desc
+                        alteradopor, dataaltera, custo_item, vlr_indice, vlr_led,
+                        custo_tot_item, total_desc, valor_unitario, preco_excel
                     )
                 SELECT
-                    proposta_quadro_quantitativo.codquadro_quantitativo, proposta_quadro_quantitativo.codbrief, proposta_quadro_quantitativo.sigla, proposta_quadro_quantitativo.idtema,
-                    proposta_quadro_quantitativo.tema, proposta_quadro_quantitativo.tipo, proposta_quadro_quantitativo.item, proposta_quadro_quantitativo.local, 
-                    proposta_quadro_quantitativo.localdetalhe, proposta_quadro_quantitativo.coddimensao, proposta_quadro_quantitativo.qtd, proposta_quadro_quantitativo.qtdanterior,
-                    proposta_quadro_quantitativo.obs, proposta_quadro_quantitativo.obsinterna, proposta_quadro_quantitativo.ledml, proposta_quadro_quantitativo.desconto,
-                    proposta_quadro_quantitativo.bloco, proposta_quadro_quantitativo.tot_cenografia, proposta_quadro_quantitativo.cadastradopor, proposta_quadro_quantitativo.datacadastro,
-                    proposta_quadro_quantitativo.alteradopor, proposta_quadro_quantitativo.custo_item, proposta_quadro_quantitativo.vlr_indice, proposta_quadro_quantitativo.vlr_led,
-                    proposta_quadro_quantitativo.custo_tot_item, proposta_quadro_quantitativo.total_desc
+                    view_quadro_quantitativo.codquadro_quantitativo, view_quadro_quantitativo.codbrief, view_quadro_quantitativo.sigla, view_quadro_quantitativo.idtema,
+                    view_quadro_quantitativo.tema, view_quadro_quantitativo.tipo, view_quadro_quantitativo.item, view_quadro_quantitativo.local, 
+                    view_quadro_quantitativo.localdetalhe, view_quadro_quantitativo.coddimensao, view_quadro_quantitativo.qtd, view_quadro_quantitativo.qtdanterior,
+                    view_quadro_quantitativo.obs, view_quadro_quantitativo.obsinterna, view_quadro_quantitativo.ledml, view_quadro_quantitativo.desconto,
+                    view_quadro_quantitativo.bloco, view_quadro_quantitativo.tot_cenografia, view_quadro_quantitativo.cadastradopor, view_quadro_quantitativo.datacadastro,
+                    view_quadro_quantitativo.alteradopor, view_quadro_quantitativo.dataaltera, view_quadro_quantitativo.custo_item, view_quadro_quantitativo.vlr_indice, view_quadro_quantitativo.vlr_led,
+                    view_quadro_quantitativo.custo_tot_item, view_quadro_quantitativo.total_desc, view_quadro_quantitativo.preco_excel AS valor_unitario, view_quadro_quantitativo.preco_excel
                 FROM
-                    comercial.proposta_quadro_quantitativo
-                    LEFT JOIN comercial.proposta_quadro_preco ON comercial.proposta_quadro_quantitativo.codquadro_quantitativo = comercial.proposta_quadro_preco.codquadro_quantitativo
-                WHERE comercial.proposta_quadro_preco.codquadro_quantitativo IS NULL AND proposta_quadro_quantitativo.codbrief = @briefing AND proposta_quadro_quantitativo.idtema = @idtema
+                    comercial.view_quadro_quantitativo
+                    LEFT JOIN comercial.proposta_quadro_preco ON comercial.view_quadro_quantitativo.codquadro_quantitativo = comercial.proposta_quadro_preco.codquadro_quantitativo
+                WHERE comercial.proposta_quadro_preco.codquadro_quantitativo IS NULL AND view_quadro_quantitativo.codbrief = @briefing AND view_quadro_quantitativo.idtema = @idtema
                 ORDER BY item;
                 ";
             return await conn.ExecuteAsync(sql, new { briefing, idtema });

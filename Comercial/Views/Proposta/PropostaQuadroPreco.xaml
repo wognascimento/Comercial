@@ -440,8 +440,8 @@
                         <telerik:GridViewDataColumn Header="QTD ANTERIOR" IsReadOnly="true" DataMemberBinding="{Binding qtdanterior}"/>
                         <telerik:GridViewDataColumn Header="OBSERVAÇÃO" IsReadOnly="true" DataMemberBinding="{Binding obs}"/>
                         <telerik:GridViewDataColumn Header="OBSERVAÇÃO INTERNA" IsReadOnly="true" DataMemberBinding="{Binding obsinterna}"/>
-                        <telerik:GridViewDataColumn Header="UNITÁRIO" IsReadOnly="true" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding preco_excel}" DataFormatString="{}{0:N2}"/>
-                        <telerik:GridViewDataColumn Header="TOTAL" IsReadOnly="true" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding preco_excel_total}" DataFormatString="{}{0:N2}"/>
+                        <telerik:GridViewDataColumn Header="UNITÁRIO" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding valor_unitario}" DataFormatString="{}{0:N2}"/>
+                        <telerik:GridViewExpressionColumn Header="TOTAL" IsReadOnly="true" ColumnGroupName="PrecoExcel" Expression="valor_unitario * qtd" DataFormatString="{}{0:N2}" />
                     </telerik:RadGridView.Columns>
 
 
