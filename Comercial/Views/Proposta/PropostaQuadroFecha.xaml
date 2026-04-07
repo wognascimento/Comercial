@@ -325,7 +325,7 @@
                             Grid.Column="0" 
                             Grid.Row="2" 
                             Content="DESTRAVAR DATA" 
-                            Margin="2"/>
+                            Margin="2" Click="OnDestravaDataClick"/>
                         <telerik:RadButton 
                             Grid.Column="1" 
                             Grid.Row="2"
@@ -401,9 +401,9 @@
                         <telerik:GridViewDataColumn Header="TIPO" IsReadOnly="true" DataMemberBinding="{Binding tipo}"/>
                         <telerik:GridViewComboBoxColumn
                             Header="SIGLA SERVIÇO"
-                            DataMemberBinding="{Binding sigla_serv}"
+                            DataMemberBinding="{Binding id_aprovado}"
                             ItemsSource="{Binding ProducaoAprovados}"
-                            SelectedValueMemberPath="sigla_serv"
+                            SelectedValueMemberPath="id_aprovado"
                             DisplayMemberPath="sigla_serv"/>
                         <telerik:GridViewDataColumn Header="BLOCO REVISÃO" IsReadOnly="true" DataMemberBinding="{Binding bloco_revisao}"/>
                         <telerik:GridViewDataColumn Header="FAMÍLIA" IsReadOnly="true" DataMemberBinding="{Binding familia}"/>

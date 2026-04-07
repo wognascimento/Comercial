@@ -283,7 +283,7 @@ public partial class CopiaQuadroViewModel : ObservableObject
             {
 
                 var sql = "SELECT CAST(CASE WHEN EXISTS (SELECT 1 FROM comercial.proposta_dimensaodescricaocomercial WHERE coddimensao = @Coddimensao) THEN 1 ELSE 0 END AS BIT)";
-                bool existe = conn.ExecuteScalar<bool>(sql, new { Coddimensao = item.coddimensao });
+                bool existe = await conn.ExecuteScalarAsync<bool>(sql, new { Coddimensao = item.coddimensao });
                 if (existe)
                 {
                     var codcompl = await conn.ExecuteScalarAsync<int>(

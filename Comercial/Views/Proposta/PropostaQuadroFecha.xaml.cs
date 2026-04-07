@@ -120,7 +120,8 @@ public partial class PropostaQuadroFecha : UserControl
                         //btnAlterar.IsEnabled = false;
                         //btnIncluir.IsEnabled = false;
                         //btnLimpar.IsEnabled = false;
-                        btnExcluir.IsEnabled = false;
+                        this.btnExcluir.IsEnabled = false;
+                        this.dtConclusao.IsEnabled = false;
                         //itensProposta.IsReadOnly = true;
                     }
                     else
@@ -128,8 +129,9 @@ public partial class PropostaQuadroFecha : UserControl
                         //btnAlterar.IsEnabled = true;
                         //btnIncluir.IsEnabled = true;
                         //btnLimpar.IsEnabled = true;
-                        btnExcluir.IsEnabled = true;
-                        itensProposta.IsReadOnly = false;
+                        this.btnExcluir.IsEnabled = true;
+                        this.dtConclusao.IsEnabled = true;
+                        //itensProposta.IsReadOnly = false;
                     }
                 }
             }
@@ -355,6 +357,7 @@ public partial class PropostaQuadroFecha : UserControl
         {
             "item" => item.item,
             "qtd" => item.qtd,
+            "id_aprovado" => item.id_aprovado,
             _ => null
         };
     }
@@ -371,7 +374,7 @@ public partial class PropostaQuadroFecha : UserControl
 
             var coluna = e.Cell.Column.UniqueName;
 
-            if (coluna != "item" && coluna != "qtd")
+            if (coluna != "item" && coluna != "qtd" && coluna != "id_aprovado")
                 return;
 
             var novoValor = e.NewData;
@@ -391,7 +394,10 @@ public partial class PropostaQuadroFecha : UserControl
                     item.item = (string)_oldValue;
 
                 if (coluna == "qtd")
-                    item.qtd = System.Convert.ToDouble(_oldValue);
+                    item.qtd = Convert.ToDouble(_oldValue);
+
+                if (coluna == "id_aprovado")
+                    item.id_aprovado = Convert.ToInt64(_oldValue); 
 
                 MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
             }
@@ -610,6 +616,39 @@ public partial class PropostaQuadroFecha : UserControl
                 await vm.CarregarItensPropostaAsync(vm.SelectedFechaSigla.codbriefing, vm.SelectedFechaTema.idtema);
                 await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedFechaSigla.codbriefing, vm.SelectedFechaTema.idtema);
                 LimparCampos();
+            }
+        }
+        catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+
+    private async void OnDestravaDataClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (DataContext is PropostaQuadroFechaViewModel vm)
+            {
+                var confirmResult = MessageBox.Show("Confirma o destravamento da data de conclusão deste tema? Isso permitirá alterações no quadro fecha.", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                    return;
+                var permitido = await vm.DestravaDataAsync(BaseSettings.Username);
+                if (permitido)
+                {
+                    MessageBox.Show("Data destravada com sucesso. O quadro fecha agora pode ser editado.", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+                    this.dtConclusao.IsEnabled = true;
+                }
+                else
+                {
+                    MessageBox.Show("Não foi possível destravar a data. Verifique se você tem permissão para realizar esta ação.", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                }
             }
         }
         catch (RepositoryException ex)
@@ -943,7 +982,8 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         string sql = coluna switch
         {
             "item" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET item = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
-            "qtd" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET qtd  = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+            "qtd" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET qtd = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+            "id_aprovado" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET id_aprovado = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
             _ => throw new Exception("Coluna inválida")
         };
 
@@ -999,6 +1039,13 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var sql = @"DELETE FROM comercial.tbl_fecha_qd_quantitativo WHERE cod_linha_qdfecha = @cod_linha_qdfecha;";
         return await conn.ExecuteAsync(sql, new { cod_linha_qdfecha });
+    }
+
+    public async Task<bool> DestravaDataAsync(string Usuario)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = "SELECT CAST(CASE WHEN EXISTS (SELECT 1 FROM comercial.tbl_destrava_quadro_fecha WHERE usuario = @Usuario) THEN 1 ELSE 0 END AS BIT)";
+        return await conn.ExecuteScalarAsync<bool>(sql, new { Usuario });
     }
 
 }
