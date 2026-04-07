@@ -2,7 +2,6 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -273,8 +272,7 @@ public class DocumentoWordService
 
         // 🔥 AGRUPAR POR BLOCO
         var grupos = itens
-            .GroupBy(i => i.Bloco ?? "GERAL")
-            .OrderBy(g => g.Key);
+            .GroupBy(i => i.Bloco ?? "GERAL");
 
         foreach (var grupo in grupos)
         {
