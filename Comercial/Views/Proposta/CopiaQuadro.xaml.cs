@@ -150,7 +150,7 @@ public partial class CopiaQuadro : UserControl
 
             Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
             await vm.CopiarItens(itens, briefing);
-            MessageBox.Show("Itens copiados com sucesso!", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(@$"cópia finalizada, com {vm.ItensAusentes.Count} ausentes.", "Sucesso", MessageBoxButton.OK, MessageBoxImage.Information);
             Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx)
@@ -193,6 +193,9 @@ public partial class CopiaQuadroViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<PropostaItemQuadroDto> comercialItensProposta = [];
+
+    [ObservableProperty]
+    private ObservableCollection<PropostaItemQuadroDto> itensAusentes = [];
 
 
     public async Task CarregarSiglasAsync()
@@ -279,19 +282,12 @@ public partial class CopiaQuadroViewModel : ObservableObject
             foreach (var item in itens)
             {
 
-
-                var sql = @"
-                INSERT INTO comercial.proposta_quadro_quantitativo
-                (codbrief, sigla, tema, tipo, item, local, localdetalhe, coddimensao,
-                 qtd, obs, obsinterna, ledml, desconto, bloco, idtema, cadastradopor, datacadastro)
-                VALUES
-                (@codbrief, @sigla, @tema, @tipo, @item, @local, @localdetalhe, @coddimensao,
-                 @qtd, @obs, @obsinterna, @ledml, @desconto, @bloco, @idtema, @cadastradopor, @datacadastro)
-                RETURNING codquadro_quantitativo;
-            ";
-
-                var codcompl = await conn.ExecuteScalarAsync<int>(
-                    @"INSERT INTO comercial.proposta_quadro_quantitativo 
+                var sql = "SELECT CAST(CASE WHEN EXISTS (SELECT 1 FROM comercial.proposta_dimensaodescricaocomercial WHERE coddimensao = @Coddimensao) THEN 1 ELSE 0 END AS BIT)";
+                bool existe = conn.ExecuteScalar<bool>(sql, new { Coddimensao = item.coddimensao });
+                if (existe)
+                {
+                    var codcompl = await conn.ExecuteScalarAsync<int>(
+                        @"INSERT INTO comercial.proposta_quadro_quantitativo 
                              (
                                   codbrief, sigla, tema, tipo, item, local, localdetalhe, coddimensao,
                                   qtd, qtdanterior, ledml, bloco, idtema, cadastradopor, datacadastro
@@ -302,26 +298,34 @@ public partial class CopiaQuadroViewModel : ObservableObject
                                   @qtd, @qtdanterior, @ledml, @bloco, @idtema, @cadastradopor, @datacadastro
                              )
                       RETURNING codquadro_quantitativo",
-                    new
-                    {
-                        codbrief = Briefing.codbriefing,
-                        Briefing.sigla,
-                        tema = Briefing.temas,
-                        item.tipo,
-                        item.item,
-                        item.local,
-                        item.localdetalhe,
-                        item.coddimensao,
-                        qtd = 0,
-                        qtdanterior = item.qtd,
-                        item.ledml,
-                        item.bloco,
-                        Briefing.idtema,
-                        cadastradopor = BaseSettings.Username,
-                        datacadastro = DateTime.Now
-                    },
-                    transaction: tran
-                ); 
+                        new
+                        {
+                            codbrief = Briefing.codbriefing,
+                            Briefing.sigla,
+                            tema = Briefing.temas,
+                            item.tipo,
+                            item.item,
+                            item.local,
+                            item.localdetalhe,
+                            item.coddimensao,
+                            qtd = 0,
+                            qtdanterior = item.qtd,
+                            item.ledml,
+                            item.bloco,
+                            Briefing.idtema,
+                            cadastradopor = BaseSettings.Username,
+                            datacadastro = DateTime.Now
+                        },
+                        transaction: tran
+                    );
+                }
+                else
+                {
+                    ItensAusentes.Add(item);
+                }
+
+
+                    
             }
 
             await tran.CommitAsync();
@@ -329,7 +333,7 @@ public partial class CopiaQuadroViewModel : ObservableObject
         catch (Exception ex)
         {
             await tran.RollbackAsync();
-            throw new Exception("Erro ao inserir histórico de checklist", ex);
+            throw new Exception("Erro ao copiar quadro", ex);
         }
 
     }

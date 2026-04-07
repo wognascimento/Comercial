@@ -399,7 +399,13 @@
                     <telerik:RadGridView.Columns>
                         
                         <telerik:GridViewDataColumn Header="TIPO" IsReadOnly="true" DataMemberBinding="{Binding tipo}"/>
-                        <telerik:GridViewDataColumn Header="BLOCO" IsReadOnly="true" DataMemberBinding="{Binding bloco}"/>
+                        <telerik:GridViewComboBoxColumn
+                            Header="SIGLA SERVIÇO"
+                            DataMemberBinding="{Binding sigla_serv}"
+                            ItemsSource="{Binding ProducaoAprovados}"
+                            SelectedValueMemberPath="sigla_serv"
+                            DisplayMemberPath="sigla_serv"/>
+                        <telerik:GridViewDataColumn Header="BLOCO REVISÃO" IsReadOnly="true" DataMemberBinding="{Binding bloco_revisao}"/>
                         <telerik:GridViewDataColumn Header="FAMÍLIA" IsReadOnly="true" DataMemberBinding="{Binding familia}"/>
                         <telerik:GridViewDataColumn Header="ITEM" DataMemberBinding="{Binding item}"/>
                         <telerik:GridViewDataColumn Header="LOCAL" IsReadOnly="true" DataMemberBinding="{Binding localitem}"/>

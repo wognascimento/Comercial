@@ -65,11 +65,11 @@ public partial class PropostaQuadroFecha : UserControl
 
                 vm.ItensProposta = [];
 
-                btnAlterar.IsEnabled = true;
-                btnIncluir.IsEnabled = true;
-                btnLimpar.IsEnabled = true;
+                //btnAlterar.IsEnabled = true;
+                //btnIncluir.IsEnabled = true;
+                //btnLimpar.IsEnabled = true;
                 btnExcluir.IsEnabled = true;
-                itensProposta.IsReadOnly = false;
+                //itensProposta.IsReadOnly = false;
 
                 this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
                 this.dtConclusao.SelectedValue = null;
@@ -78,11 +78,12 @@ public partial class PropostaQuadroFecha : UserControl
                 if (e.AddedItems.Count > 0 && e.AddedItems[0] is PropostaFechaSiglaDto selectedBriefing)
                 {
                     await vm.CarregarBrifinTemasAsync(selectedBriefing.codbriefing);
+                    await vm.CarregarAprovadosAsync(selectedBriefing.sigla);
                     vm.ItensProposta = [];
                     vm.ItemProposta = null;
                 }
 
-                //LimparCampos();
+                LimparCampos();
             }
             catch (RepositoryException ex)
             {
@@ -111,22 +112,22 @@ public partial class PropostaQuadroFecha : UserControl
 
                     this.dtConclusao.SelectionChanged += dtConclusao_SelectionChanged;
 
-                    //LimparCampos();
+                    LimparCampos();
 
 
                     if (selectedTema?.data_tema_fecha != null)
                     {
-                        btnAlterar.IsEnabled = false;
-                        btnIncluir.IsEnabled = false;
-                        btnLimpar.IsEnabled = false;
+                        //btnAlterar.IsEnabled = false;
+                        //btnIncluir.IsEnabled = false;
+                        //btnLimpar.IsEnabled = false;
                         btnExcluir.IsEnabled = false;
-                        itensProposta.IsReadOnly = true;
+                        //itensProposta.IsReadOnly = true;
                     }
                     else
                     {
-                        btnAlterar.IsEnabled = true;
-                        btnIncluir.IsEnabled = true;
-                        btnLimpar.IsEnabled = true;
+                        //btnAlterar.IsEnabled = true;
+                        //btnIncluir.IsEnabled = true;
+                        //btnLimpar.IsEnabled = true;
                         btnExcluir.IsEnabled = true;
                         itensProposta.IsReadOnly = false;
                     }
@@ -239,10 +240,10 @@ public partial class PropostaQuadroFecha : UserControl
                     }
                     //DateTime? conclusao, long briefing, long idtema, string resp, string strsigla
                     await vm.ConcluirProjetoAsync(null, vm.SelectedFechaTema.cod_brief, vm.SelectedFechaTema.idtema, BaseSettings.Username);
-                    btnAlterar.IsEnabled = true;
-                    btnIncluir.IsEnabled = true;
-                    btnLimpar.IsEnabled = true;
-                    btnExcluir.IsEnabled = true;
+                    //btnAlterar.IsEnabled = true;
+                    //btnIncluir.IsEnabled = true;
+                    //btnLimpar.IsEnabled = true;
+                    //btnExcluir.IsEnabled = true;
                 }
                 else
                 {
@@ -255,10 +256,10 @@ public partial class PropostaQuadroFecha : UserControl
                     }
                     DateTime selectedDate = (DateTime)inicioData;
                     await vm.ConcluirProjetoAsync(selectedDate, vm.SelectedFechaTema.cod_brief, vm.SelectedFechaTema.idtema, BaseSettings.Username);
-                    btnAlterar.IsEnabled = false;
-                    btnIncluir.IsEnabled = false;
-                    btnLimpar.IsEnabled = false;
-                    btnExcluir.IsEnabled = false;
+                    //btnAlterar.IsEnabled = false;
+                    //btnIncluir.IsEnabled = false;
+                    //btnLimpar.IsEnabled = false;
+                    //btnExcluir.IsEnabled = false;
                 }
             }
             catch (RepositoryException ex)
@@ -758,6 +759,12 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
     private ObservableCollection<PropostaFechaTemaDto> propostaFechaTemas = [];
 
     [ObservableProperty]
+    private ObservableCollection<ProducaoAprovadoModel> producaoAprovados = [];
+
+    [ObservableProperty]
+    private ProducaoAprovadoModel producaoAprovado;
+
+    [ObservableProperty]
     private PropostaFechaTemaDto selectedFechaTema;
 
     [ObservableProperty]
@@ -823,6 +830,18 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
           WHERE cod_brief = @codbriefing
           ORDER BY ordem_escolha;", parametros);
         PropostaFechaTemas = new ObservableCollection<PropostaFechaTemaDto>(itens);
+    }
+
+    public async Task CarregarAprovadosAsync(string Sigla)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var parametros = new { Sigla };
+        var itens = await conn.QueryAsync<ProducaoAprovadoModel>(
+        @"SELECT sigla_serv, id_aprovado
+          FROM producao.t_aprovados
+          WHERE sigla = @Sigla
+          ORDER BY sigla_serv;", parametros);
+        ProducaoAprovados = new ObservableCollection<ProducaoAprovadoModel>(itens);
     }
 
     public async Task CarregarDetalhesLocalDetalhesLocaisAsync(long codbrief, long idtema)
