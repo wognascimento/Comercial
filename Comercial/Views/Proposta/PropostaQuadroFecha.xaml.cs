@@ -105,6 +105,7 @@ public partial class PropostaQuadroFecha : UserControl
                 if (e.AddedItems.Count > 0 && e.AddedItems[0] is PropostaFechaTemaDto selectedTema)
                 {
                     await vm.CarregarDetalhesLocalDetalhesLocaisAsync(vm.SelectedFechaSigla.codbriefing, selectedTema.idtema);
+                    this.tbMultiLine.Text = await vm.CarregarTextoAsync(vm.SelectedFechaSigla.codbriefing, selectedTema.idtema);
                     await vm.CarregarItensPropostaAsync(vm.SelectedFechaSigla.codbriefing, selectedTema.idtema);
 
                     this.dtConclusao.SelectionChanged -= dtConclusao_SelectionChanged;
@@ -364,45 +365,68 @@ public partial class PropostaQuadroFecha : UserControl
 
     private async void itensProposta_CellEditEnded(object sender, GridViewCellEditEndedEventArgs e)
     {
-        if (DataContext is PropostaQuadroFechaViewModel vm)
+        if (DataContext is not PropostaQuadroFechaViewModel vm)
+            return;
+
+        if (e.EditAction != GridViewEditAction.Commit)
+            return;
+
+        if (e.Cell?.DataContext is not PropostaFechaViewDto item)
+            return;
+
+        var coluna = e.Cell.Column.UniqueName;
+
+        if (coluna != "item" && coluna != "qtd" && coluna != "id_aprovado")
+            return;
+
+        var novoValor = e.NewData;
+
+        // evita salvar sem mudança real
+        if (Equals(novoValor, _oldValue))
+            return;
+
+        try
         {
-            if (e.EditAction != GridViewEditAction.Commit)
-                return;
-
-            if (e.Cell?.DataContext is not PropostaFechaViewDto item)
-                return;
-
-            var coluna = e.Cell.Column.UniqueName;
-
-            if (coluna != "item" && coluna != "qtd" && coluna != "id_aprovado")
-                return;
-
-            var novoValor = e.NewData;
-
-            // evita salvar sem mudança real
-            if (Equals(novoValor, _oldValue))
-                return;
-
-            try
+            // 🔵 REGRA NOVA: preencher sigla_serv
+            if (coluna == "id_aprovado")
             {
-                await vm.SalvarAsync(item, coluna, novoValor);
+                var selecionado = vm.ProducaoAprovados
+                    .FirstOrDefault(x => x.id_aprovado == item.id_aprovado);
+
+                if (selecionado != null)
+                {
+                    item.sigla_serv = selecionado.sigla_serv;
+                }
             }
-            catch (Exception ex)
-            {
-                // 🔴 rollback
-                if (coluna == "item")
-                    item.item = (string)_oldValue;
 
-                if (coluna == "qtd")
-                    item.qtd = Convert.ToDouble(_oldValue);
-
-                if (coluna == "id_aprovado")
-                    item.id_aprovado = Convert.ToInt64(_oldValue); 
-
-                MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
-            }
+            await vm.SalvarAsync(item, coluna, novoValor);
         }
+        catch (Exception ex)
+        {
+            // 🔴 rollback
 
+            if (coluna == "item")
+                item.item = (string)_oldValue;
+
+            if (coluna == "qtd")
+                item.qtd = Convert.ToDouble(_oldValue);
+
+            if (coluna == "id_aprovado")
+            {
+                item.id_aprovado = Convert.ToInt64(_oldValue);
+
+                // 🔴 rollback também da sigla
+                var anterior = vm.ProducaoAprovados
+                    .FirstOrDefault(x => x.id_aprovado == item.id_aprovado);
+
+                if (anterior != null)
+                    item.sigla_serv = anterior.sigla_serv;
+                else
+                    item.sigla_serv = null;
+            }
+
+            MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
+        }
     }
 
     private async void rasBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -628,7 +652,6 @@ public partial class PropostaQuadroFecha : UserControl
         }
     }
 
-
     private async void OnDestravaDataClick(object sender, RoutedEventArgs e)
     {
         try
@@ -652,6 +675,29 @@ public partial class PropostaQuadroFecha : UserControl
             }
         }
         catch (RepositoryException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void OnCChkListInicialClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (DataContext is PropostaQuadroFechaViewModel vm)
+            {
+                if (dtConclusao.SelectedDate != null)
+                    throw new Exception("Fecha concluído!");
+
+                var linhasAfetadas = await vm.CriarChecklistUltraAsync(vm.SelectedFechaSigla.codbriefing, vm.SelectedFechaTema.idtema);
+                MessageBox.Show($"CHECKLIST criado com sucesso! Registros: {linhasAfetadas}");
+            }
+        }
+        catch (PostgresException ex)
         {
             MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
@@ -871,6 +917,33 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         PropostaFechaTemas = new ObservableCollection<PropostaFechaTemaDto>(itens);
     }
 
+    public async Task<string?> CarregarTextoAsync(long briefing, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"
+        SELECT STRING_AGG(bloco, E'\n') AS texto_final
+        FROM (
+            SELECT 
+                'Inserido por ' || inserido_por || ':' || E'\n     *' ||
+                STRING_AGG(obs, E'\n\n     *' ORDER BY inserido_em) ||
+                E'\n__________________________________\n' AS bloco
+            FROM comercial.tbl_fecha_obs
+            WHERE idtema = @idtema
+              AND briefing = @briefing
+            GROUP BY inserido_por
+        ) t;
+        ";
+
+        var texto = await conn.ExecuteScalarAsync<string>(sql, new
+        {
+            briefing,
+            idtema,
+        });
+
+        // equivalente ao Forms!...txtobservacaogeral
+        return texto;
+    }
+
     public async Task CarregarAprovadosAsync(string Sigla)
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
@@ -981,15 +1054,28 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
 
         string sql = coluna switch
         {
-            "item" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET item = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
-            "qtd" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET qtd = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
-            "id_aprovado" => "UPDATE comercial.tbl_fecha_qd_quantitativo SET id_aprovado = @valor WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+            "item" => @"UPDATE comercial.tbl_fecha_qd_quantitativo 
+                    SET item = @valor 
+                    WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+
+            "qtd" => @"UPDATE comercial.tbl_fecha_qd_quantitativo 
+                   SET qtd = @valor 
+                   WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+
+            // 🔴 AQUI A MUDANÇA
+            "id_aprovado" => @"UPDATE comercial.tbl_fecha_qd_quantitativo 
+                           SET id_aprovado = @id_aprovado,
+                               sigla_serv = @sigla_serv
+                           WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+
             _ => throw new Exception("Coluna inválida")
         };
 
         await conn.ExecuteAsync(sql, new
         {
             valor = novoValor,
+            item.id_aprovado,
+            item.sigla_serv,
             item.cod_linha_qdfecha
         });
     }
@@ -1046,6 +1132,82 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var sql = "SELECT CAST(CASE WHEN EXISTS (SELECT 1 FROM comercial.tbl_destrava_quadro_fecha WHERE usuario = @Usuario) THEN 1 ELSE 0 END AS BIT)";
         return await conn.ExecuteScalarAsync<bool>(sql, new { Usuario });
+    }
+
+    public async Task<long> CriarChecklistUltraAsync(long cod_brief, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        await conn.OpenAsync();
+        using var transaction = await conn.BeginTransactionAsync();
+
+        try
+        {
+            var sql = @"
+            INSERT INTO producao.t_complemento_chk
+            (
+                ordem,
+                sigla,
+                local_shoppings,
+                item_memorial,
+                alteradopor,
+                incluidopordesc,
+                datainclusaodesc,
+                dataalteracaodesc,
+                qtd,
+                coduniadicional,
+                codproduto,
+                id_aprovado
+            )
+            SELECT
+                -- ordem formatada igual ao VBA
+                CASE 
+                    WHEN ROW_NUMBER() OVER (PARTITION BY f.coddimensao ORDER BY i.codinsumo) < 10
+                        THEN f.item || '.00' || ROW_NUMBER() OVER (PARTITION BY f.coddimensao ORDER BY i.codinsumo)
+                    ELSE
+                        f.item || '.0' || ROW_NUMBER() OVER (PARTITION BY f.coddimensao ORDER BY i.codinsumo)
+                END AS ordem,
+
+                TRIM(f.sigla_serv) AS sigla,
+                UPPER(f.localitem) AS local_shoppings,
+                f.item AS item_memorial,
+
+                'SISTEMA' AS alteradopor,
+                'SISTEMA' AS incluidopordesc,
+                NOW() AS datainclusaodesc,
+                NOW() AS dataalteracaodesc,
+
+                ROUND((i.qtd * f.qtd)::numeric, 2) AS qtd,
+
+                c.coduniadicional,
+                d.codigoproduto,
+                f.id_aprovado
+
+            FROM comercial.proposta_view_fecha f
+
+            JOIN comercial.proposta_itens_insumo i
+                ON i.coddimensao = f.coddimensao
+
+            LEFT JOIN producao.tblcomplementoadicional c
+                ON c.codcompladicional = i.codcompladicional
+
+            LEFT JOIN producao.tabela_desc_adicional d
+                ON d.coduniadicional = c.coduniadicional
+
+            WHERE f.cod_brief = @cod_brief AND idtema = @idtema AND COALESCE(c.inativo::int, 0) = 0;
+        ";
+
+            var linhasAfetadas = await conn.ExecuteAsync(sql, transaction: transaction, param: new { cod_brief, idtema });
+
+            await transaction.CommitAsync();
+
+            return linhasAfetadas;
+
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
 }

@@ -991,6 +991,33 @@ public partial class PropostaQuadroPreco : UserControl
         }
     }
 
+    private async void RadMenuItem_Click_4(object sender, Telerik.Windows.RadRoutedEventArgs e)
+    {
+        
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                MessageBoxResult confirmResult = MessageBox.Show("Confirma enviar tema para o fecha?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                    return;
+
+                await vm.EnviarTemaFechaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
+                
+            }
+
+            catch (PostgresException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+    }
+
     public static void CorrigirIdiomaPpt(string caminhoArquivo)
     {
         using var presentation = PresentationDocument.Open(caminhoArquivo, true);
@@ -1011,6 +1038,8 @@ public partial class PropostaQuadroPreco : UserControl
 
         presentation.Save();
     }
+
+    
 }
 
 public partial class PropostaQuadroPrecoViewModel : ObservableObject
@@ -1363,6 +1392,82 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
             item.codbrief,
             item.coddimensao,
         });
+    }
+
+
+    public async Task EnviarTemaFechaAsync(long codbrief, long idtema)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        await conn.OpenAsync();
+
+        await using var transaction = await conn.BeginTransactionAsync();
+
+        try
+        {
+            var sql = @"INSERT INTO comercial_tbl_fecha_qd_quantitativo
+                        (
+                            codquadro_preco,
+                            cod_brief,
+                            sigla,
+                            tema,
+                            tipo,
+                            item,
+                            local,
+                            detalhe_local,
+                            coddimensao,
+                            qtd,
+                            obs,
+                            obs_interna,
+                            ledml,
+                            bloco,
+                            produtocliente_cod,
+                            produtocliente_qtd,
+                            cadastrado_por,
+                            data_cadastro,
+                            idtema
+                        )
+                        SELECT
+                            p.codquadro_preco,
+                            p.codbrief,
+                            p.sigla,
+                            p.tema,
+                            p.tipo,
+                            p.item,
+                            p.local,
+                            p.localdetalhe,
+                            p.coddimensao,
+                            p.qtd,
+                            p.obs,
+                            p.obsinterna,
+                            p.ledml,
+                            p.bloco,
+                            p.produtocliente_cod,
+                            p.produtocliente_qtd,
+                            @usuario,
+                            NOW(),
+                            p.idtema
+                        FROM comercial_proposta_quadro_preco p
+                        WHERE p.codbrief = @codbrief
+                          AND p.idtema = @idtema
+                          AND NOT EXISTS (
+                                SELECT 1
+                                FROM comercial_tbl_fecha_qd_quantitativo q
+                                WHERE q.codquadro_preco = p.codquadro_preco
+                          );";
+            var linhas = await conn.ExecuteAsync(sql, new
+            {
+                codbrief,
+                idtema,
+                usuario = BaseSettings.Username
+            }, transaction);
+
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
 }

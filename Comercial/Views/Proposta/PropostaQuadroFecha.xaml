@@ -305,7 +305,8 @@
                             AcceptsReturn="True"
                             TextWrapping="Wrap" 
                             VerticalScrollBarVisibility="Auto" 
-                            VerticalContentAlignment="Top">
+                            VerticalContentAlignment="Top" 
+                            IsEnabled="False">
                         </telerik:RadWatermarkTextBox>
 
                         <TextBlock 
@@ -330,7 +331,7 @@
                             Grid.Column="1" 
                             Grid.Row="2"
                             Content="CHECKLIST INICIAL" 
-                            Margin="2"/>
+                            Margin="2" Click="OnCChkListInicialClick"/>
 
 
 
@@ -345,23 +346,33 @@
                     Padding="5"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
-                <DockPanel LastChildFill="True">
-                    <TextBlock Text="Adcionar observação geral"
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="Adcionar observação geral"
                                FontWeight="Bold"
                                Background="#B0B0B0"
                                Padding="3"
-                               DockPanel.Dock="Top"
                                Margin="0,0,0,5"/>
 
                     <telerik:RadWatermarkTextBox
+                        Grid.Row="1"
                         WatermarkContent="Digite seu comentário aqui..." 
                         AcceptsReturn="True"
                         TextWrapping="Wrap" 
                         VerticalScrollBarVisibility="Auto" 
-                        VerticalContentAlignment="Top">
-                    </telerik:RadWatermarkTextBox>
+                        VerticalContentAlignment="Top"/>    
 
-                </DockPanel>
+                    <telerik:RadButton
+                        Grid.Row="2"
+                        Content="ADICIONAR OBSERVAÇÃO GERAL" 
+                        Margin="2"/>
+                </Grid>
             </Border>
         </Grid>
 
