@@ -28,7 +28,7 @@ public class DocumentoWordService
         File.Copy(templatePath, destinoPath, true);
 
         using var doc = WordprocessingDocument.Open(destinoPath, true);
-        var body = doc.MainDocumentPart!.Document.Body!;
+        var body = doc.MainDocumentPart?.Document?.Body!;
 
         // 🔥 1️⃣ Encontrar marcador corretamente (mesmo se Word dividir em runs)
         var paragrafoMarcador = LocalizarParagrafoMarcador(body);
@@ -338,7 +338,7 @@ public class DocumentoWordService
             )
         );
     }
-
+    /*
     private Paragraph CriarSubTitulo(string texto, bool novaPagina)
     {
         var props = new ParagraphProperties(
@@ -356,6 +356,40 @@ public class DocumentoWordService
                 new RunProperties(
                     new RunFonts { Ascii = "Verdana" },
                     new FontSize { Val = "20" }
+                ),
+                new Text(texto)
+            )
+        );
+    }
+    */
+
+    private Paragraph CriarSubTitulo(string texto, bool novaPagina)
+    {
+        var props = new ParagraphProperties(
+            new ParagraphStyleId { Val = "Ttulo1" },
+            new SpacingBetweenLines { After = "150" },
+            new Justification { Val = JustificationValues.Right },
+            // Adicionando a borda inferior aqui
+            new ParagraphBorders(
+                new BottomBorder()
+                {
+                    Val = BorderValues.Single,
+                    Size = 4,      // 0.5 pt
+                    Space = 1,     // Distância do texto
+                    Color = "000000"
+                }
+            )
+        );
+
+        if (novaPagina)
+            props.Append(new PageBreakBefore());
+
+        return new Paragraph(
+            props,
+            new Run(
+                new RunProperties(
+                    new RunFonts { Ascii = "Verdana" },
+                    new FontSize { Val = "22" }
                 ),
                 new Text(texto)
             )
@@ -418,28 +452,28 @@ public class DocumentoWordService
     private TableRow CriarLinhaCabecalho(string tipo)
     {
         return new TableRow(
-            CriarCelula($"Item", true, false),
-            CriarCelula("Local", true, false),
-            CriarCelula("Descrição", true, false),
-            CriarCelula("Qtd", true, false),
-            CriarCelula("Dimensão", true, false),
-            CriarCelula("Observação", true, false)
+            CriarCelula(texto: "Item", bold: true, fundoVerde: false, Hcentralizar: true),
+            CriarCelula(texto: "Local", bold: true, fundoVerde: false, Hcentralizar: true),
+            CriarCelula(texto: "Descrição", bold: true, fundoVerde: false, Hcentralizar: true),
+            CriarCelula(texto: "Qtd", bold: true, fundoVerde: false, Hcentralizar: true),
+            CriarCelula(texto: "Dimensão", bold: true, fundoVerde: false, Hcentralizar: true),
+            CriarCelula(texto: "Observação", bold: true, fundoVerde: false, Hcentralizar: true)
         );
     }
 
     private TableRow CriarLinhaDados(ItemTabelaModel item)
     {
         return new TableRow(
-            CriarCelula(item.Item),
-            CriarCelula(item.LocalItem),
-            CriarCelula(item.Descricao),
-            CriarCelula(item.Qtd),
-            CriarCelula(item.Dimensao),
-            CriarCelula(item.Obs)
+            CriarCelula(texto: item.Item, Vcentralizar: true, Hcentralizar: true),
+            CriarCelula(texto: item.LocalItem, Vcentralizar: true, Hcentralizar: false),
+            CriarCelula(texto: item.Descricao, Vcentralizar: true, Hcentralizar: false),
+            CriarCelula(texto: item.Qtd, Vcentralizar: true, Hcentralizar: true),
+            CriarCelula(texto: item.Dimensao, Vcentralizar: true, Hcentralizar: false),
+            CriarCelula(texto: item.Obs, Vcentralizar: true, Hcentralizar: false)
         );
     }
 
-    private TableCell CriarCelula(string? texto, bool bold = false, bool fundoVerde = false)
+    private TableCell CriarCelula(string? texto, bool bold = false, bool fundoVerde = false, bool Vcentralizar = false, bool Hcentralizar = false)
     {
         var runProps = new RunProperties(
             new RunFonts { Ascii = "Verdana" },
@@ -460,9 +494,23 @@ public class DocumentoWordService
             });
         }
 
+        // Controle da Centralização VERTICAL (Célula)
+        if (Vcentralizar)
+        {
+            cellProps.Append(new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Center });
+        }
+
+        // Controle da Centralização HORIZONTAL (Parágrafo)
+        var pProps = new ParagraphProperties();
+        if (Hcentralizar)
+        {
+            pProps.Append(new Justification { Val = JustificationValues.Center });
+        }
+
         return new TableCell(
             cellProps,
             new Paragraph(
+                pProps,
                 new Run(runProps, new Text(texto ?? ""))
             )
         );
