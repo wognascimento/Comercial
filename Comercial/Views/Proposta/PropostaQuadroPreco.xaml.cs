@@ -1329,7 +1329,9 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                     bloco = @bloco,
                     idtema = @idtema,
                     alteradopor = @alteradopor,
-                    dataaltera = @dataaltera
+                    dataaltera = @dataaltera,
+                    valor_unitario = @valor_unitario,
+                    preco_excel = @preco_excel
                 WHERE codquadro_preco = @codquadro_preco;
                 ";
         return await conn.ExecuteAsync(sql, model);
@@ -1341,10 +1343,10 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         var sql = @"
                 INSERT INTO comercial.proposta_quadro_preco
                 (codbrief, sigla, tema, tipo, item, local, localdetalhe, coddimensao,
-                 qtd, obs, obsinterna, ledml, desconto, bloco, idtema, cadastradopor, datacadastro)
+                 qtd, obs, obsinterna, ledml, desconto, bloco, idtema, cadastradopor, datacadastro, valor_unitario, preco_excel)
                 VALUES
                 (@codbrief, @sigla, @tema, @tipo, @item, @local, @localdetalhe, @coddimensao,
-                 @qtd, @obs, @obsinterna, @ledml, @desconto, @bloco, @idtema, @cadastradopor, @datacadastro)
+                 @qtd, @obs, @obsinterna, @ledml, @desconto, @bloco, @idtema, @cadastradopor, @datacadastro, @valor_unitario, @preco_excel)
                 RETURNING codquadro_preco;
             ";
 
