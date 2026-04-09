@@ -235,6 +235,8 @@ public partial class PropostaQuadroPreco : UserControl
                            (tipo == "Complemento") ? $"C{limpo}" :
                            limpo;
 
+                var PrecoBase = await vm.PrecoDimensaoBaseAsync(vm.DimenssaoComercial?.coddimensao ?? 0);
+
                 await vm.AtualizarPropostaAsync(
                     new PropostaQuadroPrecoModel
                     {
@@ -254,8 +256,10 @@ public partial class PropostaQuadroPreco : UserControl
                         //desconto = 0,
                         bloco = cbBloco.SelectedItem as string,
                         idtema = vm.SelectedBriefingTema.idtema,
-                        cadastradopor = BaseSettings.Username,
-                        datacadastro = DateTime.Now
+                        alteradopor = BaseSettings.Username,
+                        dataaltera = DateTime.Now,
+                        valor_unitario = PrecoBase,
+                        preco_excel = PrecoBase
                     });
 
                 await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
@@ -302,6 +306,8 @@ public partial class PropostaQuadroPreco : UserControl
                            (tipo == "Complemento") ? $"C{limpo}" :
                            limpo;
 
+                var PrecoBase = await vm.PrecoDimensaoBaseAsync(vm.DimenssaoComercial?.coddimensao ?? 0);
+
                 var codQuadroPreco = await vm.InserirItemPropostaAsync(
                     new PropostaQuadroPrecoModel
                     {
@@ -321,7 +327,9 @@ public partial class PropostaQuadroPreco : UserControl
                         bloco = cbBloco.SelectedItem as string,
                         idtema = vm.SelectedBriefingTema.idtema,
                         cadastradopor = BaseSettings.Username,
-                        datacadastro = DateTime.Now
+                        datacadastro = DateTime.Now,
+                        valor_unitario = PrecoBase,
+                        preco_excel = PrecoBase
                     });
 
                 await vm.CarregarItensPropostaAsync(vm.SelectedBriefing.codbriefing, vm.SelectedBriefingTema.idtema);
@@ -1319,7 +1327,9 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                     ledml = @ledml,
                     desconto = @desconto,
                     bloco = @bloco,
-                    idtema = @idtema
+                    idtema = @idtema,
+                    alteradopor = @alteradopor,
+                    dataaltera = @dataaltera
                 WHERE codquadro_preco = @codquadro_preco;
                 ";
         return await conn.ExecuteAsync(sql, model);
@@ -1394,7 +1404,6 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         });
     }
 
-
     public async Task EnviarTemaFechaAsync(long codbrief, long idtema)
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
@@ -1468,6 +1477,13 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<double> PrecoDimensaoBaseAsync(long coddimensao)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        return await conn.QueryFirstOrDefaultAsync<double>(@"SELECT preco_base FROM comercial.proposta_base_preco_zefe WHERE coddimensao = @coddimensao;", new { coddimensao });
+        //PropostaBriefings = new ObservableCollection<PropostaBriefingQuadroDto>(itens);
     }
 
 }
