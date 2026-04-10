@@ -674,7 +674,39 @@ public partial class PropostaQuadroFecha : UserControl
                 }
             }
         }
-        catch (RepositoryException ex)
+        catch (PostgresException ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async void OnAdicionarObservacaoClick(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (DataContext is PropostaQuadroFechaViewModel vm)
+            {
+                var confirmResult = MessageBox.Show("Deseja incluir esta observação?", "Confirmação", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirmResult != MessageBoxResult.Yes)
+                    return;
+                await vm.InserirObservacaoFechaAsync(new PropostaFechaObsModel
+                {
+                    inserido_por = BaseSettings.Username,
+                    obs = txtObservacaoGeral.Text,
+                    idtema = vm.SelectedFechaTema.idtema,
+                    briefing = vm.SelectedFechaSigla.codbriefing,
+                    tema = vm.SelectedFechaTema.tema
+                });
+
+                this.tbMultiLine.Text = await vm.CarregarTextoAsync(vm.SelectedFechaSigla.codbriefing, vm.SelectedFechaTema.idtema);
+                txtObservacaoGeral.Text = null;
+            }
+        }
+        catch (PostgresException ex)
         {
             MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
@@ -1208,6 +1240,20 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task InserirObservacaoFechaAsync(PropostaFechaObsModel model)
+    {
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+        var sql = @"
+                INSERT INTO comercial.tbl_fecha_obs
+                (briefing, tema, inserido_por, obs, idtema)
+                VALUES
+                (@briefing, @tema, @inserido_por, @obs, @idtema)
+                RETURNING id;
+            ";
+
+        await conn.ExecuteScalarAsync(sql, model);
     }
 
 }

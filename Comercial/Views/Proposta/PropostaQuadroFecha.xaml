@@ -301,7 +301,7 @@
                             Grid.Column="0"
                             Grid.ColumnSpan="2"
                             Grid.Row="0"
-                            WatermarkContent="Digite seu comentário aqui..." 
+                            WatermarkContent="Seus comentários aqui..." 
                             AcceptsReturn="True"
                             TextWrapping="Wrap" 
                             VerticalScrollBarVisibility="Auto" 
@@ -360,7 +360,7 @@
                                Padding="3"
                                Margin="0,0,0,5"/>
 
-                    <telerik:RadWatermarkTextBox
+                    <telerik:RadWatermarkTextBox x:Name="txtObservacaoGeral"
                         Grid.Row="1"
                         WatermarkContent="Digite seu comentário aqui..." 
                         AcceptsReturn="True"
@@ -371,7 +371,7 @@
                     <telerik:RadButton
                         Grid.Row="2"
                         Content="ADICIONAR OBSERVAÇÃO GERAL" 
-                        Margin="2"/>
+                        Margin="2" Click="OnAdicionarObservacaoClick"/>
                 </Grid>
             </Border>
         </Grid>
