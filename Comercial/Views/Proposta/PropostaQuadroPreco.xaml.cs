@@ -743,6 +743,7 @@ public partial class PropostaQuadroPreco : UserControl
 
     private DocumentoWordService _docService;
     private ExcelQuadroPrecoService _excelService;
+    private QuadroPrecoExportService _quadroPrecoExportService;
     private QuadroRepository _repo;
 
     private async void RadMenuItem_Click(object sender, Telerik.Windows.RadRoutedEventArgs e)
@@ -1015,6 +1016,39 @@ public partial class PropostaQuadroPreco : UserControl
             }
 
             catch (PostgresException ex)
+            {
+                MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro inesperado: " + ex.Message, "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+        }
+    }
+
+    private async void RadMenuItem_Click_5(object sender, Telerik.Windows.RadRoutedEventArgs e)
+    {
+        if (DataContext is PropostaQuadroPrecoViewModel vm)
+        {
+            try
+            {
+                _quadroPrecoExportService = new QuadroPrecoExportService();
+                
+
+                string pasta = $@"{BaseSettings.CaminhoSistema}Impressos\";
+                string usuario = Environment.UserName;
+                string arquivo = $"{pasta}{DateTime.Today:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_QUANT_REVISÃO_{usuario}.xlsx";
+
+                await _quadroPrecoExportService.GerarQuadro(arquivo, vm.SelectedBriefing.sigla, vm.SelectedBriefing.codbriefing);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = arquivo,
+                    UseShellExecute = true
+                });
+            }
+            catch (OperationCanceledException) { /* Ignora */ }
+            catch (RepositoryException ex)
             {
                 MessageBox.Show(ex.Message, "Erro ao salvar dados", MessageBoxButton.OK, MessageBoxImage.Warning);
             }

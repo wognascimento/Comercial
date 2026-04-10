@@ -1,5 +1,4 @@
 ﻿using ClosedXML.Excel;
-using Comercial.DataBase;
 using Comercial.Repositores;
 
 
@@ -1537,5 +1536,5 @@ public class ExcelQuadroPrecoService
         if (corFundo != null)
             range.Style.Fill.BackgroundColor = corFundo;
     }
-    
+
 }

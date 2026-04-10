@@ -1,12 +1,8 @@
 ﻿using Comercial.Data;
+using Comercial.Data.Model;
+using Comercial.Data.Model.Dto;
 using Dapper;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.VariantTypes;
-using SharpDX.DirectWrite;
 using System.Collections.ObjectModel;
-using Telerik.Windows.Documents.Spreadsheet.Expressions.Functions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Comercial.Repositores;
 
@@ -233,6 +229,19 @@ public class QuadroRepository
         return await conn.QueryAsync<TipoDto>(sql, new { cod, ordem = idTemaOrdem });
     }
 
+    public async Task<IEnumerable<QuadroPrecoDetalheDto>> GetQuadroAsync(int codbrief)
+    {
+        using var conn = DbConnectionFactory.Create();
+
+        string sql = @"
+            SELECT *
+            FROM comercial.view_quadro_preco_excel
+            WHERE codbrief = @codbrief
+            ORDER BY tema, ordem, item";
+
+        return await conn.QueryAsync<QuadroPrecoDetalheDto>(sql, new { codbrief });
+    }
+
     public async Task<IEnumerable<QuadroPrecoDetalheDto>> GetQuadroAsync(int cod, int idTemaOrdem, string tipo)
     {
         using var conn = DbConnectionFactory.Create();
@@ -246,6 +255,34 @@ public class QuadroRepository
             ORDER BY ordem, item";
 
         return await conn.QueryAsync<QuadroPrecoDetalheDto>(sql, new { cod, ordem = idTemaOrdem, tipo });
+    }
+
+    public async Task<IEnumerable<ComercialFechaModel>> GetFechaAsync(string sigla, int anoAnterior)
+    {
+        using var conn = DbConnectionFactory.Create();
+        string sql = @"SELECT * FROM comercial.tblfecha WHERE sigla = @sigla AND ano = @anoAnterior";
+        return await conn.QueryAsync<ComercialFechaModel>(sql, new { sigla, anoAnterior });
+    }
+
+    public async Task<IEnumerable<PropostaBriefingTemaDto>> GetBriefingTemaAsync(int codBrief, int idTema)
+    {
+        using var conn = DbConnectionFactory.Create();
+        string sql = @"SELECT * FROM comercial.proposta_temas_briefing WHERE codbriefing = @codBrief AND idtema = @idTema ORDER BY ordem_escolha";
+        return await conn.QueryAsync<PropostaBriefingTemaDto>(sql, new { codBrief, idTema });     
+    }
+
+    public async Task<IEnumerable<PropostaPrecoBlocoDto>> GetPrecoBlocosAsync(long codBrief, long idTema)
+    {
+        using var conn = DbConnectionFactory.Create();
+        string sql = @"SELECT * FROM comercial.proposta_preco_bloco WHERE codbrief = @codBrief AND idtema = @idTema AND tipo = 'Proposta' ORDER BY tema, item, tipo";
+        return await conn.QueryAsync<PropostaPrecoBlocoDto>(sql, new { codBrief, idTema });     
+    }
+
+    public async Task<IEnumerable<PropostaPrecoTipoDto>> GetPrecoTiposAsync(long codBrief, long idTema)
+    {
+        using var conn = DbConnectionFactory.Create();
+        string sql = @"SELECT * FROM comercial.proposta_preco_tipo WHERE codbrief = @codBrief AND idtema = @idTema ORDER BY tema, ordem, tipo";
+        return await conn.QueryAsync<PropostaPrecoTipoDto>(sql, new { codBrief, idTema });     
     }
 }
 
