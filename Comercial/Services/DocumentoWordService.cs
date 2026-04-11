@@ -31,10 +31,7 @@ public class DocumentoWordService
         var body = doc.MainDocumentPart?.Document?.Body!;
 
         // 🔥 1️⃣ Encontrar marcador corretamente (mesmo se Word dividir em runs)
-        var paragrafoMarcador = LocalizarParagrafoMarcador(body);
-
-        if (paragrafoMarcador == null)
-            throw new Exception("Tag [[INICIO_CONTEUDO]] não encontrada no template.");
+        var paragrafoMarcador = LocalizarParagrafoMarcador(body) ?? throw new Exception("Tag [[INICIO_CONTEUDO]] não encontrada no template.");
 
         // 🔥 pegar elemento anterior antes de remover
         OpenXmlElement? pontoInsercao = paragrafoMarcador.PreviousSibling();
@@ -61,6 +58,8 @@ public class DocumentoWordService
             indice++;
             string letra = ((char)(64 + indice)).ToString();
 
+            bool novaPaginaTema = !primeiroTitulo; // quebra só na virada de tema
+
             string[] tipos =
             {
                 "Proposta",
@@ -81,13 +80,15 @@ public class DocumentoWordService
                     tipo,
                     letra,
                     tema.TemaEscolhido,
-                    novaPagina
+                    novaPaginaTema  //novaPagina
                 );
 
-                primeiroTitulo = false;
 
-                
+                //primeiroTitulo = false;
+                novaPaginaTema = false; // os demais tipos do mesmo tema NÃO quebram
+
             }
+            primeiroTitulo = false;
         }
 
         // 🔥 Buscar complemento geral em TODOS os temas
@@ -120,10 +121,15 @@ public class DocumentoWordService
 
         if (todosComplementos.Any())
         {
-            var tituloGeral = CriarSubTitulo(
+            /*var tituloGeral = CriarSubTitulo(
                 "Complemento para todos os temas",
                 true // nova página
-            );
+            );*/
+
+            body.InsertAfter(CriarQuebradePagina(), pontoInsercao);
+            pontoInsercao = pontoInsercao.NextSibling()!;
+
+            var tituloGeral = CriarSubTitulo("Complemento para todos os temas");
 
             body.InsertAfter(tituloGeral, pontoInsercao);
             pontoInsercao = tituloGeral;
@@ -137,7 +143,7 @@ public class DocumentoWordService
                 // 🔹 Espaçamento antes da nova tabela
                 var espacamento = new Paragraph(
                     new ParagraphProperties(
-                        new SpacingBetweenLines { Before = "200", After = "100" }
+                        new SpacingBetweenLines { Before = "0", After = "0", Line = "240", LineRule = LineSpacingRuleValues.Auto }
                     )
                 );
 
@@ -187,6 +193,35 @@ public class DocumentoWordService
         doc.MainDocumentPart.Document.Save();
 
         
+    }
+
+    private Paragraph CriarSeparadorEditavel()
+    {
+        return new Paragraph(
+            new ParagraphProperties(
+                new SpacingBetweenLines
+                {
+                    Before = "0",
+                    After = "0",
+                    Line = "240",
+                    LineRule = LineSpacingRuleValues.Auto
+                },
+                new ParagraphMarkRunProperties(
+                    new RunFonts { Ascii = "Verdana" },
+                    new FontSize { Val = "20" }
+                )
+            )
+        );
+    }
+
+    private Paragraph CriarQuebradePagina()
+    {
+        return new Paragraph(
+            new ParagraphProperties(
+                new SpacingBetweenLines { Before = "0", After = "0" }
+            ),
+            new Run(new Break { Type = BreakValues.Page })
+        );
     }
 
     private Table CriarTabelaLegenda()
@@ -254,17 +289,27 @@ public class DocumentoWordService
         bool novaPagina)
     {
         var itens = (await buscarItens(idTema, tipoBD)).ToList();
-        if (!itens.Any())
+        if (itens.Count == 0)
             return pontoInsercao;
 
-        string tituloWord = MapaTipos.ContainsKey(tipoBD)
-            ? MapaTipos[tipoBD]
-            : tipoBD;
+        string tituloWord = MapaTipos.TryGetValue(tipoBD, out string? value) ? value : tipoBD;
+
+        if (novaPagina)
+        {
+            var quebra = CriarQuebradePagina();
+            body.InsertAfter(quebra, pontoInsercao);
+            pontoInsercao = quebra;
+        }
 
         // 🔹 Título do tipo
-        var tituloSecao = CriarSubTitulo(
+        /*var tituloSecao = CriarSubTitulo(
             $"Projeto {letraProjeto} - {ToTitleCasePtBr(nomeTema)} - {tituloWord}",
             novaPagina
+        );*/
+
+        // 🔹 Título do tipo — sem novaPagina, quebra já foi inserida acima
+        var tituloSecao = CriarSubTitulo(
+            $"Projeto {letraProjeto} - {ToTitleCasePtBr(nomeTema)} - {tituloWord}"
         );
 
         body.InsertAfter(tituloSecao, pontoInsercao);
@@ -277,14 +322,18 @@ public class DocumentoWordService
         foreach (var grupo in grupos)
         {
             // 🔹 Espaço antes de cada bloco
-            var espacamento = new Paragraph(
+            /*var espacamento = new Paragraph(
                 new ParagraphProperties(
-                    new SpacingBetweenLines { Before = "150", After = "150" }
+                    new SpacingBetweenLines { Before = "0", After = "0", Line = "240", LineRule = LineSpacingRuleValues.Auto }
                 )
             );
 
             body.InsertAfter(espacamento, pontoInsercao);
-            pontoInsercao = espacamento;
+            pontoInsercao = espacamento;*/
+
+            // 🔹 Separador editável antes de cada tabela
+            body.InsertAfter(CriarSeparadorEditavel(), pontoInsercao);
+            pontoInsercao = pontoInsercao.NextSibling()!;
 
             // 🔥 NOVA TABELA PARA CADA BLOCO
             var table = new Table();
@@ -300,12 +349,23 @@ public class DocumentoWordService
 
             // 🔹 Dados
             foreach (var item in grupo)
-            {
                 table.AppendChild(CriarLinhaDados(item));
-            }
+
+            /*body.InsertAfter(table, pontoInsercao);
+            pontoInsercao = table;
 
             body.InsertAfter(table, pontoInsercao);
-            pontoInsercao = table;
+            pontoInsercao = table;*/
+
+            // 🔥 InsertAfter apenas UMA vez
+            body.InsertAfter(table, pontoInsercao);
+            pontoInsercao = pontoInsercao.NextSibling()!;
+
+            // 🔹 Separador editável após cada tabela
+            body.InsertAfter(CriarSeparadorEditavel(), pontoInsercao);
+            pontoInsercao = pontoInsercao.NextSibling()!;
+
+
         }
 
         return pontoInsercao;
@@ -338,32 +398,9 @@ public class DocumentoWordService
             )
         );
     }
-    /*
-    private Paragraph CriarSubTitulo(string texto, bool novaPagina)
-    {
-        var props = new ParagraphProperties(
-            new ParagraphStyleId { Val = "Ttulo1" },
-            new SpacingBetweenLines { After = "150" },
-            new Justification { Val = JustificationValues.Right }
-        );
 
-        if (novaPagina)
-            props.Append(new PageBreakBefore());
-
-        return new Paragraph(
-            props,
-            new Run(
-                new RunProperties(
-                    new RunFonts { Ascii = "Verdana" },
-                    new FontSize { Val = "20" }
-                ),
-                new Text(texto)
-            )
-        );
-    }
-    */
-
-    private Paragraph CriarSubTitulo(string texto, bool novaPagina)
+    //private Paragraph CriarSubTitulo(string texto, bool novaPagina)
+    private Paragraph CriarSubTitulo(string texto)
     {
         var props = new ParagraphProperties(
             new ParagraphStyleId { Val = "Ttulo1" },
@@ -381,8 +418,8 @@ public class DocumentoWordService
             )
         );
 
-        if (novaPagina)
-            props.Append(new PageBreakBefore());
+        /*if (novaPagina)
+            props.Append(new PageBreakBefore());*/
 
         return new Paragraph(
             props,
