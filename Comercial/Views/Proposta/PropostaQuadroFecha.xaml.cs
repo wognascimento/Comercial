@@ -359,6 +359,7 @@ public partial class PropostaQuadroFecha : UserControl
             "item" => item.item,
             "qtd" => item.qtd,
             "id_aprovado" => item.id_aprovado,
+            "bloco_revisao" => item.bloco_revisao,
             _ => null
         };
     }
@@ -376,7 +377,7 @@ public partial class PropostaQuadroFecha : UserControl
 
         var coluna = e.Cell.Column.UniqueName;
 
-        if (coluna != "item" && coluna != "qtd" && coluna != "id_aprovado")
+        if (coluna != "item" && coluna != "qtd" && coluna != "id_aprovado" && coluna != "bloco_revisao")
             return;
 
         var novoValor = e.NewData;
@@ -424,6 +425,9 @@ public partial class PropostaQuadroFecha : UserControl
                 else
                     item.sigla_serv = null;
             }
+            
+            if (coluna == "bloco_revisao")
+                item.bloco_revisao = Convert.ToInt64(_oldValue);
 
             MessageBox.Show($"Erro ao salvar:\n{ex.Message}");
         }
@@ -1011,7 +1015,7 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         ItensProposta = new ObservableCollection<PropostaFechaViewDto>(itens);
     }
 
-    public async Task<long> ConcluirProjetoAsync(DateTime? conclusao, long briefing, long idtema, string resp)
+    public async Task<long> ConcluirProjetoAsync(DateTime? conclusao, long briefing, long idtema, string resp, string sigla)
     {
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
 
@@ -1034,8 +1038,8 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         var sqlDireto = @"
         DELETE FROM comercial.tbl_status_fecha WHERE codbrief = @briefing AND idtema = @idtema;
         
-        INSERT INTO comercial.tbl_status_fecha (codbrief, idtema, resp_tema_fecha, data_tema_fecha)
-        SELECT @briefing, @idtema, @resp, @conclusao
+        INSERT INTO comercial.tbl_status_fecha (codbrief, idtema, resp_tema_fecha, data_tema_fecha, sigla)
+        SELECT @briefing, @idtema, @resp, @conclusao, @sigla
         WHERE @conclusao IS NOT NULL
         ON CONFLICT (codbrief, idtema) DO UPDATE 
         SET resp_tema_fecha = EXCLUDED.resp_tema_fecha, data_tema_fecha = EXCLUDED.data_tema_fecha;";
@@ -1100,6 +1104,10 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
                                sigla_serv = @sigla_serv
                            WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
 
+            "bloco_revisao" => @"UPDATE comercial.tbl_fecha_qd_quantitativo 
+                   SET bloco_revisao = @valor 
+                   WHERE cod_linha_qdfecha = @cod_linha_qdfecha",
+
             _ => throw new Exception("Coluna inválida")
         };
 
@@ -1118,20 +1126,20 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         var sql = @"
                 UPDATE comercial.tbl_fecha_qd_quantitativo
                 SET 
-                    tipo = @tipo
-                    coddimensao = @coddimensao
-                    local = @local
-                    item = @item
-                    qtd = @qtd
-                    obs = @obs
-                    alterado_por = @alterado_por
-                    data_altera = @data_altera
-                    detalhe_local = @detalhe_local
-                    ledml = @ledml
-                    obs_interna = @obs_interna
-                    bloco = @bloco
-                    obs_memorial = @obs_memorial
-                    idtema = @idtema
+                    tipo = @tipo,
+                    coddimensao = @coddimensao,
+                    local = @local,
+                    item = @item,
+                    qtd = @qtd,
+                    obs = @obs,
+                    alterado_por = @alterado_por,
+                    data_altera = @data_altera,
+                    detalhe_local = @detalhe_local,
+                    ledml = @ledml,
+                    obs_interna = @obs_interna,
+                    bloco = @bloco,
+                    obs_memorial = @obs_memorial,
+                    idtema = @idtema,
                     item_novo = @item_novo
                 WHERE cod_linha_qdfecha = @cod_linha_qdfecha;
                 ";

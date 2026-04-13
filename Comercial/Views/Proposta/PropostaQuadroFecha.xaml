@@ -405,7 +405,7 @@
                     ClipboardCopyMode="Cells, Header"
                     MouseDoubleClick="itensProposta_MouseDoubleClick"
                     BeginningEdit="itensProposta_BeginningEdit"
-                    CellEditEnded="itensProposta_CellEditEnded">
+                    CellEditEnded="itensProposta_CellEditEnded" MultipleColumnSortModifiers="Shift">
 
                     <telerik:RadGridView.Columns>
                         
@@ -416,12 +416,12 @@
                             ItemsSource="{Binding ProducaoAprovados}"
                             SelectedValueMemberPath="id_aprovado"
                             DisplayMemberPath="sigla_serv"/>
-                        <telerik:GridViewDataColumn Header="BLOCO REVISÃO" IsReadOnly="true" DataMemberBinding="{Binding bloco_revisao}"/>
+                        <telerik:GridViewDataColumn Header="BLOCO REVISÃO" DataMemberBinding="{Binding bloco_revisao}"/>
                         <telerik:GridViewDataColumn Header="FAMÍLIA" IsReadOnly="true" DataMemberBinding="{Binding familia}"/>
                         <telerik:GridViewDataColumn Header="ITEM" DataMemberBinding="{Binding item}"/>
                         <telerik:GridViewDataColumn Header="LOCAL" IsReadOnly="true" DataMemberBinding="{Binding localitem}"/>
-                        <telerik:GridViewDataColumn Header="DESCRIÇÃO" IsReadOnly="true" Width="*" DataMemberBinding="{Binding descricao}"/>
-                        <telerik:GridViewDataColumn Header="DIMENSÃO" IsReadOnly="true" Width="*" DataMemberBinding="{Binding dimensao}"/>
+                        <telerik:GridViewDataColumn Header="DESCRIÇÃO" Width="Auto" IsReadOnly="true" DataMemberBinding="{Binding descricao}"/>
+                        <telerik:GridViewDataColumn Header="DIMENSÃO" Width="Auto" IsReadOnly="true" DataMemberBinding="{Binding dimensao}"/>
                         <telerik:GridViewDataColumn Header="QTD" DataMemberBinding="{Binding qtd}"/>
                        
                         <telerik:GridViewDataColumn Header="OBSERVAÇÃO" IsReadOnly="true" DataMemberBinding="{Binding obs}"/>
