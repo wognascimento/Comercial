@@ -40,6 +40,11 @@
                     <telerik:RadMenuItem Header="Todoas as Descrições" />
                 </telerik:RadMenuItem>
                 
+                
+                <telerik:RadMenuItem Header="Outros" >
+                    <telerik:RadMenuItem Header="Atualizar Sistema" Click="OnAtualizarSistemaClick" />
+                </telerik:RadMenuItem>
+                
             </telerik:RadMenu>
        
 

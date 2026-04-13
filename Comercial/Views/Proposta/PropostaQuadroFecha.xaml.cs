@@ -242,7 +242,7 @@ public partial class PropostaQuadroFecha : UserControl
                         return;
                     }
                     //DateTime? conclusao, long briefing, long idtema, string resp, string strsigla
-                    await vm.ConcluirProjetoAsync(null, vm.SelectedFechaTema.cod_brief, vm.SelectedFechaTema.idtema, BaseSettings.Username);
+                    await vm.ConcluirProjetoAsync(null, vm.SelectedFechaTema.cod_brief, vm.SelectedFechaTema.idtema, BaseSettings.Username, vm.SelectedFechaSigla.sigla);
                     //btnAlterar.IsEnabled = true;
                     //btnIncluir.IsEnabled = true;
                     //btnLimpar.IsEnabled = true;
@@ -258,7 +258,7 @@ public partial class PropostaQuadroFecha : UserControl
                         return;
                     }
                     DateTime selectedDate = (DateTime)inicioData;
-                    await vm.ConcluirProjetoAsync(selectedDate, vm.SelectedFechaTema.cod_brief, vm.SelectedFechaTema.idtema, BaseSettings.Username);
+                    await vm.ConcluirProjetoAsync(selectedDate, vm.SelectedFechaTema.cod_brief, vm.SelectedFechaTema.idtema, BaseSettings.Username, vm.SelectedFechaSigla.sigla);
                     //btnAlterar.IsEnabled = false;
                     //btnIncluir.IsEnabled = false;
                     //btnLimpar.IsEnabled = false;
