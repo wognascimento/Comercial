@@ -1449,7 +1449,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
 
         try
         {
-            var sql = @"INSERT INTO comercial_tbl_fecha_qd_quantitativo
+            var sql = @"INSERT INTO comercial.tbl_fecha_qd_quantitativo
                         (
                             codquadro_preco,
                             cod_brief,
@@ -1491,12 +1491,12 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                             @usuario,
                             NOW(),
                             p.idtema
-                        FROM comercial_proposta_quadro_preco p
+                        FROM comercial.proposta_quadro_preco p
                         WHERE p.codbrief = @codbrief
                           AND p.idtema = @idtema
                           AND NOT EXISTS (
                                 SELECT 1
-                                FROM comercial_tbl_fecha_qd_quantitativo q
+                                FROM comercial.tbl_fecha_qd_quantitativo q
                                 WHERE q.codquadro_preco = p.codquadro_preco
                           );";
             var linhas = await conn.ExecuteAsync(sql, new
