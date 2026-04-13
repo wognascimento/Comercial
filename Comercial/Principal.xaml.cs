@@ -78,6 +78,7 @@ namespace Comercial
                         string jsonData = JsonSerializer.Serialize(updateInfo); // Garante que o JSON está bem formatado
                         string appName = "Comercial.exe";
 
+
                         string arguments = $"\"{jsonData.Replace("\"", "\\\"")}\" \"{appName}\"";
                         Process.Start("Update.exe", arguments);
                         //this.Shutdown();
