@@ -66,8 +66,9 @@ public class DocumentoWordService
                 "Opcional",
                 "Complemento",
                 "Venda",
-            };       
+            };
 
+            /*
             foreach (var tipo in tipos)
             {
                 bool novaPagina = !primeiroTitulo;
@@ -88,6 +89,32 @@ public class DocumentoWordService
                 novaPaginaTema = false; // os demais tipos do mesmo tema NÃO quebram
 
             }
+            */
+
+            bool primeiraSecaoDoDocumento = primeiroTitulo;
+
+            foreach (var tipo in tipos)
+            {
+                var itensTipo = (await buscarItens(tema.IdTema, tipo)).ToList();
+                if (itensTipo.Count == 0)
+                    continue;
+
+                bool novaPagina = !primeiraSecaoDoDocumento;
+
+                pontoInsercao = await CriarTabelaTipoComItens(
+                    body,
+                    pontoInsercao,
+                    itensTipo,
+                    tipo,
+                    letra,
+                    tema.TemaEscolhido,
+                    novaPagina
+                );
+
+                primeiraSecaoDoDocumento = false;
+            }
+
+
             primeiroTitulo = false;
         }
 
@@ -121,12 +148,7 @@ public class DocumentoWordService
 
         if (todosComplementos.Any())
         {
-            /*var tituloGeral = CriarSubTitulo(
-                "Complemento para todos os temas",
-                true // nova página
-            );*/
-
-            body.InsertAfter(CriarQuebradePagina(), pontoInsercao);
+            body.InsertAfter(CriarQuebraDePagina(), pontoInsercao);
             pontoInsercao = pontoInsercao.NextSibling()!;
 
             var tituloGeral = CriarSubTitulo("Complemento para todos os temas");
@@ -164,11 +186,24 @@ public class DocumentoWordService
                 pontoInsercao = table;
             }
         }
-
+        /*
         var quebra = new Paragraph(
             new ParagraphProperties(new PageBreakBefore())
         );
 
+        body.InsertAfter(quebra, pontoInsercao);
+        pontoInsercao = quebra;
+
+        var legenda = CriarTabelaLegenda();
+        body.InsertAfter(legenda, pontoInsercao);
+        pontoInsercao = legenda;
+        */
+
+        var espaco = CriarEspacoAntesQuebra();
+        body.InsertAfter(espaco, pontoInsercao);
+        pontoInsercao = espaco;
+
+        var quebra = CriarQuebraDePagina();
         body.InsertAfter(quebra, pontoInsercao);
         pontoInsercao = quebra;
 
@@ -195,26 +230,22 @@ public class DocumentoWordService
         
     }
 
-    private Paragraph CriarSeparadorEditavel()
+    private Paragraph CriarEspacoAntesQuebra()
     {
         return new Paragraph(
             new ParagraphProperties(
                 new SpacingBetweenLines
                 {
                     Before = "0",
-                    After = "0",
-                    Line = "240",
-                    LineRule = LineSpacingRuleValues.Auto
-                },
-                new ParagraphMarkRunProperties(
-                    new RunFonts { Ascii = "Verdana" },
-                    new FontSize { Val = "20" }
-                )
-            )
-        );
+                    After = "0"
+                }),
+               new Run(
+                   new Text("")
+               )
+            );
     }
 
-    private Paragraph CriarQuebradePagina()
+    private Paragraph CriarQuebraDePagina()
     {
         return new Paragraph(
             new ParagraphProperties(
@@ -229,6 +260,18 @@ public class DocumentoWordService
         var table = new Table();
         table.AppendChild(CriarPropriedadesTabela());
 
+        var runProps = new RunProperties(
+            new RunFonts { 
+                Ascii = "Verdana",
+                HighAnsi = "Verdana",
+                ComplexScript = "Verdana",
+                EastAsia = "Verdana"
+
+            },
+            new FontSize { Val = "18" },
+            new Bold()
+        );
+
         // Linha título
         table.AppendChild(
             new TableRow(
@@ -236,7 +279,7 @@ public class DocumentoWordService
                     new TableCellProperties(new GridSpan { Val = 3 }),
                     new Paragraph(
                         new Run(
-                            new RunProperties(new Bold()),
+                            runProps,
                             new Text("Legenda")
                         )
                     )
@@ -256,9 +299,9 @@ public class DocumentoWordService
     private TableRow CriarLinhaLegenda(string c1, string c2, string c3)
     {
         return new TableRow(
-            CriarCelula(c1),
-            CriarCelula(c2),
-            CriarCelula(c3)
+            CriarCelula(c1, fonteSize: "18"),
+            CriarCelula(c2, fonteSize: "18"),
+            CriarCelula(c3, fonteSize: "18")
         );
     }
 
@@ -279,35 +322,35 @@ public class DocumentoWordService
     }
 
     private async Task<OpenXmlElement> CriarTabelaTipo(
-        Body body,
-        OpenXmlElement pontoInsercao,
-        Func<long, string, Task<IEnumerable<ItemTabelaModel>>> buscarItens,
-        long idTema,
-        string tipoBD,
-        string letraProjeto,
-        string nomeTema,
-        bool novaPagina)
+    Body body,
+    OpenXmlElement pontoInsercao,
+    Func<long, string, Task<IEnumerable<ItemTabelaModel>>> buscarItens,
+    long idTema,
+    string tipoBD,
+    string letraProjeto,
+    string nomeTema,
+    bool novaPagina)
     {
         var itens = (await buscarItens(idTema, tipoBD)).ToList();
         if (itens.Count == 0)
             return pontoInsercao;
 
-        string tituloWord = MapaTipos.TryGetValue(tipoBD, out string? value) ? value : tipoBD;
+        string tituloWord = MapaTipos.TryGetValue(tipoBD, out string? value)
+            ? value
+            : tipoBD;
 
+        // quebra antes da seção, quando necessário
         if (novaPagina)
         {
-            var quebra = CriarQuebradePagina();
+            var espaco = CriarEspacoAntesQuebra();
+            body.InsertAfter(espaco, pontoInsercao);
+            pontoInsercao = espaco;
+
+            var quebra = CriarQuebraDePagina();
             body.InsertAfter(quebra, pontoInsercao);
             pontoInsercao = quebra;
         }
 
-        // 🔹 Título do tipo
-        /*var tituloSecao = CriarSubTitulo(
-            $"Projeto {letraProjeto} - {ToTitleCasePtBr(nomeTema)} - {tituloWord}",
-            novaPagina
-        );*/
-
-        // 🔹 Título do tipo — sem novaPagina, quebra já foi inserida acima
         var tituloSecao = CriarSubTitulo(
             $"Projeto {letraProjeto} - {ToTitleCasePtBr(nomeTema)} - {tituloWord}"
         );
@@ -315,57 +358,134 @@ public class DocumentoWordService
         body.InsertAfter(tituloSecao, pontoInsercao);
         pontoInsercao = tituloSecao;
 
-        // 🔥 AGRUPAR POR BLOCO
         var grupos = itens
-            .GroupBy(i => i.Bloco ?? "GERAL");
+            .GroupBy(i => i.Bloco ?? "GERAL")
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        bool primeiroBloco = true;
 
         foreach (var grupo in grupos)
         {
-            // 🔹 Espaço antes de cada bloco
-            /*var espacamento = new Paragraph(
-                new ParagraphProperties(
-                    new SpacingBetweenLines { Before = "0", After = "0", Line = "240", LineRule = LineSpacingRuleValues.Auto }
-                )
-            );
+            // quebra entre blocos do mesmo tipo
+            if (!primeiroBloco)
+            {
+                var quebra = CriarQuebraDePagina();
+                body.InsertAfter(quebra, pontoInsercao);
+                pontoInsercao = quebra;
+            }
 
-            body.InsertAfter(espacamento, pontoInsercao);
-            pontoInsercao = espacamento;*/
+            primeiroBloco = false;
 
-            // 🔹 Separador editável antes de cada tabela
-            body.InsertAfter(CriarSeparadorEditavel(), pontoInsercao);
-            pontoInsercao = pontoInsercao.NextSibling()!;
-
-            // 🔥 NOVA TABELA PARA CADA BLOCO
             var table = new Table();
 
-            // 🔹 Propriedades próprias (instância nova)
             table.AppendChild(CriarPropriedadesTabela());
 
-            // 🔹 Linha do bloco (título interno)
-            table.AppendChild(CriarLinhaBloco(grupo.Key));
+            table.AppendChild(new TableGrid(
+                new GridColumn() { Width = "810" },
+                new GridColumn() { Width = "1490" },
+                new GridColumn() { Width = "3510" },
+                new GridColumn() { Width = "737" },
+                new GridColumn() { Width = "1780" },
+                new GridColumn() { Width = "1531" }
+            ));
 
-            // 🔹 Cabeçalho
+            table.AppendChild(CriarLinhaBloco(grupo.Key));
             table.AppendChild(CriarLinhaCabecalho(tituloWord));
 
-            // 🔹 Dados
-            foreach (var item in grupo)
+            foreach (var item in grupo.OrderBy(i => i.Item))
                 table.AppendChild(CriarLinhaDados(item));
 
-            /*body.InsertAfter(table, pontoInsercao);
+            body.InsertAfter(table, pontoInsercao);
             pontoInsercao = table;
+        }
+
+        return pontoInsercao;
+    }
+
+    private async Task<OpenXmlElement> CriarTabelaTipoComItens(
+    Body body,
+    OpenXmlElement pontoInsercao,
+    List<ItemTabelaModel> itens,
+    string tipoBD,
+    string letraProjeto,
+    string nomeTema,
+    bool novaPagina)
+    {
+        if (itens.Count == 0)
+            return pontoInsercao;
+
+        string tituloWord = MapaTipos.TryGetValue(tipoBD, out string? value)
+            ? value
+            : tipoBD;
+
+
+        if (novaPagina)
+        {
+            var espaco1 = CriarEspacoAntesQuebra();
+            body.InsertAfter(espaco1, pontoInsercao);
+            pontoInsercao = espaco1;
+
+            var quebra = CriarQuebraDePagina();
+            body.InsertAfter(quebra, pontoInsercao);
+            pontoInsercao = quebra;
+        }
+
+        var tituloSecao = CriarSubTitulo(
+            $"Projeto {letraProjeto} - {ToTitleCasePtBr(nomeTema)} - {tituloWord}"
+        );
+
+        body.InsertAfter(tituloSecao, pontoInsercao);
+        pontoInsercao = tituloSecao;
+
+        var espaco = CriarEspacoAntesQuebra();
+        body.InsertAfter(espaco, pontoInsercao);
+        pontoInsercao = espaco;
+
+
+        var grupos = itens
+            .GroupBy(i => i.Bloco ?? "GERAL")
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        bool primeiroBloco = true;
+
+        foreach (var grupo in grupos)
+        {
+            if (!primeiroBloco)
+            {
+                var espaco2 = CriarEspacoAntesQuebra();
+                body.InsertAfter(espaco2, pontoInsercao);
+                pontoInsercao = espaco2;
+
+                var quebra = CriarQuebraDePagina();
+                body.InsertAfter(quebra, pontoInsercao);
+                pontoInsercao = quebra;
+            }
+
+            primeiroBloco = false;
+
+            var table = new Table();
+
+            table.AppendChild(CriarPropriedadesTabela());
+
+            table.AppendChild(new TableGrid(
+                new GridColumn() { Width = "810" },
+                new GridColumn() { Width = "1490" },
+                new GridColumn() { Width = "3510" },
+                new GridColumn() { Width = "737" },
+                new GridColumn() { Width = "1780" },
+                new GridColumn() { Width = "1531" }
+            ));
+
+            table.AppendChild(CriarLinhaBloco(grupo.Key));
+            table.AppendChild(CriarLinhaCabecalho(tituloWord));
+
+            foreach (var item in grupo.OrderBy(i => i.Item))
+                table.AppendChild(CriarLinhaDados(item));
 
             body.InsertAfter(table, pontoInsercao);
-            pontoInsercao = table;*/
-
-            // 🔥 InsertAfter apenas UMA vez
-            body.InsertAfter(table, pontoInsercao);
-            pontoInsercao = pontoInsercao.NextSibling()!;
-
-            // 🔹 Separador editável após cada tabela
-            body.InsertAfter(CriarSeparadorEditavel(), pontoInsercao);
-            pontoInsercao = pontoInsercao.NextSibling()!;
-
-
+            pontoInsercao = table;
         }
 
         return pontoInsercao;
@@ -389,8 +509,8 @@ public class DocumentoWordService
                     new Run(
                         new RunProperties(
                             new Bold(),
-                            new RunFonts { Ascii = "Verdana" },
-                            new FontSize { Val = "20" } // 11pt
+                            new RunFonts {Ascii = "Verdana", HighAnsi = "Verdana", ComplexScript = "Verdana", EastAsia = "Verdana" },
+                            new FontSize { Val = "20" } // 11pt 
                         ),
                         new Text((bloco ?? "GERAL").ToUpper())
                     )
@@ -418,14 +538,11 @@ public class DocumentoWordService
             )
         );
 
-        /*if (novaPagina)
-            props.Append(new PageBreakBefore());*/
-
         return new Paragraph(
             props,
             new Run(
                 new RunProperties(
-                    new RunFonts { Ascii = "Verdana" },
+                    new RunFonts {Ascii = "Verdana", HighAnsi = "Verdana", ComplexScript = "Verdana", EastAsia = "Verdana" },
                     new FontSize { Val = "22" }
                 ),
                 new Text(texto)
@@ -438,8 +555,12 @@ public class DocumentoWordService
         return new TableProperties(
             new TableWidth
             {
-                Width = "5000",
-                Type = TableWidthUnitValues.Pct
+                Width = "9858",
+                Type = TableWidthUnitValues.Dxa
+            },
+            new TableLayout
+            {
+                Type = TableLayoutValues.Fixed
             },
             new TableBorders(
 
@@ -489,38 +610,61 @@ public class DocumentoWordService
     private TableRow CriarLinhaCabecalho(string tipo)
     {
         return new TableRow(
-            CriarCelula(texto: "Item", bold: true, fundoVerde: false, Hcentralizar: true),
-            CriarCelula(texto: "Local", bold: true, fundoVerde: false, Hcentralizar: true),
-            CriarCelula(texto: "Descrição", bold: true, fundoVerde: false, Hcentralizar: true),
-            CriarCelula(texto: "Qtd", bold: true, fundoVerde: false, Hcentralizar: true),
-            CriarCelula(texto: "Dimensão", bold: true, fundoVerde: false, Hcentralizar: true),
-            CriarCelula(texto: "Observação", bold: true, fundoVerde: false, Hcentralizar: true)
+            CriarCelula(texto: "Item", bold: true, fundoVerde: false, Hcentralizar: true, largura: "810"),
+            CriarCelula(texto: "Local", bold: true, fundoVerde: false, Hcentralizar: true, largura: "1490"),
+            CriarCelula(texto: "Descrição", bold: true, fundoVerde: false, Hcentralizar: true, largura: "3510"),
+            CriarCelula(texto: "Qtd", bold: true, fundoVerde: false, Hcentralizar: true, largura: "737"),
+            CriarCelula(texto: "Dimensão", bold: true, fundoVerde: false, Hcentralizar: true, largura: "1780"),
+            CriarCelula(texto: "Observação", bold: true, fundoVerde: false, Hcentralizar: true, largura: "1531")
         );
     }
 
     private TableRow CriarLinhaDados(ItemTabelaModel item)
     {
         return new TableRow(
-            CriarCelula(texto: item.Item, Vcentralizar: true, Hcentralizar: true),
-            CriarCelula(texto: item.LocalItem, Vcentralizar: true, Hcentralizar: false),
-            CriarCelula(texto: item.Descricao, Vcentralizar: true, Hcentralizar: false),
-            CriarCelula(texto: item.Qtd, Vcentralizar: true, Hcentralizar: true),
-            CriarCelula(texto: item.Dimensao, Vcentralizar: true, Hcentralizar: false),
-            CriarCelula(texto: item.Obs, Vcentralizar: true, Hcentralizar: false)
+            CriarCelula(texto: item.Item, Vcentralizar: true, Hcentralizar: true, largura: "810"),
+            CriarCelula(texto: item.LocalItem, Vcentralizar: true, Hcentralizar: false, largura: "1490"),
+            CriarCelula(texto: item.Descricao, Vcentralizar: true, Hcentralizar: false, largura: "3510"),
+            CriarCelula(texto: item.Qtd, Vcentralizar: true, Hcentralizar: true, largura: "737"),
+            CriarCelula(texto: item.Dimensao, Vcentralizar: true, Hcentralizar: false, largura: "1780"),
+            CriarCelula(texto: item.Obs, Vcentralizar: true, Hcentralizar: false, largura: "1531")
         );
     }
 
-    private TableCell CriarCelula(string? texto, bool bold = false, bool fundoVerde = false, bool Vcentralizar = false, bool Hcentralizar = false)
+    private TableCell CriarCelula(
+    string? texto,
+    bool bold = false,
+    bool fundoVerde = false,
+    bool Vcentralizar = false,
+    bool Hcentralizar = false,
+    string fonteSize = "20",
+    string? largura = null // NOVO PARAMETRO
+)
     {
         var runProps = new RunProperties(
-            new RunFonts { Ascii = "Verdana" },
-            new FontSize { Val = "20" }
+            new RunFonts { 
+                Ascii = "Verdana",
+                HighAnsi = "Verdana",
+                ComplexScript = "Verdana",
+                EastAsia = "Verdana"
+            },
+            new FontSize { Val = fonteSize }
         );
 
         if (bold)
             runProps.Append(new Bold());
 
         var cellProps = new TableCellProperties();
+
+        // ✔️ LARGURA DA CÉLULA
+        if (!string.IsNullOrEmpty(largura))
+        {
+            cellProps.Append(new TableCellWidth
+            {
+                Type = TableWidthUnitValues.Dxa, // unidade DXA
+                Width = largura
+            });
+        }
 
         if (fundoVerde)
         {
@@ -531,17 +675,22 @@ public class DocumentoWordService
             });
         }
 
-        // Controle da Centralização VERTICAL (Célula)
         if (Vcentralizar)
         {
-            cellProps.Append(new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Center });
+            cellProps.Append(new TableCellVerticalAlignment
+            {
+                Val = TableVerticalAlignmentValues.Center
+            });
         }
 
-        // Controle da Centralização HORIZONTAL (Parágrafo)
         var pProps = new ParagraphProperties();
+
         if (Hcentralizar)
         {
-            pProps.Append(new Justification { Val = JustificationValues.Center });
+            pProps.Append(new Justification
+            {
+                Val = JustificationValues.Center
+            });
         }
 
         return new TableCell(

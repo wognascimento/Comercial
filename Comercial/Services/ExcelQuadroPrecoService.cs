@@ -598,22 +598,22 @@ public class ExcelQuadroPrecoService
         Borda(range, corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("E57");
-        range.Value = $"";
+        //range.Value = string.Empty;
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("F57");
-        range.Value = $"";
+        //range.Value = string.Empty;
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("G57");
-        range.Value = $"";
+        //range.Value = string.Empty;
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
         range = ws.Range("H57");
-        range.Value = $"";
+        //range.Value = string.Empty;
         range.Style.NumberFormat.Format = "0.00%";
         Borda(range, corFundo:XLColor.Yellow , corFonte: XLColor.Black, negrito: true, fontSize: 10, alinhamento: XLAlignmentHorizontalValues.Center, quebraLinha: true);
 
@@ -869,13 +869,25 @@ public class ExcelQuadroPrecoService
 
         linhaBase++;
 
-        ws.Range(linhaBase, 2, linhaBase, 10).Value = "Obs.: Nos valores acima informados não está incluso o frete para transporte dos materiais, bem como qualquer equipamento de apoio necessário para instalação dos elementos localizados acima de 6,00m sem acesso (munck, plataforma, etc.).";
-        Borda(
-            ws.Range(linhaBase, 2, linhaBase, 10),
-            mesclado: true,
-            negrito: true,
-            corFonte: XLColor.Blue
-        );
+        var range1 = ws.Range(linhaBase, 2, linhaBase, 10);
+        range1.Merge();
+        range1.Style.Alignment.WrapText = true;
+
+        // altura da linha
+        ws.Row(linhaBase).Height = 30;
+
+        var cell = ws.Cell(linhaBase, 2);
+        cell.Value = "";
+
+        var rich = cell.GetRichText(); // ou .RichText se versão nova
+
+        rich.AddText("Obs.: Nos valores acima informados não está incluso o frete para transporte dos materiais, bem como qualquer equipamento de apoio necessário para instalação dos elementos localizados acima de 6,00m sem acesso (munck, plataforma, etc.). \n")
+            .SetFontColor(XLColor.Blue)
+            .SetBold();
+
+        rich.AddText("(*) DESCONTO MEDIANTE INCLUSÃO DE CLAUSULA CONTRATURAL DE COMPROMETIMENTO. ")
+            .SetFontColor(XLColor.Red)
+            .SetBold();
 
         _workbook.SaveAs(caminho);
     }
