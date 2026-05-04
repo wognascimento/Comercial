@@ -30,7 +30,7 @@ public class PropostaFechaViewDto
     public string? alterado_por { get; set; }
     public DateTime? data_altera { get; set; }
     public string obs_alteracao { get; set; }
-    public long bloco_revisao { get; set; }
+    public long? bloco_revisao { get; set; }
     public string altera_ok { get; set; }
     public string? confirma_alteracao_por { get; set; }
     public DateTime? confirma_alteracao_data { get; set; }

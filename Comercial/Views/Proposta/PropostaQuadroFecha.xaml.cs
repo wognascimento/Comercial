@@ -1049,7 +1049,8 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
             briefing,
             idtema,
             resp,
-            conclusao
+            conclusao,
+            sigla
         });
     }
 

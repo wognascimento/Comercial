@@ -430,6 +430,7 @@
                     -->
                     <telerik:RadGridView.Columns>
                         <telerik:GridViewDataColumn Header="ILUSTRAÇÃO" IsReadOnly="true" DataMemberBinding="{Binding ilustracao}"/>
+                        <telerik:GridViewDataColumn Header="COD DIMENSÃO" Width="SizeToCells" IsReadOnly="true" DataMemberBinding="{Binding coddimensao}"/>
                         <telerik:GridViewDataColumn Header="TIPO" IsReadOnly="true" DataMemberBinding="{Binding tipo}"/>
                         <telerik:GridViewDataColumn Header="BLOCO" IsReadOnly="true" DataMemberBinding="{Binding bloco}"/>
                         <telerik:GridViewDataColumn Header="FAMÍLIA" IsReadOnly="true" DataMemberBinding="{Binding familia}"/>
