@@ -675,7 +675,7 @@ public class ExcelQuadroPrecoService
                 ws.Cell(linhaBase + linhas, 3).Value = "TOTAL";
                 Borda(
                     ws.Cell(linhaBase + linhas, 3).AsRange(),
-                    fontSize: 8,
+                    fontSize: 10,
                     negrito: true,
                     alinhamento: XLAlignmentHorizontalValues.Right,
                     corFundo: XLColor.LightGreen
@@ -695,12 +695,12 @@ public class ExcelQuadroPrecoService
 
                 ws.Cell(linhaBase + linhas, 4).FormulaA1 = $"SUM(D{linhaBase}:D{linhaBase + linhas - 1})";
                 Borda(
-                       ws.Cell(linhaBase + linhas, 4).AsRange(),
-                       fontSize: 8,
-                       negrito: true,
-                       alinhamento: XLAlignmentHorizontalValues.Right,
-                       corFundo: XLColor.LightGreen
-                   );
+                    ws.Cell(linhaBase + linhas, 4).AsRange(),
+                    fontSize: 10,
+                    negrito: true,
+                    alinhamento: XLAlignmentHorizontalValues.Right,
+                    corFundo: XLColor.LightGreen
+                );
 
                 string formatoMoeda = "_(* #,##0.00_);_(* (#,##0.00);_(* \"-\"??_);_(@_)";
 
@@ -797,7 +797,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 4).Value = "";
         Borda(
             ws.Cell(linhaBase, 4).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -806,7 +806,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 5).Value = "";
         Borda(
             ws.Cell(linhaBase, 5).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -815,7 +815,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 6).Value = "";
         Borda(
             ws.Cell(linhaBase, 6).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -824,7 +824,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 7).Value = "";
         Borda(
             ws.Cell(linhaBase, 7).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -833,7 +833,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 8).Value = "";
         Borda(
             ws.Cell(linhaBase, 8).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -842,7 +842,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 9).Value = "";
         Borda(
             ws.Cell(linhaBase, 9).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -851,7 +851,7 @@ public class ExcelQuadroPrecoService
         ws.Cell(linhaBase, 10).Value = "";
         Borda(
             ws.Cell(linhaBase, 10).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             corFundo: XLColor.Green,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Center
@@ -883,11 +883,15 @@ public class ExcelQuadroPrecoService
 
         rich.AddText("Obs.: Nos valores acima informados não está incluso o frete para transporte dos materiais, bem como qualquer equipamento de apoio necessário para instalação dos elementos localizados acima de 6,00m sem acesso (munck, plataforma, etc.). \n")
             .SetFontColor(XLColor.Blue)
-            .SetBold();
+            .SetBold()
+            .SetFontName("Verdana")
+            .SetFontSize(9);
 
         rich.AddText("(*) DESCONTO MEDIANTE INCLUSÃO DE CLAUSULA CONTRATURAL DE COMPROMETIMENTO. ")
             .SetFontColor(XLColor.Red)
-            .SetBold();
+            .SetBold()
+            .SetFontName("Verdana")
+            .SetFontSize(9);
 
         _workbook.SaveAs(caminho);
     }
@@ -1462,28 +1466,12 @@ public class ExcelQuadroPrecoService
 
         Borda(
             ws.Cell(totalRow, colunaIndex).AsRange(),
-            fontSize: 8,
+            fontSize: 10,
             bloqueado: true,
             negrito: true,
             alinhamento: XLAlignmentHorizontalValues.Right,
             corFundo: XLColor.LightGreen
         );
-    }
-
-    private void AplicarBorda(
-        IXLRange range,
-        bool bold = false,
-        XLAlignmentHorizontalValues align = XLAlignmentHorizontalValues.Center,
-        XLColor background = null)
-    {
-        range.Style.Alignment.Horizontal = align;
-        range.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-        range.Style.Font.Bold = bold;
-
-        range.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-
-        if (background != null)
-            range.Style.Fill.BackgroundColor = background;
     }
 
     public static void Borda(

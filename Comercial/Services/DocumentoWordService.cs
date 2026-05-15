@@ -45,7 +45,6 @@ public class DocumentoWordService
 
         paragrafoMarcador.Remove();
 
-
         int indice = 0;
 
         var listaTemas = temas.OrderBy(t => t.OrdemEscolha).ToList();
@@ -67,29 +66,6 @@ public class DocumentoWordService
                 "Complemento",
                 "Venda",
             };
-
-            /*
-            foreach (var tipo in tipos)
-            {
-                bool novaPagina = !primeiroTitulo;
-
-                pontoInsercao = await CriarTabelaTipo(
-                    body,
-                    pontoInsercao,
-                    buscarItens,
-                    tema.IdTema,
-                    tipo,
-                    letra,
-                    tema.TemaEscolhido,
-                    novaPaginaTema  //novaPagina
-                );
-
-
-                //primeiroTitulo = false;
-                novaPaginaTema = false; // os demais tipos do mesmo tema NÃO quebram
-
-            }
-            */
 
             bool primeiraSecaoDoDocumento = primeiroTitulo;
 
@@ -114,7 +90,6 @@ public class DocumentoWordService
                 primeiraSecaoDoDocumento = false;
             }
 
-
             primeiroTitulo = false;
         }
 
@@ -132,7 +107,7 @@ public class DocumentoWordService
         }
 
         // 🔥 Remover duplicados (caso usuário tenha cadastrado em vários temas)
-        todosComplementos = todosComplementos
+        todosComplementos = [.. todosComplementos
             .GroupBy(i => new
             {
                 i.Item,
@@ -143,10 +118,9 @@ public class DocumentoWordService
                 i.Obs,
                 Bloco = i.Bloco ?? "GERAL"
             })
-            .Select(g => g.First())
-            .ToList();
+            .Select(g => g.First())];
 
-        if (todosComplementos.Any())
+        if (todosComplementos.Count != 0)
         {
             body.InsertAfter(CriarQuebraDePagina(), pontoInsercao);
             pontoInsercao = pontoInsercao.NextSibling()!;
@@ -186,19 +160,6 @@ public class DocumentoWordService
                 pontoInsercao = table;
             }
         }
-        /*
-        var quebra = new Paragraph(
-            new ParagraphProperties(new PageBreakBefore())
-        );
-
-        body.InsertAfter(quebra, pontoInsercao);
-        pontoInsercao = quebra;
-
-        var legenda = CriarTabelaLegenda();
-        body.InsertAfter(legenda, pontoInsercao);
-        pontoInsercao = legenda;
-        */
-
         var espaco = CriarEspacoAntesQuebra();
         body.InsertAfter(espaco, pontoInsercao);
         pontoInsercao = espaco;
@@ -227,7 +188,6 @@ public class DocumentoWordService
 
         doc.MainDocumentPart.Document.Save();
 
-        
     }
 
     private Paragraph CriarEspacoAntesQuebra()
@@ -321,96 +281,14 @@ public class DocumentoWordService
         return null;
     }
 
-    private async Task<OpenXmlElement> CriarTabelaTipo(
-    Body body,
-    OpenXmlElement pontoInsercao,
-    Func<long, string, Task<IEnumerable<ItemTabelaModel>>> buscarItens,
-    long idTema,
-    string tipoBD,
-    string letraProjeto,
-    string nomeTema,
-    bool novaPagina)
-    {
-        var itens = (await buscarItens(idTema, tipoBD)).ToList();
-        if (itens.Count == 0)
-            return pontoInsercao;
-
-        string tituloWord = MapaTipos.TryGetValue(tipoBD, out string? value)
-            ? value
-            : tipoBD;
-
-        // quebra antes da seção, quando necessário
-        if (novaPagina)
-        {
-            var espaco = CriarEspacoAntesQuebra();
-            body.InsertAfter(espaco, pontoInsercao);
-            pontoInsercao = espaco;
-
-            var quebra = CriarQuebraDePagina();
-            body.InsertAfter(quebra, pontoInsercao);
-            pontoInsercao = quebra;
-        }
-
-        var tituloSecao = CriarSubTitulo(
-            $"Projeto {letraProjeto} - {ToTitleCasePtBr(nomeTema)} - {tituloWord}"
-        );
-
-        body.InsertAfter(tituloSecao, pontoInsercao);
-        pontoInsercao = tituloSecao;
-
-        var grupos = itens
-            .GroupBy(i => i.Bloco ?? "GERAL")
-            .OrderBy(g => g.Key)
-            .ToList();
-
-        bool primeiroBloco = true;
-
-        foreach (var grupo in grupos)
-        {
-            // quebra entre blocos do mesmo tipo
-            if (!primeiroBloco)
-            {
-                var quebra = CriarQuebraDePagina();
-                body.InsertAfter(quebra, pontoInsercao);
-                pontoInsercao = quebra;
-            }
-
-            primeiroBloco = false;
-
-            var table = new Table();
-
-            table.AppendChild(CriarPropriedadesTabela());
-
-            table.AppendChild(new TableGrid(
-                new GridColumn() { Width = "810" },
-                new GridColumn() { Width = "1490" },
-                new GridColumn() { Width = "3510" },
-                new GridColumn() { Width = "737" },
-                new GridColumn() { Width = "1780" },
-                new GridColumn() { Width = "1531" }
-            ));
-
-            table.AppendChild(CriarLinhaBloco(grupo.Key));
-            table.AppendChild(CriarLinhaCabecalho(tituloWord));
-
-            foreach (var item in grupo.OrderBy(i => i.Item))
-                table.AppendChild(CriarLinhaDados(item));
-
-            body.InsertAfter(table, pontoInsercao);
-            pontoInsercao = table;
-        }
-
-        return pontoInsercao;
-    }
-
     private async Task<OpenXmlElement> CriarTabelaTipoComItens(
-    Body body,
-    OpenXmlElement pontoInsercao,
-    List<ItemTabelaModel> itens,
-    string tipoBD,
-    string letraProjeto,
-    string nomeTema,
-    bool novaPagina)
+        Body body,
+        OpenXmlElement pontoInsercao,
+        List<ItemTabelaModel> itens,
+        string tipoBD,
+        string letraProjeto,
+        string nomeTema,
+        bool novaPagina)
     {
         if (itens.Count == 0)
             return pontoInsercao;
@@ -445,7 +323,6 @@ public class DocumentoWordService
 
         var grupos = itens
             .GroupBy(i => i.Bloco ?? "GERAL")
-            .OrderBy(g => g.Key)
             .ToList();
 
         bool primeiroBloco = true;
@@ -627,18 +504,18 @@ public class DocumentoWordService
             CriarCelula(texto: item.Descricao, Vcentralizar: true, Hcentralizar: false, largura: "3510"),
             CriarCelula(texto: item.Qtd, Vcentralizar: true, Hcentralizar: true, largura: "737"),
             CriarCelula(texto: item.Dimensao, Vcentralizar: true, Hcentralizar: false, largura: "1780"),
-            CriarCelula(texto: item.Obs, Vcentralizar: true, Hcentralizar: false, largura: "1531")
+            CriarCelula(texto: item.Obs, Vcentralizar: true, Hcentralizar: false, fonteSize: "18", largura: "1531")
         );
     }
 
     private TableCell CriarCelula(
-    string? texto,
-    bool bold = false,
-    bool fundoVerde = false,
-    bool Vcentralizar = false,
-    bool Hcentralizar = false,
-    string fonteSize = "20",
-    string? largura = null // NOVO PARAMETRO
+        string? texto,
+        bool bold = false,
+        bool fundoVerde = false,
+        bool Vcentralizar = false,
+        bool Hcentralizar = false,
+        string fonteSize = "20",
+        string? largura = null // NOVO PARAMETRO
 )
     {
         var runProps = new RunProperties(
@@ -712,11 +589,11 @@ public class DocumentoWordService
 
         // palavras que devem ficar minúsculas
         string[] minusculas =
-        {
-        "De", "Da", "Das", "Do", "Dos",
-        "E", "Em", "Na", "Nas", "No", "Nos",
-        "Com", "Para", "Por"
-    };
+        [
+            "De", "Da", "Das", "Do", "Dos",
+            "E", "Em", "Na", "Nas", "No", "Nos",
+            "Com", "Para", "Por"
+        ];
 
         foreach (var palavra in minusculas)
         {
