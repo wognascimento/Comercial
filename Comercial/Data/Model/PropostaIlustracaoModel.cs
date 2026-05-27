@@ -45,4 +45,6 @@ public class PropostaIlustracaoModel
     public string? obs_planta_layout { get; set; }
     [Required]
     public long? idtema { get; set; }
+    public bool SomenteLeitura { get; set; }
+    public string? Origem { get; set; }
 }

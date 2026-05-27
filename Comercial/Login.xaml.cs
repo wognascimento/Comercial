@@ -42,12 +42,16 @@ namespace Producao
 
                     // Atualiza config e fecha
                     var config = ConfigurationManager.OpenExeConfiguration(@$"{BaseSettings.CaminhoSistema}Comercial.dll");
-                    config.AppSettings.Settings["Username"].Value = txtLogin.Text;
+                    if (config.AppSettings.Settings["Username"] == null)
+                        config.AppSettings.Settings.Add("Username", txtLogin.Text);
+                    else
+                        config.AppSettings.Settings["Username"].Value = txtLogin.Text;
+
                     config.Save(ConfigurationSaveMode.Modified);
                     ConfigurationManager.RefreshSection("appSettings");
 
                     BaseSettings.Username = txtLogin.Text;
-                    BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
+                    BaseSettings.RefreshConnectionString();
 
                     this.DialogResult = true;
                     this.Close();

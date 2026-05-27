@@ -363,4 +363,12 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /Comercial/Output/
+/publish/
+/artifacts/
+/redist/
+/build-verify/
 /Comercial/publish/
+/Comercial/artifacts/
+/Comercial/redist/
+/Comercial/build-verify/
+/Comercial/Comercial/app.config

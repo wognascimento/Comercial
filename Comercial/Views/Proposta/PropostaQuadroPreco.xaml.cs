@@ -634,12 +634,71 @@ public partial class PropostaQuadroPreco : UserControl
 
     private void RadGridView_AddingNewDataItem(object sender, Telerik.Windows.Controls.GridView.GridViewAddingNewEventArgs e)
     {
-
+        var gridFilho = sender as RadGridView;
+        if (gridFilho?.DataContext is QuadroPrecoDto itemPai)
+        {
+            e.NewObject = new PropostaIlustracaoModel
+            {
+                codpreco = itemPai.codquadro_preco,
+                codquadro_quantitativo = itemPai.codquadro_quantitativo,
+                item = itemPai.item,
+                sigla = itemPai.sigla,
+                tema = itemPai.tema,
+                idtema = itemPai.idtema,
+                codbriefing = itemPai.codbrief,
+                inserido_por = BaseSettings.Username,
+                data_pedido = DateTime.Now,
+                SomenteLeitura = false,
+                Origem = "PRECO"
+            };
+        }
     }
 
-    private void RadGridViewIlustracaoRowValidating(object sender, Telerik.Windows.Controls.GridViewRowValidatingEventArgs e)
+    private void RadGridViewIlustracaoBeginningEdit(object sender, GridViewBeginningEditRoutedEventArgs e)
     {
+        if (e.Row?.Item is PropostaIlustracaoModel { SomenteLeitura: true })
+            e.Cancel = true;
+    }
 
+    private async void RadGridViewIlustracaoRowValidating(object sender, Telerik.Windows.Controls.GridViewRowValidatingEventArgs e)
+    {
+        try
+        {
+            if (DataContext is not PropostaQuadroPrecoViewModel vm || !e.Row.IsInEditMode)
+                return;
+
+            if (e.Row.Item is PropostaIlustracaoModel i)
+            {
+                if (i.SomenteLeitura)
+                {
+                    e.IsValid = false;
+                    e.ValidationResults.Add(new GridViewCellValidationResult
+                    {
+                        ErrorMessage = "Ilustracao criada no quadro quantitativo e somente leitura no quadro de preco.",
+                        PropertyName = string.Empty
+                    });
+                    return;
+                }
+
+                await vm.UpserIlustracao(i);
+
+                if (sender is RadGridView gridFilho && gridFilho.DataContext is QuadroPrecoDto itemPai)
+                {
+                    itemPai.ilustracao = "SIM";
+                    itensProposta.Rebind();
+                }
+            }
+        }
+        catch (DbUpdateException ex)
+        {
+            e.IsValid = false;
+            MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        catch (Exception ex)
+        {
+            e.IsValid = false;
+            MessageBox.Show($"Erro inesperado: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private Task<bool> ValidarCamposAsync()
@@ -757,8 +816,8 @@ public partial class PropostaQuadroPreco : UserControl
 
                 var temas = await _repo.GetTemasAsync(vm.SelectedBriefing.codbriefing);
 
-                string template = $@"{BaseSettings.CaminhoSistema}Modelos\MODELO_PROJ_COM.docx";
-                string destino = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_PROJ_COM_{BaseSettings.Username}.docx"; //2026_01_28_PIR_PROJ_COM_nina_bordenalli.doc
+                string template = BaseSettings.ResolveModeloPath("MODELO_PROJ_COM.docx");
+                string destino = BaseSettings.ResolveImpressosPath($"{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_PROJ_COM_{BaseSettings.Username}.docx"); //2026_01_28_PIR_PROJ_COM_nina_bordenalli.doc
 
                 await _docService.CriarDocumentoFormatado(
                     template,
@@ -795,7 +854,7 @@ public partial class PropostaQuadroPreco : UserControl
             {
                 _excelService = new ExcelQuadroPrecoService();
 
-                string caminho = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_PREÇO_{BaseSettings.Username}.xlsx";
+                string caminho = BaseSettings.ResolveImpressosPath($"{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_PREÇO_{BaseSettings.Username}.xlsx");
 
                await _excelService.GerarExcelCusto(caminho, vm.SelectedBriefing.codbriefing);
                Process.Start(new ProcessStartInfo
@@ -825,7 +884,7 @@ public partial class PropostaQuadroPreco : UserControl
             {
                 _excelService = new ExcelQuadroPrecoService();
 
-                string caminho = $@"{BaseSettings.CaminhoSistema}Impressos\{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_CUSTO_{BaseSettings.Username}.xlsx";
+                string caminho = BaseSettings.ResolveImpressosPath($"{DateTime.Now:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_DE_CUSTO_{BaseSettings.Username}.xlsx");
 
                 await _excelService.GerarExcelCustoDetalhado(caminho, vm.SelectedBriefing.codbriefing);
                 Process.Start(new ProcessStartInfo
@@ -939,7 +998,7 @@ public partial class PropostaQuadroPreco : UserControl
             {
                 using var context = new NpgsqlConnection(BaseSettings.ConnectionString);
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                IPresentation presentation = Syncfusion.Presentation.Presentation.Open($@"{BaseSettings.CaminhoSistema}Modelos\MODELO-PADRAO.pptx");
+                IPresentation presentation = Syncfusion.Presentation.Presentation.Open(BaseSettings.ResolveModeloPath("MODELO-PADRAO.pptx"));
                 IMasterSlide slideMaster = presentation.Masters.First(x=>x.Name.Equals("pre-proposta")); // Use o índice apropriado
 
                 foreach (var tema in vm.PropostaBriefingTemas)
@@ -978,14 +1037,15 @@ public partial class PropostaQuadroPreco : UserControl
                 presentation.Slides.Add(slideMaster.LayoutSlides.First(x => x.Name.Equals("informacao")));
                 presentation.Slides.Add(slideMaster.LayoutSlides.First(x => x.Name.Equals("encerramento")));
 
-                presentation.Save($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+                string destino = BaseSettings.ResolveImpressosPath($"ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+                presentation.Save(destino);
                 presentation.Close();
 
                 //CorrigirIdiomaPpt($@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
 
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
                 MessageBox.Show("APRENTAÇÃO PPT GERADA COM SUCESSO!!!");
-                Process.Start("explorer", $@"{BaseSettings.CaminhoSistema}Impressos\ESQUELETO-PRE-PROPOSTA-{vm.SelectedBriefing.sigla}.pptx");
+                Process.Start("explorer", destino);
             }
         }
         catch (DbUpdateException ex)
@@ -1036,9 +1096,9 @@ public partial class PropostaQuadroPreco : UserControl
                 _quadroPrecoExportService = new QuadroPrecoExportService();
                 
 
-                string pasta = $@"{BaseSettings.CaminhoSistema}Impressos\";
+                string pasta = BaseSettings.ResolveImpressosDirectory();
                 string usuario = Environment.UserName;
-                string arquivo = $"{pasta}{DateTime.Today:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_QUANT_REVISÃO_{usuario}.xlsx";
+                string arquivo = System.IO.Path.Combine(pasta, $"{DateTime.Today:yyyy_MM_dd}_{vm.SelectedBriefing.sigla}_QUADRO_QUANT_REVISÃO_{usuario}.xlsx");
 
                 await _quadroPrecoExportService.GerarQuadro(arquivo, vm.SelectedBriefing.sigla, vm.SelectedBriefing.codbriefing);
                 Process.Start(new ProcessStartInfo
@@ -1140,6 +1200,24 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<string> comercialPropostaDetalhesLocais = [];
 
+    [ObservableProperty]
+    private ObservableCollection<string> tipos = [
+        "ANIMAÇÃO",
+            "ESQUEMA VOLUMÉTRICO",
+            "KIT FOTOS",
+            "LAYOUT CORTE TÉCNICO",
+            "LAYOUT EXISTENTE",
+            "LAYOUT GENÉRICO",
+            "LAYOUT PERSONALIZADO",
+            "PLANTA ILUSTRADA SIMPLES",
+            "PLANTA ILUSTRADA COMPLETA",
+            "LAYOUT TEMA NOVO",
+            "MAQUETE VIRTUAL",
+            "MAQUETE",
+            "PLANTA PRAÇA",
+            "PLANTA TETO",
+            "VÍDEO"
+    ];
 
     public async Task CarregarBrifinsAsync()
     {
@@ -1239,12 +1317,35 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         var iluminacaoTask = await conn.QueryAsync<PropostaIlustracaoModel>(sqlIlustracoes, parametros);
         var quadroList = (quadroTask).ToList();
         var iluminacaoList = (iluminacaoTask).ToList();
-        ObservableCollection<PropostaIlustracaoModel> MapearIlustracoes(long codQuadroPreco)
+        ObservableCollection<PropostaIlustracaoModel> MapearIlustracoes(QuadroPrecoDto quadro)
         {
-            var cargasParaSigla = iluminacaoList
-                .Where(c => c.codpreco == codQuadroPreco)
+            var ilustracoesProprias = iluminacaoList
+                .Where(c => c.codpreco == quadro.codquadro_preco)
+                .Select(c =>
+                {
+                    c.SomenteLeitura = false;
+                    c.Origem = "PRECO";
+                    return c;
+                });
+
+            var ilustracoesQuantitativo = iluminacaoList
+                .Where(c =>
+                    c.codquadro_quantitativo == quadro.codquadro_quantitativo &&
+                    c.codpreco != quadro.codquadro_preco)
+                .Select(c =>
+                {
+                    c.SomenteLeitura = true;
+                    c.Origem = "QUANTITATIVO";
+                    return c;
+                });
+
+            var cargasParaSigla = ilustracoesProprias
+                .Concat(ilustracoesQuantitativo)
+                .GroupBy(c => c.codilustracao)
+                .Select(g => g.First())
                 .OrderBy(c => c.codilustracao)
                 .ToList();
+
             return new ObservableCollection<PropostaIlustracaoModel>(cargasParaSigla);
         }
         var resultado = new ObservableCollection<QuadroPrecoDto>(
@@ -1302,7 +1403,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                      preco_excel = q.preco_excel,
                      preco_excel_total = q.preco_excel_total,
                      valor_unitario = q.valor_unitario,
-                    Ilustracoes = MapearIlustracoes(q.codquadro_preco)
+                    Ilustracoes = MapearIlustracoes(q)
                 })]
         );
         ItensProposta = resultado;
@@ -1392,6 +1493,71 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var sql = @"DELETE FROM comercial.proposta_quadro_preco WHERE codquadro_preco = @codquadro_preco;";
         return await conn.ExecuteAsync(sql, new { codquadro_preco });
+    }
+
+    public async Task UpserIlustracao(PropostaIlustracaoModel model)
+    {
+        if (!model.codpreco.HasValue)
+            throw new InvalidOperationException("Codigo do quadro de preco nao informado para a ilustracao.");
+
+        using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
+
+        var sqlSelect = @"SELECT * FROM comercial.proposta_ilustracoes WHERE codilustracao = @codilustracao";
+        var existente = await conn.QueryFirstOrDefaultAsync<PropostaIlustracaoModel?>(sqlSelect, new { model.codilustracao });
+
+        if (existente == null)
+        {
+            var sqlInsert = @"
+                INSERT INTO comercial.proposta_ilustracoes
+                    (sigla, tema, data_pedido, tipo, qtd, resp, data_conclusao, inserido_por, obs, codquadro_quantitativo, controle_pedidos, link, proposta, item, codbriefing, tipo_quadro, codpreco, cancelado, cancelado_por, cancelado_data, cancelado_obs, data_inicio, alterado_por, alterado_em, resp_layout, data_inicio_layout, data_fim_layout, obs_layout, resp_planta_layout, data_inicio_planta_layout, data_fim_planta_layout, obs_planta_layout, idtema)
+                VALUES
+                    (@sigla, @tema, @data_pedido, @tipo, @qtd, @resp, @data_conclusao, @inserido_por, @obs, @codquadro_quantitativo, @controle_pedidos, @link, @proposta, @item, @codbriefing, @tipo_quadro, @codpreco, @cancelado, @cancelado_por, @cancelado_data, @cancelado_obs, @data_inicio, @alterado_por, @alterado_em, @resp_layout, @data_inicio_layout, @data_fim_layout, @obs_layout, @resp_planta_layout, @data_inicio_planta_layout, @data_fim_planta_layout, @obs_planta_layout, @idtema)
+                RETURNING codilustracao;";
+
+            model.codilustracao = await conn.ExecuteScalarAsync<long>(sqlInsert, model);
+
+            var sqlUpdateQuadro = @"UPDATE comercial.proposta_quadro_preco
+                                    SET ilustracao = 'SIM'
+                                    WHERE codquadro_preco = @codpreco;";
+            await conn.ExecuteAsync(sqlUpdateQuadro, model);
+        }
+        else
+        {
+            var tipo = typeof(PropostaIlustracaoModel);
+            var setList = new List<string>();
+            var parametros = new DynamicParameters();
+
+            foreach (var prop in tipo.GetProperties())
+            {
+                if (prop.Name.Equals("codilustracao", StringComparison.OrdinalIgnoreCase) ||
+                    prop.Name.Equals(nameof(PropostaIlustracaoModel.SomenteLeitura), StringComparison.OrdinalIgnoreCase) ||
+                    prop.Name.Equals(nameof(PropostaIlustracaoModel.Origem), StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var valorNovo = prop.GetValue(model);
+                var valorAntigo = prop.GetValue(existente);
+
+                if (valorNovo == null)
+                    continue;
+
+                if (!Equals(valorNovo, valorAntigo))
+                {
+                    setList.Add($"{prop.Name} = @{prop.Name}");
+                    parametros.Add(prop.Name, valorNovo);
+                }
+            }
+
+            if (setList.Count == 0)
+                return;
+
+            parametros.Add("codilustracao", model.codilustracao);
+
+            var sqlUpdate = $@"
+                UPDATE comercial.proposta_ilustracoes
+                SET {string.Join(", ", setList)}
+                WHERE codilustracao = @codilustracao;";
+            await conn.ExecuteAsync(sqlUpdate, parametros);
+        }
     }
 
     public async Task<long> InicioProjetoAsync(DateTime? inicio, long briefing, long idtema)

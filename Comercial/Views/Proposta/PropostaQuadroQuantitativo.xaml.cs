@@ -764,8 +764,16 @@ namespace Comercial.Views.Proposta
                 PropostaQuadroQuantitativoViewModel vm = (PropostaQuadroQuantitativoViewModel)DataContext;
                 if (!e.Row.IsInEditMode)
                     return;
-                if (e.Row.Item is PropostaIlustracaoModel i) 
+                if (e.Row.Item is PropostaIlustracaoModel i)
+                {
                     await vm.UpserIlustracao(i);
+
+                    if (sender is RadGridView gridFilho && gridFilho.DataContext is QuadroQuantitativoDto itemPai)
+                    {
+                        itemPai.ilustracao = "SIM";
+                        itensProposta.Rebind();
+                    }
+                }
             }
             catch (DbUpdateException ex)
             {
@@ -1212,7 +1220,7 @@ namespace Comercial.Views.Proposta
             var sql = @"
                 INSERT INTO
                     comercial.proposta_quadro_preco (
-                        codquadro_quantitativo, codbrief, sigla, idtema,
+                        codquadro_quantitativo, ilustracao, codbrief, sigla, idtema,
                         tema, tipo, item, local,
                         localdetalhe, coddimensao, qtd, qtdanterior,
                         obs, obsinterna, ledml, desconto,
@@ -1221,7 +1229,7 @@ namespace Comercial.Views.Proposta
                         custo_tot_item, total_desc, valor_unitario, preco_excel
                     )
                 SELECT
-                    view_quadro_quantitativo.codquadro_quantitativo, view_quadro_quantitativo.codbrief, view_quadro_quantitativo.sigla, view_quadro_quantitativo.idtema,
+                    view_quadro_quantitativo.codquadro_quantitativo, view_quadro_quantitativo.ilustracao, view_quadro_quantitativo.codbrief, view_quadro_quantitativo.sigla, view_quadro_quantitativo.idtema,
                     view_quadro_quantitativo.tema, view_quadro_quantitativo.tipo, view_quadro_quantitativo.item, view_quadro_quantitativo.local, 
                     view_quadro_quantitativo.localdetalhe, view_quadro_quantitativo.coddimensao, view_quadro_quantitativo.qtd, view_quadro_quantitativo.qtdanterior,
                     view_quadro_quantitativo.obs, view_quadro_quantitativo.obsinterna, view_quadro_quantitativo.ledml, view_quadro_quantitativo.desconto,
@@ -1260,7 +1268,7 @@ namespace Comercial.Views.Proposta
                 var sqlUpdateQuadro = @"UPDATE comercial.proposta_quadro_quantitativo
 	                                        SET ilustracao='SIM'
 	                                        WHERE codquadro_quantitativo=@codquadro_quantitativo;";
-                await conn.ExecuteScalarAsync(sqlUpdateQuadro, model);
+                await conn.ExecuteAsync(sqlUpdateQuadro, model);
             }
             else
             {
@@ -1272,7 +1280,9 @@ namespace Comercial.Views.Proposta
 
                 foreach (var prop in tipo.GetProperties())
                 {
-                    if (prop.Name.Equals("id", StringComparison.OrdinalIgnoreCase))
+                    if (prop.Name.Equals("id", StringComparison.OrdinalIgnoreCase) ||
+                        prop.Name.Equals(nameof(PropostaIlustracaoModel.SomenteLeitura), StringComparison.OrdinalIgnoreCase) ||
+                        prop.Name.Equals(nameof(PropostaIlustracaoModel.Origem), StringComparison.OrdinalIgnoreCase))
                         continue;
 
                     var valorNovo = prop.GetValue(model);
@@ -1304,7 +1314,7 @@ namespace Comercial.Views.Proposta
                 SET {string.Join(", ", setList)}
                 WHERE codilustracao = @codilustracao;
                 ";
-                await conn.ExecuteAsync(sqlUpdate, model);
+                await conn.ExecuteAsync(sqlUpdate, parametros);
             }
         }
 

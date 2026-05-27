@@ -1,13 +1,6 @@
-﻿using BibliotecasSIG;
 using Comercial.DataBase;
 using Comercial.Localization;
-using System.Collections.Specialized;
-using System.Configuration;
-using System.Diagnostics;
 using System.Globalization;
-using System.Net.Http;
-using System.Reflection;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Markup;
 using Telerik.Windows.Controls;
@@ -19,31 +12,20 @@ namespace Comercial;
 /// </summary>
 public partial class App : Application
 {
-
-   
-
     public App()
     {
-        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MTU4NUAzMjM3MkUzMTJFMzluT08wbzRnYm4zUlFDOVRzWVpYbUtuSEl0aUhTZmNMYjQxekhrV0NVRnlzPQ==");
+        var settings = DataBaseSettings.Instance;
+        settings.LoadFromConfiguration();
 
-        var appSettings = ConfigurationManager.GetSection("appSettings") as NameValueCollection;
-
-        DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-        if (appSettings[0].Length > 0)
-            BaseSettings.AppSetting = appSettings;
-
-        BaseSettings.Database = DateTime.Now.Year.ToString();
-        BaseSettings.Host = "192.168.0.23";
-        BaseSettings.Username = BaseSettings.AppSetting != null ? BaseSettings.AppSetting[0] : Environment.UserName;
-        BaseSettings.Password = "123mudar";
-        BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
+        if (!string.IsNullOrWhiteSpace(settings.SyncfusionLicense))
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(settings.SyncfusionLicense);
 
         LocalizationManager.Manager = new LocalizationManager()
         {
             ResourceManager = GridViewResources.ResourceManager
         };
 
-        this.DispatcherUnhandledException += OnDispatcherUnhandledException;
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
     }
 
@@ -59,11 +41,11 @@ public partial class App : Application
         if (e.ExceptionObject is Exception ex)
         {
             MessageBox.Show("Erro fatal: " + ex.Message,
-                            "Erro crítico", MessageBoxButton.OK, MessageBoxImage.Stop);
+                            "Erro critico", MessageBoxButton.OK, MessageBoxImage.Stop);
         }
     }
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
@@ -75,9 +57,5 @@ public partial class App : Application
             typeof(FrameworkElement),
             new FrameworkPropertyMetadata(
                 XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
-
-        // Verificação de atualização em segundo plano
-        //await CheckForUpdatesAsync();
     }
 }
-

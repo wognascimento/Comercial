@@ -21,7 +21,6 @@ namespace Comercial
     {
         private DataBaseSettings BaseSettings = DataBaseSettings.Instance;
 
-        private const string UPDATE_URL = "http://192.168.0.49/downloads/comercial/version.json";
         private readonly string CURRENT_VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public Principal()
@@ -47,7 +46,10 @@ namespace Comercial
         {
             try
             {
-                var updateChecker = new UpdateChecker(UPDATE_URL, CURRENT_VERSION);
+                if (string.IsNullOrWhiteSpace(BaseSettings.UpdateInfoUrl))
+                    return;
+
+                var updateChecker = new UpdateChecker(BaseSettings.UpdateInfoUrl, CURRENT_VERSION);
                 var updateInfo = await updateChecker.CheckForUpdatesAsync();
 
                 var updateInfoJson = JsonSerializer.Serialize<UpdateInfo>(updateInfo);
@@ -212,7 +214,7 @@ namespace Comercial
                     {
                         BaseSettings.Database = e.PromptResult;
                         txtDataBase.Text = BaseSettings.Database;
-                        BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
+                        BaseSettings.RefreshConnectionString();
                         radDocking.Items.Clear();
                     }
                 }

@@ -489,8 +489,12 @@
                                 AutoGenerateColumns="False"
                                 ShowGroupPanel="False"
                                 AddingNewDataItem="RadGridView_AddingNewDataItem"
+                                BeginningEdit="RadGridViewIlustracaoBeginningEdit"
                                 RowValidating="RadGridViewIlustracaoRowValidating">
                                 <telerik:RadGridView.Columns>
+                                    <telerik:GridViewDataColumn Header="ORIGEM"
+                                                                DataMemberBinding="{Binding Origem}"
+                                                                IsReadOnly="true"/>
                                     <telerik:GridViewComboBoxColumn 
                                         DataMemberBinding="{Binding tipo}"
                                         ItemsSource="{Binding DataContext.Tipos, RelativeSource={RelativeSource AncestorType=UserControl}}" />

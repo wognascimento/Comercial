@@ -142,7 +142,7 @@ public partial class MainWindow : Window
             var temas = await context.PropostaViewQuadroPrecos.AsNoTracking().Where(x => x.sigla == "BOR").GroupBy(x => x.tema).Select(x => x.Key).ToListAsync();
 
             // Abre a apresentação
-            IPresentation presentation = Presentation.Open("Modelos/BASE.pptx");
+            IPresentation presentation = Presentation.Open(BaseSettings.ResolveModeloPath("BASE.pptx"));
 
             // Obtém todos os masters da apresentação
             //ISlideMaster slideMaster = presentation.Masters[0]; // Use o índice apropriado
