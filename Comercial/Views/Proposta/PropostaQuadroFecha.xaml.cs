@@ -946,7 +946,7 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
         var parametros = new { codbriefing };
         var itens = await conn.QueryAsync<PropostaFechaTemaDto>(
-        @"SELECT cod_brief, ordem_escolha, tema, faixapreco, resp_conclusao_preco, data_tema_fecha, indice, resp_tema, texto, idtema
+        @"SELECT cod_brief, ordem_escolha, tema, faixapreco, resp_conclusao_preco, data_tema_fecha::timestamp AS data_tema_fecha, indice, resp_tema, texto, idtema
 	      FROM comercial.proposta_fecha_tema
           WHERE cod_brief = @codbriefing
           ORDER BY ordem_escolha;", parametros);

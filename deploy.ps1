@@ -21,7 +21,8 @@ $artifactsPath = Join-Path $projectPath "artifacts"
 $installerPath = Join-Path $artifactsPath "installer"
 $versionJsonPath = Join-Path $artifactsPath "version.json"
 $redistPath = Join-Path $projectPath "redist"
-$runtimeInstallerName = "windowsdesktop-runtime-9.0-win-x64.exe"
+$runtimeInstallerName = "windowsdesktop-runtime-10.0-win-x64.exe"
+$runtimeInstallerSearchPattern = "windowsdesktop-runtime-10.*-win-x64.exe"
 $runtimeInstallerTargetPath = Join-Path $redistPath $runtimeInstallerName
 
 function Get-ApplicationVersion {
@@ -72,11 +73,22 @@ function Resolve-DotNetRuntimeInstaller {
     }
 
     $candidates += Join-Path $workspaceRoot "tools\dotnet\$runtimeInstallerName"
-    $candidates += Join-Path $projectPath "redist\$runtimeInstallerName"
 
     foreach ($candidate in $candidates) {
         if (Test-Path $candidate) {
             return (Resolve-Path $candidate).Path
+        }
+    }
+
+    $runtimeDirectory = Join-Path $workspaceRoot "tools\dotnet"
+
+    if (Test-Path $runtimeDirectory) {
+        $installer = Get-ChildItem -Path $runtimeDirectory -Filter $runtimeInstallerSearchPattern -File |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+
+        if ($installer) {
+            return $installer.FullName
         }
     }
 
@@ -205,12 +217,18 @@ function Test-ServerVersion {
     }
     catch {
         $statusCode = $null
+        $exception = $_.Exception
 
-        if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
-            $statusCode = [int]$_.Exception.Response.StatusCode
+        while ($exception) {
+            if ($exception.Response -and $exception.Response.StatusCode) {
+                $statusCode = [int]$exception.Response.StatusCode
+                break
+            }
+
+            $exception = $exception.InnerException
         }
 
-        if ($statusCode -eq 404) {
+        if ($statusCode -eq 404 -or $_.Exception.Message -match "\(404\)|404|Nao Localizado|Não Localizado|Not Found") {
             Write-Host "Nenhum version.json encontrado no servidor. Deploy inicial permitido."
             return
         }
@@ -263,10 +281,10 @@ Write-Host "Versao: $version"
 Write-Host "Inno Setup: $resolvedInnoCompiler"
 
 if ([string]::IsNullOrWhiteSpace($runtimeInstallerSourcePath)) {
-    Write-Host ".NET Desktop Runtime 9 nao sera embutido. Coloque '$runtimeInstallerName' em '$workspaceRoot\tools\dotnet' ou informe -DotNetDesktopRuntimeInstallerPath."
+    Write-Host ".NET Desktop Runtime 10 nao sera embutido. Coloque '$runtimeInstallerName' ou '$runtimeInstallerSearchPattern' em '$workspaceRoot\tools\dotnet' ou informe -DotNetDesktopRuntimeInstallerPath."
 }
 else {
-    Write-Host ".NET Desktop Runtime 9: $runtimeInstallerSourcePath"
+    Write-Host ".NET Desktop Runtime 10: $runtimeInstallerSourcePath"
 }
 
 if (Test-Path $publishPath) {

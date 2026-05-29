@@ -1244,8 +1244,8 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
         var parametros = new { codbriefing };
         var itens = await conn.QueryAsync<PropostaBriefingTemaDto>(
         @"SELECT sigla, temas, faixapreco, indiceproposta, 
-                     resp_tema, codbriefing, data_conclusao, tot_cenografia, 
-	                 data_inicio_preco, data_conclusao_preco, ordem_escolha, idtema, ativo
+                     resp_tema, codbriefing, data_conclusao::timestamp AS data_conclusao, tot_cenografia, 
+	                 data_inicio_preco::timestamp AS data_inicio_preco, data_conclusao_preco::timestamp AS data_conclusao_preco, ordem_escolha, idtema, ativo
               FROM comercial.proposta_temas_briefing
               WHERE codbriefing = @codbriefing AND data_conclusao IS NOT NULL
               ORDER BY ordem_escolha;", parametros);
