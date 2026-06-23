@@ -158,6 +158,11 @@ public partial class CopiaQuadro : UserControl
             MessageBox.Show($"Erro do banco: {pgEx.MessageText}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
             Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
         }
+        catch (PostgresException ex)
+        {
+            MessageBox.Show($"Erro do banco: {ex.MessageText}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+        }
         catch (Exception ex)
         {
             MessageBox.Show($"Erro inesperado: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -329,6 +334,11 @@ public partial class CopiaQuadroViewModel : ObservableObject
             }
 
             await tran.CommitAsync();
+        }
+        catch (PostgresException ex)
+        {
+            await tran.RollbackAsync();
+            throw new Exception("Erro ao copiar quadro", ex);
         }
         catch (Exception ex)
         {

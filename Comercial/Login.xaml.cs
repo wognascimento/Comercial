@@ -41,7 +41,7 @@ namespace Producao
                         throw new Exception("Credenciais inválidas.");
 
                     // Atualiza config e fecha
-                    var config = ConfigurationManager.OpenExeConfiguration(@$"{BaseSettings.CaminhoSistema}Comercial.dll");
+                    var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                     if (config.AppSettings.Settings["Username"] == null)
                         config.AppSettings.Settings.Add("Username", txtLogin.Text);
                     else

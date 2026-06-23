@@ -30,6 +30,11 @@ public partial class PropostaQuadroPreco : UserControl
     private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
     private CancellationTokenSource _ctsCarregarDados;
 
+    static PropostaQuadroPreco()
+    {
+        SqlMapper.AddTypeHandler(new DateOnlyToDateTimeHandler());
+    }
+
     public PropostaQuadroPreco()
     {
         InitializeComponent();

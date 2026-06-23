@@ -42,7 +42,7 @@ namespace Comercial
 
 
 
-        private async Task CheckForUpdatesAsync()
+        private async Task CheckForUpdatesAsync(bool showUpToDate = false)
         {
             try
             {
@@ -53,6 +53,13 @@ namespace Comercial
                 var updateInfo = await updateChecker.CheckForUpdatesAsync();
 
                 var updateInfoJson = JsonSerializer.Serialize<UpdateInfo>(updateInfo);
+
+                if (updateInfo == null)
+                {
+                    if (showUpToDate)
+                        MessageBox.Show($"O sistema já está atualizado.\n\nVersão atual: {CURRENT_VERSION}", "Atualização do sistema", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
 
                 if (updateInfo != null)
                 {
@@ -223,8 +230,12 @@ namespace Comercial
 
         private async void OnAtualizarSistemaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
-            // Verificação de atualização em segundo plano
-            await CheckForUpdatesAsync();
+            await CheckForUpdatesAsync(true);
+        }
+
+        private void OnSobreSistemaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            MessageBox.Show($"Sistema Integrado de Gerenciamento - Comercial\n\nVersão atual: {CURRENT_VERSION}", "Sobre o sistema", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

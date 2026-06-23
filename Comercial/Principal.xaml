@@ -43,6 +43,7 @@
                 
                 <telerik:RadMenuItem Header="Outros" >
                     <telerik:RadMenuItem Header="Atualizar Sistema" Click="OnAtualizarSistemaClick" />
+                    <telerik:RadMenuItem Header="Sobre" Click="OnSobreSistemaClick" />
                 </telerik:RadMenuItem>
                 
             </telerik:RadMenu>
