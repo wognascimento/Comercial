@@ -22,9 +22,8 @@
                 <MenuItem Header="Novo Documento" Click="NovoDocumento_Click"/>
             </MenuItem>
             -->
-            <telerik:RadMenu Grid.Row="0" Background="AliceBlue" >
-
-                <telerik:RadMenuItem Header="Cadastro">
+        <telerik:RadMenu Grid.Row="0" >
+            <telerik:RadMenuItem Header="Cadastro">
                     <telerik:RadMenuItem Header="Família" Click="OnAbrirCadastroFamiliaClick" />
                     <telerik:RadMenuItem Header="Descrição" Click="OnAbrirCadastroDescricaoClick"/>
                     <telerik:RadMenuItem Header="Ficha de Homologação" Click="OnAbrirCadastroHomologacaoComercialClick" />
@@ -37,7 +36,7 @@
                 </telerik:RadMenuItem>
                 
                 <telerik:RadMenuItem Header="Consulta">
-                    <telerik:RadMenuItem Header="Todoas as Descrições" />
+                    <telerik:RadMenuItem Header="Todas as Descrições" Click="OnAbrirTodasDescricoesClick" />
                 </telerik:RadMenuItem>
                 
                 
@@ -62,7 +61,6 @@
         <!-- Menu para criar novos documentos -->
 
         <telerik:RadToolBar Grid.Row="2" 
-                            Background="AliceBlue"
                             GripVisibility="Collapsed" 
                             OverflowButtonVisibility="Collapsed">
             

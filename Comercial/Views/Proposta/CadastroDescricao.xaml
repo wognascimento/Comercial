@@ -38,7 +38,6 @@
         <telerik:RadGridView 
             x:Name="rgView" 
             Grid.Row="1"
-            telerik:StyleManager.Theme="Office2016" 
             AutoGenerateColumns="False"
             SelectionMode="Extended"
             ClipboardCopyMode="Cells, Header"

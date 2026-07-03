@@ -14,6 +14,7 @@ public class QuadroPrecoDto
     public string localdetalhe { get; set; }
     public string descricao { get; set; }
     public string descricaocomercial { get; set; }
+    public string descricao_licitacao { get; set; }
     public string nomefantasia { get; set; }
     public double qtd { get; set; }
     public double qtdanterior { get; set; }

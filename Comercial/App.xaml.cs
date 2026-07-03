@@ -17,6 +17,8 @@ public partial class App : Application
         var settings = DataBaseSettings.Instance;
         settings.LoadFromConfiguration();
 
+        StyleManager.ApplicationTheme = new FluentTheme();
+
         if (!string.IsNullOrWhiteSpace(settings.SyncfusionLicense))
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(settings.SyncfusionLicense);
 

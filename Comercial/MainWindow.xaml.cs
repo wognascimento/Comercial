@@ -2,11 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Producao;
 using Syncfusion.Presentation;
-using Syncfusion.Presentation.Drawing;
 using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Tools.Controls;
-using System.Collections.Specialized;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -25,6 +22,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        
         StyleManager.ApplicationTheme = new Windows11Theme();
 
         VisualStyles visualStyle = VisualStyles.Default;

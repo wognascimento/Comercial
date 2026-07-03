@@ -1,0 +1,116 @@
+<Window
+    x:Class="Comercial.Views.Consulta.TodasDescricoesImagensWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:Comercial.Views.Consulta"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    Title="Imagens"
+    Width="900"
+    Height="560"
+    WindowStartupLocation="CenterOwner"
+    WindowStyle="ToolWindow"
+    Loaded="OnLoaded"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <local:ImagePathToImageSourceConverter x:Key="ImagePathToImageSourceConverter" />
+    </Window.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <telerik:RadButton
+                    x:Name="adicionarImagemButton"
+                    MinWidth="130"
+                    Margin="0,0,2,2"
+                    Content="Adicionar imagem"
+                    Click="OnAdicionarImagemClick" />
+                <telerik:RadButton
+                    x:Name="definirCapaButton"
+                    MinWidth="95"
+                    Margin="0,0,2,2"
+                    Content="Definir capa"
+                    Click="OnDefinirCapaClick" />
+                <telerik:RadButton
+                    x:Name="excluirImagemButton"
+                    MinWidth="90"
+                    Margin="0,0,2,2"
+                    Content="Excluir"
+                    Click="OnExcluirImagemClick" />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock FontWeight="Bold" Text="{Binding Titulo}" />
+                <TextBlock Foreground="#666666" Text="{Binding Subtitulo}" />
+            </StackPanel>
+        </DockPanel>
+
+        <Border
+            Grid.Row="1"
+            BorderBrush="#DDDDDD"
+            BorderThickness="1">
+            <telerik:RadListBox
+                x:Name="imagensList"
+                ItemsSource="{Binding Imagens}"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                SelectedItem="{Binding ImagemSelecionada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <telerik:RadListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </telerik:RadListBox.ItemsPanel>
+                <telerik:RadListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Width="190"
+                            Height="190"
+                            Margin="4"
+                            Padding="6"
+                            BorderBrush="#D0D0D0"
+                            BorderThickness="1"
+                            Background="White"
+                            MouseLeftButtonDown="OnImagemMouseLeftButtonDown">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="120" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <Border
+                                    Grid.Row="0"
+                                    BorderBrush="#CCCCCC"
+                                    BorderThickness="1"
+                                    Background="#F7F7F7">
+                                    <Image
+                                        Source="{Binding caminho_thumbnail, Converter={StaticResource ImagePathToImageSourceConverter}}"
+                                        Stretch="UniformToFill" />
+                                </Border>
+
+                                <CheckBox
+                                    Grid.Row="1"
+                                    Margin="0,6,0,2"
+                                    Content="Capa"
+                                    IsChecked="{Binding capa, Mode=OneWay}"
+                                    Click="OnCapaClick" />
+
+                                <TextBlock
+                                    Grid.Row="2"
+                                    Text="{Binding nome_arquivo}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTip="{Binding caminho_arquivo}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </telerik:RadListBox.ItemTemplate>
+            </telerik:RadListBox>
+        </Border>
+    </Grid>
+</Window>

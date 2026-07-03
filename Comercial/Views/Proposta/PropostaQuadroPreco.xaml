@@ -40,10 +40,10 @@
 
 
         <!-- ==================== PAINEL ESQUERDO ==================== -->
-        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Margin="0,0,10,0">
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
 
             <!-- CLIENTE -->
-            <Border BorderBrush="Gray" BorderThickness="1" Padding="5" Margin="0,0,0,10">
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="5">
                 <!-- ... (conteúdo idêntico ao original) ... -->
                 <Grid>
                     <Grid.RowDefinitions>
@@ -82,15 +82,15 @@
                         </telerik:RadMultiColumnComboBox.ItemsSourceProvider>
                     </telerik:RadMultiColumnComboBox>
 
-                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Text="Categoria Tema:" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Text="{Binding SelectedBriefingTema.faixapreco}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Text="Diretor Cliente:" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" Text="{Binding SelectedBriefing.diretorcliente}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Text="Categoria Tema:" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" Text="{Binding SelectedBriefingTema.faixapreco}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Text="Diretor Cliente:" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="5" Text="{Binding SelectedBriefing.diretorcliente}" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Text="Índice Tema:" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="3" Text="{Binding SelectedBriefingTema.indiceproposta}" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="4" Text="Responsável Tema:" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="5" Text="{Binding SelectedBriefingTema.resp_tema}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Text="Índice Tema:" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="3" Text="{Binding SelectedBriefingTema.indiceproposta}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="4" Text="Responsável Tema:" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.RowSpan="2" Grid.Column="5" Text="{Binding SelectedBriefingTema.resp_tema}" VerticalAlignment="Center"/>
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Tema:" VerticalAlignment="Center"/>
                     <telerik:RadComboBox x:Name="boxBrienfingTema" 
@@ -141,6 +141,24 @@
                 <StackPanel>
                     <TextBlock Text="Informações para proposta" FontWeight="Bold" Background="#B0B0B0" Padding="3" Margin="0,0,0,5"/>
                     <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Margin" Value="0,0,0,2"/>
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="telerik:RadWatermarkTextBox">
+                                <Setter Property="Margin" Value="0,0,0,2"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="telerik:RadComboBox">
+                                <Setter Property="Margin" Value="0,0,0,2"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="telerik:RadAutoCompleteBox">
+                                <Setter Property="Margin" Value="0,0,0,2"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                        </Grid.Resources>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="78"/>
@@ -164,41 +182,45 @@
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Item:" Grid.Row="0" Margin="0,0,0,2"/>
-                        <telerik:RadWatermarkTextBox x:Name="txtItem" Grid.Column="1" Grid.Row="0" Margin="0,0,0,2"/>
+                        <TextBlock Text="Item:" Grid.Row="0" />
+                        <telerik:RadWatermarkTextBox x:Name="txtItem" Grid.Column="1" Grid.Row="0" />
 
-                        <TextBlock Text="Quantidade:" Grid.Column="2" Grid.Row="0" Margin="2,0,2,2"/>
-                        <telerik:RadWatermarkTextBox x:Name="txtQuantidade" Grid.Column="3" Grid.Row="0" Margin="0,0,0,2"/>
+                        <TextBlock Text="Quantidade:" Grid.Column="2" Grid.Row="0"/>
+                        <telerik:RadWatermarkTextBox x:Name="txtQuantidade" Grid.Column="3" Grid.Row="0" />
 
-                        <TextBlock Text="Local:" Grid.Row="1" Margin="0,0,0,2"/>
+                        <TextBlock Text="Local:" Grid.Row="1" />
                         <telerik:RadComboBox x:Name="cbLocal" 
-                            Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,0,0,2"
+                            Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" 
                             ItemsSource="{Binding ComercialPropostaLocais}"/>
 
-                        <TextBlock Text="Local detalhes:" Grid.Column="4" Grid.Row="1" Margin="2,0,2,2"/>
+                        <TextBlock Text="Local detalhes:" Grid.Column="4" Grid.Row="1"/>
                         <!--<telerik:RadWatermarkTextBox 
-                            Grid.Column="5" Grid.Row="1"  Grid.ColumnSpan="3" Margin="0,0,0,2"/>-->
+                            Grid.Column="5" Grid.Row="1"  Grid.ColumnSpan="3" />-->
 
-                        <telerik:RadAutoCompleteBox x:Name="txtLocalDetalhes" 
-                            Grid.Column="5" Grid.Row="1"  Grid.ColumnSpan="3" Margin="0,0,0,2"
+                        <telerik:RadAutoCompleteBox x:Name="txtLocalDetalhes"
+                            Grid.Column="5" Grid.Row="1"  Grid.ColumnSpan="3" 
 	                        ItemsSource="{Binding ComercialPropostaDetalhesLocais}"
                             TextSearchMode="Contains" 
                             SelectionMode="Single" 
-                            AutoCompleteMode="SuggestAppend"/>
+                            AutoCompleteMode="SuggestAppend">
+                            <telerik:RadAutoCompleteBox.LayoutTransform>
+                                <ScaleTransform ScaleY="0.82"/>
+                            </telerik:RadAutoCompleteBox.LayoutTransform>
+                        </telerik:RadAutoCompleteBox>
 
-                        <TextBlock Text="Tipo:" Grid.Row="2" Margin="0,0,0,2"/>
+                        <TextBlock Text="Tipo:" Grid.Row="2" />
                         <telerik:RadComboBox x:Name="cbTipo" 
-                            Grid.Column="1" Grid.Row="2"  Grid.ColumnSpan="3" Margin="0,0,0,2"
+                            Grid.Column="1" Grid.Row="2"  Grid.ColumnSpan="3" 
                             ItemsSource="{Binding ComercialPropostaTipos}"/>
 
-                        <TextBlock Text="Bloco:" Grid.Column="4" Grid.Row="2" Margin="2,0,2,2"/>
+                        <TextBlock Text="Bloco:" Grid.Column="4" Grid.Row="2"/>
                         <telerik:RadComboBox x:Name="cbBloco" 
-                            Grid.Column="5" Grid.Row="2"  Grid.ColumnSpan="3" Margin="0,0,0,2"
+                            Grid.Column="5" Grid.Row="2"  Grid.ColumnSpan="3" 
                             ItemsSource="{Binding ComercialPropostaBlocos}"/>
 
-                        <TextBlock Text="Família:" Grid.Row="3" Margin="0,0,0,2"/>
+                        <TextBlock Text="Família:" Grid.Row="3" />
                         <telerik:RadComboBox x:Name="cbFamilia" 
-                            Grid.Column="1" Grid.Row="3"  Grid.ColumnSpan="3" Margin="0,0,0,2"
+                            Grid.Column="1" Grid.Row="3"  Grid.ColumnSpan="3" 
                             DisplayMemberPath="familia" 
                             ItemsSource="{Binding ComercialPropostaFamilias}"
                             SelectionChanged="rasBoxSelectionChanged"/>
@@ -209,57 +231,59 @@
                             Grid.Row="3" 
                             Margin="2" Click="RadButton_Click"/>
 
-                        <TextBlock Text="Descrição:" Grid.Column="5" Grid.Row="3" Margin="2,0,2,2"/>
+                        <TextBlock Text="Descrição:" Grid.Column="5" Grid.Row="3"/>
                         <telerik:RadComboBox
                             x:Name="cbDescricao" 
                             ItemsSource="{Binding DescricoesComercial}"
                             DisplayMemberPath="descricaocomercial"
                             Grid.Column="6" Grid.Row="3"  Grid.ColumnSpan="3" 
-                            Margin="0,0,0,2"
+                            
                             IsEditable="True"
                             TextSearchMode="Contains"
                             IsFilteringEnabled="True" 
                             SelectionChanged="rasBoxSelectionChanged"/>
 
-                        <TextBlock Text="Dimensão:" Grid.Row="4" Margin="0,0,0,2"/>
-                        <telerik:RadWatermarkTextBox Grid.Column="1" Grid.Row="4"  Grid.ColumnSpan="7" Margin="0,0,0,2"/>
+                        <TextBlock Text="Dimensão:" Grid.Row="4" />
+                        <telerik:RadWatermarkTextBox Grid.Column="1" Grid.Row="4"  Grid.ColumnSpan="7" />
                         <telerik:RadComboBox  
                             x:Name="cbDimenssao" 
                             ItemsSource="{Binding DimensoesComercial}"
                             SelectedItem="{Binding DimenssaoComercial}"
                             DisplayMemberPath="dimensao"
                             Grid.Column="1" Grid.Row="4"  Grid.ColumnSpan="7"
-                            Margin="0,0,0,2"
+                            
                             IsEditable="True"
                             TextSearchMode="Contains"
                             IsFilteringEnabled="True" 
                             SelectionChanged="rasBoxSelectionChanged"/>
 
-                        <TextBlock Text="LED:" Grid.Row="5" Margin="0,0,0,2"/>
+                        <TextBlock Text="LED:" Grid.Row="5" />
                         <telerik:RadComboBox x:Name="cbLED" 
-                            Grid.Column="1" Grid.Row="5"  Grid.ColumnSpan="2" Margin="0,0,0,2"
+                            Grid.Column="1" Grid.Row="5"  Grid.ColumnSpan="2" 
                             ItemsSource="{Binding ComercialPropostaLeds}"/>
 
-                        <TextBlock Text="Observação:" Grid.Row="6" Margin="0,0,0,2"/>
-                        <telerik:RadWatermarkTextBox x:Name="txtObservacao" Grid.Column="1" Grid.Row="6"  Grid.ColumnSpan="7" Margin="0,0,0,2"/>
+                        <TextBlock Text="Observação:" Grid.Row="6" />
+                        <telerik:RadWatermarkTextBox x:Name="txtObservacao" Grid.Column="1" Grid.Row="6"  Grid.ColumnSpan="7" />
 
-                        <TextBlock Text="Observação interna:" Grid.Row="7" Margin="0,0,0,2"/>
-                        <telerik:RadWatermarkTextBox x:Name="txtObservacaoInterna" Grid.Column="1" Grid.Row="7"  Grid.ColumnSpan="7" Margin="0,0,0,2"/>
+                        <TextBlock Text="Observação interna:" Grid.Row="7" />
+                        <telerik:RadWatermarkTextBox x:Name="txtObservacaoInterna" Grid.Column="1" Grid.Row="7"  Grid.ColumnSpan="7" />
 
                         <TextBlock x:Name="txtObservacaoObrigatoria" 
                             Grid.Row="8" 
                             Background="Yellow" 
                             Padding="2" 
+                            Margin="0,5,0,5"
                             FontWeight="Bold" 
-                            Grid.ColumnSpan="8" Margin="0,0,0,2"
+                            Grid.ColumnSpan="8" 
                             Text="{Binding DimenssaoComercial.obsobrigatoria}"/>
 
-                        <StackPanel Grid.Row="9" Grid.ColumnSpan="8" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,2">
+                        <StackPanel Grid.Row="9" Grid.ColumnSpan="8" Orientation="Horizontal"
+                                    HorizontalAlignment="Right" Margin="0,3,0,0">
 
-                            <telerik:RadButton x:Name="btnAlterar" Content="ALTERAR" Margin="2" Click="OnAlterarClick"/>
-                            <telerik:RadButton x:Name="btnIncluir" Content="INCLUIR" Margin="2" Click="OnIncluirClick"/>
-                            <telerik:RadButton x:Name="btnLimpar" Content="LIMPAR" Margin="2" Click="OnLimparClick"/>
-                            <telerik:RadButton x:Name="btnExcluir" Content="EXCLUIR" Margin="2" Click="OnExcluirClick"/>
+                            <telerik:RadButton x:Name="btnAlterar" Content="ALTERAR" Margin="3,0" Click="OnAlterarClick"/>
+                            <telerik:RadButton x:Name="btnIncluir" Content="INCLUIR" Margin="3,0" Click="OnIncluirClick"/>
+                            <telerik:RadButton x:Name="btnLimpar" Content="LIMPAR" Margin="3,0" Click="OnLimparClick"/>
+                            <telerik:RadButton x:Name="btnExcluir" Content="EXCLUIR" Margin="3,0" Click="OnExcluirClick"/>
 
                         </StackPanel>
 
@@ -444,6 +468,7 @@
                         <telerik:GridViewDataColumn Header="OBSERVAÇÃO INTERNA" IsReadOnly="true" DataMemberBinding="{Binding obsinterna}"/>
                         <telerik:GridViewDataColumn Header="UNITÁRIO" ColumnGroupName="PrecoExcel" DataMemberBinding="{Binding valor_unitario}" DataFormatString="{}{0:N2}"/>
                         <telerik:GridViewExpressionColumn Header="TOTAL" IsReadOnly="true" ColumnGroupName="PrecoExcel" Expression="valor_unitario * qtd" DataFormatString="{}{0:N2}" />
+                        <telerik:GridViewDataColumn Header="DESCRIÇÃO LICITAÇÃO" IsReadOnly="true" DataMemberBinding="{Binding descricao_licitacao}"/>
                     </telerik:RadGridView.Columns>
 
 

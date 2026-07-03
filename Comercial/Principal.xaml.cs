@@ -1,5 +1,6 @@
 ﻿using BibliotecasSIG;
 using Comercial.DataBase;
+using Comercial.Views.Consulta;
 using Comercial.Views.Proposta;
 using Producao;
 using System.Collections.Specialized;
@@ -26,8 +27,6 @@ namespace Comercial
         public Principal()
         {
             InitializeComponent();
-            StyleManager.ApplicationTheme = new Office2016Theme();
-
             txtUsername.Text = BaseSettings.Username;
             txtDataBase.Text = BaseSettings.Database;
 
@@ -190,6 +189,11 @@ namespace Comercial
         private void OnAbrirQuadroFechaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
             AbrirFormularioDinamico(typeof(PropostaQuadroFecha), "QUADRO FECHA");
+        }
+
+        private void OnAbrirTodasDescricoesClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            AbrirFormularioDinamico(typeof(TodasDescricoes), "TODAS AS DESCRIÇÕES");
         }
 
         private void OnAlterarUsuarioClick(object sender, RoutedEventArgs e)

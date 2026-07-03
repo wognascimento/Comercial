@@ -16,7 +16,6 @@
     <Grid>
 
         <telerik:RadGridView x:Name="rgFamilia" 
-            telerik:StyleManager.Theme="Office2016" 
             AutoGenerateColumns="False"
             SelectionMode="Extended"
             ClipboardCopyMode="Cells, Header"
@@ -31,11 +30,11 @@
             CanUserDeleteRows="False">
 
             <telerik:RadGridView.Columns>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding familia}" Header="Família" Width="auto" EnableDistinctValuesFiltering="True"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_descricao}" Header="Resp Descrição" TextWrapping="Wrap" Width="180" />
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_dimensao}" Header="Resp Dimensão" TextWrapping="Wrap" Width="180"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_altera_descricao}" Header="Resp Altera Descrião" TextWrapping="Wrap" Width="180"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_altera_dimensao}" Header="Resp Altera Dimensão" TextWrapping="Wrap" Width="180"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding familia}" Header="Família" Width="auto" EnableDistinctValuesFiltering="True" DistinctValuesSearchMode="Contains"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_descricao}" Header="Resp Descrição" TextWrapping="Wrap" Width="180" EnableDistinctValuesFiltering="True" DistinctValuesSearchMode="Contains"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_dimensao}" Header="Resp Dimensão" TextWrapping="Wrap" Width="180" EnableDistinctValuesFiltering="True" DistinctValuesSearchMode="Contains"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_altera_descricao}" Header="Resp Altera Descrião" TextWrapping="Wrap" Width="180" EnableDistinctValuesFiltering="True" DistinctValuesSearchMode="Contains"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_altera_dimensao}" Header="Resp Altera Dimensão" TextWrapping="Wrap" Width="180" EnableDistinctValuesFiltering="True" DistinctValuesSearchMode="Contains"/>
             </telerik:RadGridView.Columns>
 
         </telerik:RadGridView>
