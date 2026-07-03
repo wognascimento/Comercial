@@ -17,7 +17,7 @@ public partial class App : Application
         var settings = DataBaseSettings.Instance;
         settings.LoadFromConfiguration();
 
-        StyleManager.ApplicationTheme = new FluentTheme();
+        StyleManager.ApplicationTheme = new Office2016Theme();
 
         if (!string.IsNullOrWhiteSpace(settings.SyncfusionLicense))
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(settings.SyncfusionLicense);
