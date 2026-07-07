@@ -1367,6 +1367,7 @@ public partial class PropostaQuadroPrecoViewModel : ObservableObject
                      localdetalhe = q.localdetalhe,
                      descricao = q.descricao,
                      descricaocomercial = q.descricaocomercial,
+                     descricao_licitacao = q.descricao_licitacao,
                      nomefantasia = q.nomefantasia,
                      qtd = q.qtd,
                      qtdanterior = q.qtdanterior,
