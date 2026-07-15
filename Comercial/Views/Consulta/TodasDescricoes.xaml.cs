@@ -167,6 +167,8 @@ public class TodasDescricoesViewModel
 
     public async Task CarregarAsync()
     {
+        await InserirPrecosBaseAusentesAsync();
+
         const string sql = """
             SELECT
                 coddimensao,
@@ -197,6 +199,27 @@ public class TodasDescricoesViewModel
             Descricoes.Add(item);
     }
 
+    private async Task InserirPrecosBaseAusentesAsync()
+    {
+        const string sql = """
+            INSERT INTO comercial.proposta_base_preco_zefe
+                (coddimensao, preco_base, faixa_tema)
+            SELECT
+                descricao.coddimensao,
+                0,
+                4
+            FROM comercial.proposta_descricaodimensao descricao
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM comercial.proposta_base_preco_zefe base
+                WHERE base.coddimensao = descricao.coddimensao
+            );
+            """;
+
+        await using var connection = new NpgsqlConnection(baseSettings.ConnectionString);
+        await connection.ExecuteAsync(sql);
+    }
+
     public async Task SalvarAsync(PropostaDescricaoDimensaoConsultaDto item)
     {
         const string atualizarDescricaoSql = """
@@ -211,9 +234,9 @@ public class TodasDescricoesViewModel
             """;
         const string inserirPrecoSql = """
             INSERT INTO comercial.proposta_base_preco_zefe
-                (coddimensao, preco_base)
+                (coddimensao, preco_base, faixa_tema)
             VALUES
-                (@coddimensao, @preco);
+                (@coddimensao, @preco, 4);
             """;
 
         await using var connection = new NpgsqlConnection(baseSettings.ConnectionString);

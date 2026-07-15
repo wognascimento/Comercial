@@ -35,7 +35,7 @@
             <telerik:RadMenuItem Header="Quadro de Preço" Click="RadMenuItem_Click_1"  />
             <telerik:RadMenuItem Header="Quadro de Custos" Click="RadMenuItem_Click_2" />
             <telerik:RadMenuItem Header="Esqueleto Pré-Proposta" Click="RadMenuItem_Click_3"  />
-            <telerik:RadMenuItem Header="Enviar Tema para Fecha" Click="RadMenuItem_Click_4"  />
+            <telerik:RadMenuItem x:Name="enviaFecha" Header="Enviar Tema para Fecha" Click="RadMenuItem_Click_4"  />
         </telerik:RadMenu>
 
 

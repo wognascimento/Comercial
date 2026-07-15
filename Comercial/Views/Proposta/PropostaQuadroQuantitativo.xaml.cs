@@ -1103,7 +1103,8 @@ namespace Comercial.Views.Proposta
             using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
             var filtros = new Dictionary<string, object>
                 {
-                    { "id_familia", familia.id }
+                    { "id_familia", familia.id },
+                    { "ativo", "1" }
                 };
             var descricoes = await _repo.GetWhereAsync<ComercialPropostaDescricaoComercialModel>(conn, filtros, "descricaocomercial", false);
             //DescricoesComercial = new ObservableCollection<ComercialPropostaDescricaoComercialModel>(descricoes);
@@ -1120,7 +1121,8 @@ namespace Comercial.Views.Proposta
             using var conn = new NpgsqlConnection(BaseSettings.ConnectionString);
             var filtros = new Dictionary<string, object>
                 {
-                    { "coddesccoml", coddesccoml }
+                    { "coddesccoml", coddesccoml },
+                    { "ativo", "1" }
                 };
             var dimensoes = await _repo.GetWhereAsync<ComercialPropostaDimensaoDescricaoComercialModel>(conn, filtros, "dimensao", false);
             //DimensoesComercial = new ObservableCollection<ComercialPropostaDimensaoDescricaoComercialModel>(dimensoes);

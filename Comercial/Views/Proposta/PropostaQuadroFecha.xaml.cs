@@ -1065,6 +1065,7 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         var sql = @"SELECT *
                     FROM comercial.proposta_descricaocomercial
                     WHERE id_familia = @id_familia
+                    AND ativo = '1'
                     ORDER BY descricaocomercial;";
         var itens = await conn.QueryAsync<ComercialPropostaDescricaoComercialModel>(sql, filtros);
         DescricoesComercial = new ObservableCollection<ComercialPropostaDescricaoComercialModel>(itens);
@@ -1080,6 +1081,7 @@ public partial class PropostaQuadroFechaViewModel : ObservableObject
         var sql = @"SELECT *
                     FROM comercial.proposta_dimensaodescricaocomercial
                     WHERE coddesccoml = @coddesccoml
+                    AND ativo = '1'
                     ORDER BY dimensao;";
         var itens = await conn.QueryAsync<ComercialPropostaDimensaoDescricaoComercialModel>(sql, filtros);
         DimensoesComercial = new ObservableCollection<ComercialPropostaDimensaoDescricaoComercialModel>(itens);
