@@ -46,7 +46,8 @@ public partial class CadastroDescricaoDimensao : UserControl
     {
         e.NewObject = new ComercialPropostaDimensaoDescricaoComercialModel
         {
-            coddesccoml = CodDescComl
+            coddesccoml = CodDescComl,
+            ativo = "1",
         };
     }
 

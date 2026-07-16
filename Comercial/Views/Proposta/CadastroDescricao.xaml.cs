@@ -138,7 +138,8 @@ public partial class CadastroDescricao : UserControl
         e.NewObject = new ComercialPropostaDescricaoComercialModel
         {
             id_familia = (rcBox.SelectedItem as ComercialPropostaFamiliaModel)?.id ?? 0,
-            familia = (rcBox.SelectedItem as ComercialPropostaFamiliaModel)?.familia ?? string.Empty
+            familia = (rcBox.SelectedItem as ComercialPropostaFamiliaModel)?.familia ?? string.Empty,
+            ativo = "1"
         };
     }
 
