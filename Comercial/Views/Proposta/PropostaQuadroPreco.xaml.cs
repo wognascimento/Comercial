@@ -145,7 +145,6 @@ public partial class PropostaQuadroPreco : UserControl
                         btnIncluir.IsEnabled = false;
                         btnLimpar.IsEnabled = false;
                         btnExcluir.IsEnabled = false;
-                        enviaFecha.IsEnabled = false;
                         itensProposta.IsReadOnly = true;
                     }
                     else
@@ -154,9 +153,13 @@ public partial class PropostaQuadroPreco : UserControl
                         btnIncluir.IsEnabled = true;
                         btnLimpar.IsEnabled = true;
                         btnExcluir.IsEnabled = true;
-                        enviaFecha.IsEnabled = true;
                         itensProposta.IsReadOnly = false;
                     }
+
+                    if (selectedTema.ativo)
+                        enviaFecha.IsEnabled = false;
+                    else
+                        enviaFecha.IsEnabled = true;
                 }
             }
             catch (RepositoryException ex)
