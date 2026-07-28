@@ -6,12 +6,17 @@
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:local="clr-namespace:Comercial.Views.Proposta" 
              xmlns:vm="clr-namespace:Comercial.Views.Proposta"
+             xmlns:converters="clr-namespace:Comercial.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.DataContext>
         <vm:CadastroDescricaoViewModel/>
     </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <converters:StringToCheckBoxConverter x:Key="StringToCheckBoxConverter"/>
+    </UserControl.Resources>
 
     <Grid>
         
@@ -49,12 +54,16 @@
             CanUserFreezeColumns="False"
             AddingNewDataItem="rgView_AddingNewDataItem"
             RowEditEnded ="OnRowEditEnded"
+            PreviewKeyDown="rgView_PreviewKeyDown"
             CanUserDeleteRows="False" 
             ShowGroupPanel="False" 
             ShowSearchPanel="True">
 
             <telerik:RadContextMenu.ContextMenu>
                 <telerik:RadContextMenu Opening="RadContextMenu_Opening">
+                    <telerik:RadMenuItem Header="Copiar Linha" Click="OnCopiarLinhaClick" />
+                    <telerik:RadMenuItem Header="Colar Linha" Click="OnColarLinhaClick" />
+                    <telerik:RadMenuSeparatorItem />
                     <telerik:RadMenuItem Header="Cadastrar Dimensão" Click="OnCadastroDimensaoClick" />
                 </telerik:RadContextMenu>
             </telerik:RadContextMenu.ContextMenu>
@@ -69,6 +78,10 @@
                     DataMemberBinding="{Binding descricaocomercial}" 
                     Header="Descrição Comercial"
                     Width="*"/>
+                <telerik:GridViewCheckBoxColumn
+                    DataMemberBinding="{Binding ativo, Converter={StaticResource StringToCheckBoxConverter}}"
+                    Header="Ativo"
+                    Width="auto"/>
             </telerik:RadGridView.Columns>
 
         </telerik:RadGridView>

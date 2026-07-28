@@ -6,6 +6,7 @@ using Npgsql;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using Telerik.Windows;
 using Telerik.Windows.Controls;
 using Telerik.Windows.Controls.GridView;
@@ -19,6 +20,7 @@ public partial class CadastroDescricao : UserControl
 {
     private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
     private Dictionary<object, ComercialPropostaDescricaoComercialModel> _backupDados = [];
+    private ComercialPropostaDescricaoComercialModel? _linhaCopiada;
 
     public CadastroDescricao()
     {
@@ -150,9 +152,89 @@ public partial class CadastroDescricao : UserControl
         var row = menu.GetClickedElement<GridViewRow>();
         if (row != null)
             rgView.SelectedItem = row.Item;
-        else
-            // Cancela se não clicar em uma linha
+        else if (_linhaCopiada == null)
             e.Handled = true;
+    }
+
+    private void rgView_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            CancelarOperacaoAtual();
+            e.Handled = true;
+            return;
+        }
+
+        if ((Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
+            return;
+
+        if (e.Key == Key.C)
+        {
+            CopiarLinhaSelecionada();
+            e.Handled = true;
+        }
+        else if (e.Key == Key.V)
+        {
+            ColarLinhaCopiada();
+            e.Handled = true;
+        }
+    }
+
+    private void OnCopiarLinhaClick(object sender, RadRoutedEventArgs e) => CopiarLinhaSelecionada();
+
+    private void OnColarLinhaClick(object sender, RadRoutedEventArgs e) => ColarLinhaCopiada();
+
+    private void CopiarLinhaSelecionada()
+    {
+        if (rgView.SelectedItem is not ComercialPropostaDescricaoComercialModel item)
+            return;
+
+        _linhaCopiada = new ComercialPropostaDescricaoComercialModel
+        {
+            familia = item.familia,
+            descricaocomercial = item.descricaocomercial,
+            alex = item.alex,
+            ativo = item.ativo,
+            planilha_predominante = item.planilha_predominante,
+            id_familia = item.id_familia
+        };
+    }
+
+    private void ColarLinhaCopiada()
+    {
+        if (_linhaCopiada == null || DataContext is not CadastroDescricaoViewModel vm)
+            return;
+
+        var familia = rcBox.SelectedItem as ComercialPropostaFamiliaModel;
+        var novoItem = new ComercialPropostaDescricaoComercialModel
+        {
+            coddesccoml = 0,
+            familia = familia?.familia ?? _linhaCopiada.familia,
+            descricaocomercial = _linhaCopiada.descricaocomercial,
+            alex = _linhaCopiada.alex,
+            ativo = string.IsNullOrWhiteSpace(_linhaCopiada.ativo) ? "1" : _linhaCopiada.ativo,
+            planilha_predominante = _linhaCopiada.planilha_predominante,
+            id_familia = familia?.id ?? _linhaCopiada.id_familia
+        };
+
+        vm.DescricoesComercial.Add(novoItem);
+        rgView.SelectedItem = novoItem;
+        rgView.CurrentItem = novoItem;
+        rgView.ScrollIntoView(novoItem);
+    }
+
+    private void CancelarOperacaoAtual()
+    {
+        if (rgView.SelectedItem is ComercialPropostaDescricaoComercialModel { coddesccoml: 0 } itemNovo)
+        {
+            if (DataContext is CadastroDescricaoViewModel vm)
+                vm.DescricoesComercial.Remove(itemNovo);
+
+            rgView.Items.Refresh();
+            return;
+        }
+
+        rgView.CancelEdit();
     }
 
     private void OnCadastroDimensaoClick(object sender, RadRoutedEventArgs e)

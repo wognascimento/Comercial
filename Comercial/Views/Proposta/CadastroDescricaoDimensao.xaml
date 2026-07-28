@@ -32,9 +32,17 @@
             CanUserFreezeColumns="False"
             AddingNewDataItem="rgView_AddingNewDataItem"
             RowEditEnded ="OnRowEditEnded"
+            PreviewKeyDown="rgView_PreviewKeyDown"
             CanUserDeleteRows="False" 
             ShowGroupPanel="False" 
             ShowSearchPanel="True">
+
+        <telerik:RadContextMenu.ContextMenu>
+            <telerik:RadContextMenu Opening="RadContextMenu_Opening">
+                <telerik:RadMenuItem Header="Copiar Linha" Click="OnCopiarLinhaClick" />
+                <telerik:RadMenuItem Header="Colar Linha" Click="OnColarLinhaClick" />
+            </telerik:RadContextMenu>
+        </telerik:RadContextMenu.ContextMenu>
 
         <telerik:RadGridView.Columns>
             <telerik:GridViewDataColumn 
