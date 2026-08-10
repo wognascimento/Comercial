@@ -250,7 +250,7 @@ public partial class CadastroDescricao : UserControl
         RadWindow radWindow = new()
         {
             Content = meuUserControl,
-            Header = $"Dimenssões da Descrição: {itemSelecionado.descricaocomercial}",
+            Header = $"Dimensões da Descrição: {itemSelecionado.descricaocomercial}",
             Width = 1000,
             Height = 600,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
