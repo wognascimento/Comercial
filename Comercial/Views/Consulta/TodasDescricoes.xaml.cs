@@ -21,6 +21,7 @@ namespace Comercial.Views.Consulta;
 public partial class TodasDescricoes : UserControl
 {
     private readonly TodasDescricoesViewModel viewModel = new();
+    private readonly Dictionary<int, ValoresEditaveisTodasDescricoes> valoresOriginais = [];
 
     public TodasDescricoes()
     {
@@ -65,7 +66,27 @@ public partial class TodasDescricoes : UserControl
         try
         {
             descricoesGrid.IsBusy = true;
-            await viewModel.SalvarAsync(item);
+
+            if (!valoresOriginais.TryGetValue(item.coddimensao, out var original))
+                original = ValoresEditaveisTodasDescricoes.From(item);
+
+            var resultado = await viewModel.SalvarAlteracoesAsync(item, original);
+
+            if (resultado.DescricaoLicitacaoFalhou)
+                item.descricao_licitacao = original.DescricaoLicitacao;
+
+            if (resultado.PrecoFalhou)
+                item.preco = original.Preco;
+
+            if (resultado.TemFalhas)
+            {
+                descricoesGrid.Items.Refresh();
+                MessageBox.Show(
+                    resultado.Mensagem,
+                    "Todas as descrições",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
         }
         catch (Exception ex)
         {
@@ -80,8 +101,21 @@ public partial class TodasDescricoes : UserControl
         }
         finally
         {
+            valoresOriginais.Remove(item.coddimensao);
             descricoesGrid.IsBusy = false;
         }
+    }
+
+    private void DescricoesGrid_BeginningEdit(object sender, GridViewBeginningEditRoutedEventArgs e)
+    {
+        if (e.Cell?.DataContext is not PropostaDescricaoDimensaoConsultaDto item)
+            return;
+
+        var columnName = e.Cell.Column?.UniqueName;
+        if (columnName is not "descricao_licitacao" and not "preco")
+            return;
+
+        valoresOriginais.TryAdd(item.coddimensao, ValoresEditaveisTodasDescricoes.From(item));
     }
 
     private async void SincronizarWooCommerce_Click(object sender, RoutedEventArgs e)
@@ -220,8 +254,20 @@ public class TodasDescricoesViewModel
         await connection.ExecuteAsync(sql);
     }
 
-    public async Task SalvarAsync(PropostaDescricaoDimensaoConsultaDto item)
+    public async Task<ResultadoSalvarTodasDescricoes> SalvarAlteracoesAsync(
+        PropostaDescricaoDimensaoConsultaDto item,
+        ValoresEditaveisTodasDescricoes original)
     {
+        var resultado = new ResultadoSalvarTodasDescricoes();
+        var descricaoAlterada = !string.Equals(
+            item.descricao_licitacao,
+            original.DescricaoLicitacao,
+            StringComparison.Ordinal);
+        var precoAlterado = item.preco != original.Preco;
+
+        if (!descricaoAlterada && !precoAlterado)
+            return resultado;
+
         const string atualizarDescricaoSql = """
             UPDATE comercial.proposta_dimensaodescricaocomercial
             SET descricao_licitacao = @descricao_licitacao
@@ -241,38 +287,38 @@ public class TodasDescricoesViewModel
 
         await using var connection = new NpgsqlConnection(baseSettings.ConnectionString);
         await connection.OpenAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
 
-        try
+        if (descricaoAlterada)
         {
-            var descricaoAlterada = await connection.ExecuteAsync(
-                atualizarDescricaoSql,
-                item,
-                transaction);
-
-            if (descricaoAlterada != 1)
-                throw new InvalidOperationException("A dimensão não foi localizada para atualização.");
-
-            var precoAlterado = await connection.ExecuteAsync(
-                atualizarPrecoSql,
-                item,
-                transaction);
-
-            if (precoAlterado == 0)
+            try
             {
-                await connection.ExecuteAsync(
-                    inserirPrecoSql,
-                    item,
-                    transaction);
+                var linhas = await connection.ExecuteAsync(atualizarDescricaoSql, item);
+                if (linhas != 1)
+                    throw new InvalidOperationException("A dimensão não foi localizada para atualização.");
             }
+            catch (Exception ex)
+            {
+                resultado.DescricaoLicitacaoFalhou = true;
+                resultado.Erros.Add($"DESCRIÇÃO LICITAÇÃO não foi alterada: {ex.Message}");
+            }
+        }
 
-            await transaction.CommitAsync();
-        }
-        catch
+        if (precoAlterado)
         {
-            await transaction.RollbackAsync();
-            throw;
+            try
+            {
+                var linhas = await connection.ExecuteAsync(atualizarPrecoSql, item);
+                if (linhas == 0)
+                    await connection.ExecuteAsync(inserirPrecoSql, item);
+            }
+            catch (Exception ex)
+            {
+                resultado.PrecoFalhou = true;
+                resultado.Erros.Add($"PREÇO não foi alterado: {ex.Message}");
+            }
         }
+
+        return resultado;
     }
 
     public async Task RecarregarAsync(PropostaDescricaoDimensaoConsultaDto item)
@@ -516,6 +562,23 @@ public class TodasDescricoesViewModel
         var configValue = ConfigurationManager.AppSettings[key];
         return string.IsNullOrWhiteSpace(configValue) ? defaultValue : configValue;
     }
+}
+
+public sealed record ValoresEditaveisTodasDescricoes(string? DescricaoLicitacao, float? Preco)
+{
+    public static ValoresEditaveisTodasDescricoes From(PropostaDescricaoDimensaoConsultaDto item)
+    {
+        return new ValoresEditaveisTodasDescricoes(item.descricao_licitacao, item.preco);
+    }
+}
+
+public sealed class ResultadoSalvarTodasDescricoes
+{
+    public bool DescricaoLicitacaoFalhou { get; set; }
+    public bool PrecoFalhou { get; set; }
+    public List<string> Erros { get; } = [];
+    public bool TemFalhas => Erros.Count > 0;
+    public string Mensagem => string.Join(Environment.NewLine, Erros);
 }
 
 public class WooProduct

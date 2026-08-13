@@ -39,8 +39,10 @@
             AutoGenerateColumns="False"
             CanUserDeleteRows="False"
             CanUserInsertRows="False"
+            ClipboardCopyMode="Cells, Header"
             IsFilteringAllowed="True"
             ItemsSource="{Binding Descricoes}"
+            BeginningEdit="DescricoesGrid_BeginningEdit"
             PreviewMouseRightButtonDown="DescricoesGrid_PreviewMouseRightButtonDown"
             RowEditEnded="DescricoesGrid_RowEditEnded"
             ShowGroupPanel="False">
@@ -76,11 +78,13 @@
                     DataMemberBinding="{Binding descricao_licitacao, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     TextWrapping="Wrap"
                     Header="DESCRIÇÃO LICITAÇÃO"
+                    UniqueName="descricao_licitacao"
                     Width="300" />
                 <telerik:GridViewDataColumn
                     DataMemberBinding="{Binding preco, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     DataFormatString="{}{0:N2}"
                     Header="PREÇO"
+                    UniqueName="preco"
                     TextAlignment="Right"
                     Width="110" />
                 <telerik:GridViewCheckBoxColumn
