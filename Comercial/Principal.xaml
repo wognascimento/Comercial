@@ -25,6 +25,7 @@
         <telerik:RadMenu Grid.Row="0" >
             <telerik:RadMenuItem Header="Cadastro">
                     <telerik:RadMenuItem Header="Família" Click="OnAbrirCadastroFamiliaClick" />
+                    <telerik:RadMenuItem Header="Cliente" Click="OnAbrirCadastroClienteClick" />
                     <telerik:RadMenuItem Header="Descrição" Click="OnAbrirCadastroDescricaoClick"/>
                     <telerik:RadMenuItem Header="Ficha de Homologação" Click="OnAbrirCadastroHomologacaoComercialClick" />
                 </telerik:RadMenuItem>

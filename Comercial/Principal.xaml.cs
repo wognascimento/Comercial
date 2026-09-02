@@ -1,5 +1,6 @@
 ﻿using BibliotecasSIG;
 using Comercial.DataBase;
+using Comercial.Views.CadastroCliente;
 using Comercial.Views.Consulta;
 using Comercial.Views.Proposta;
 using Producao;
@@ -163,6 +164,11 @@ namespace Comercial
         private void OnAbrirCadastroFamiliaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
             AbrirFormularioDinamico(typeof(CadastoFamilia), "CADASTRO DE FAMÍLIA");
+        }
+
+        private void OnAbrirCadastroClienteClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            AbrirFormularioDinamico(typeof(CadastroCliente), "CADASTRO DE CLIENTE");
         }
 
         private void OnAbrirCadastroDescricaoClick(object sender, Telerik.Windows.RadRoutedEventArgs e)

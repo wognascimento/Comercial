@@ -1,0 +1,251 @@
+<UserControl x:Class="Comercial.Views.CadastroCliente.CadastroCliente"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:converters="clr-namespace:Comercial.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1120"
+             Loaded="OnLoaded">
+    
+    <UserControl.Resources>
+        <converters:StringToCheckBoxConverter x:Key="StringToCheckBoxConverter"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,4,2"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="telerik:RadWatermarkTextBox">
+            <Setter Property="Margin" Value="0,0,8,4"/>
+            <Setter Property="Height" Value="24"/>
+        </Style>
+        <Style TargetType="telerik:RadMaskedNumericInput">
+            <Setter Property="Margin" Value="0,0,8,4"/>
+            <Setter Property="Height" Value="24"/>
+        </Style>
+        <Style TargetType="telerik:RadDatePicker">
+            <Setter Property="Margin" Value="0,0,8,4"/>
+            <Setter Property="Height" Value="24"/>
+        </Style>
+        <Style TargetType="telerik:RadComboBox">
+            <Setter Property="Margin" Value="0,0,8,4"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="IsFilteringEnabled" Value="True"/>
+            <Setter Property="OpenDropDownOnFocus" Value="True"/>
+            <Setter Property="StaysOpenOnEdit" Value="True"/>
+            <Setter Property="CanAutocompleteSelectItems" Value="False"/>
+            <Setter Property="CanKeyboardNavigationSelectItems" Value="False"/>
+            <Setter Property="UpdateSelectionOnLostFocus" Value="False"/>
+            <Setter Property="UpdateTextOnLostFocus" Value="False"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,12,4"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <telerik:RadToolBar Grid.Row="0"
+                            GripVisibility="Collapsed"
+                            OverflowButtonVisibility="Collapsed">
+            <Button Content="Primeiro" Click="OnPrimeiroClick"/>
+            <Button Content="Anterior" Click="OnAnteriorClick"/>
+            <TextBlock Margin="10,0,4,0" Text="{Binding RegistroTexto}"/>
+            <Button Content="Próximo" Click="OnProximoClick"/>
+            <Button Content="Último" Click="OnUltimoClick"/>
+            <Separator/>
+            <Button Content="Novo" Click="OnNovoClick"/>
+            <Button Content="Salvar" Click="OnSalvarClick"/>
+            <TextBlock Margin="12,0,4,0" Text="Pesquisar"/>
+            <telerik:RadWatermarkTextBox x:Name="txtPesquisa"
+                                         Width="260"
+                                         WatermarkContent="Nome, sigla, CNPJ..."
+                                         Text="{Binding Pesquisa, UpdateSourceTrigger=PropertyChanged}"
+                                         KeyDown="OnPesquisaKeyDown"/>
+            <Button Content="Buscar" Click="OnBuscarClick"/>
+        </telerik:RadToolBar>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      MaxHeight="360">
+            <Grid Margin="0,8,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="260"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="170"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Nome (chave):"/>
+                <telerik:RadWatermarkTextBox Grid.Row="0" Grid.Column="1" Text="{Binding Cliente.nome, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Foreground="Red" Text="Sigla:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="0" Grid.Column="3" Text="{Binding Cliente.sigla, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="0" Grid.Column="4" Foreground="Red" Text="Sigla externa:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="0" Grid.Column="5" Text="{Binding Cliente.sigla_externa, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Nome Fantasia:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Cliente.nome_fantasia, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="1" Grid.Column="3" Foreground="Red" Text="Inativo:" HorizontalAlignment="Right"/>
+                <CheckBox Grid.Row="1" Grid.Column="4" IsChecked="{Binding Cliente.inativo, Converter={StaticResource StringToCheckBoxConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Razão Social:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Cliente.rsocial, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Endereço:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Cliente.endereco, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Bairro:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="4" Grid.Column="1" Text="{Binding Cliente.bairro, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="4" Grid.Column="2" Text="Estado:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="4" Grid.Column="3" Text="{Binding Cliente.est, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="4" Grid.Column="4" Text="Cidade:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="4" Grid.Column="5" Text="{Binding Cliente.cidade, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="CEP:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="5" Grid.Column="1" Text="{Binding Cliente.cep, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="5" Grid.Column="2" Text="País:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="5" Grid.Column="3" Text="{Binding Cliente.pais, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="5" Grid.Column="4" Text="CEP Internac:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="5" Grid.Column="5" Text="{Binding Cliente.cep_internacional, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="DDI:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="6" Grid.Column="1" Text="{Binding Cliente.ddi, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="6" Grid.Column="2" Text="DDD:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="6" Grid.Column="3" Text="{Binding Cliente.ddd, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="6" Grid.Column="4" Text="Tel. 1:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="6" Grid.Column="5" Text="{Binding Cliente.fone1, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="7" Grid.Column="0" Text="FAX:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="7" Grid.Column="1" Text="{Binding Cliente.fax, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="7" Grid.Column="2" Foreground="Red" Text="Tipo:"/>
+                <telerik:RadComboBox Grid.Row="7" Grid.Column="3"
+                                     ItemsSource="{Binding TiposClientes}"
+                                     SelectedItem="{Binding Cliente.tipo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEditable="True"/>
+                <TextBlock Grid.Row="7" Grid.Column="4" Text="Rede:"/>
+                <telerik:RadComboBox Grid.Row="7" Grid.Column="5"
+                                     ItemsSource="{Binding RedesClientes}"
+                                     SelectedItem="{Binding Cliente.grupo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEditable="True"/>
+
+                <TextBlock Grid.Row="8" Grid.Column="0" Text="Web Site:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="8" Grid.Column="1" Text="{Binding Cliente.website, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="8" Grid.Column="2" Text="E-mail:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="3" Text="{Binding Cliente.email, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="9" Grid.Column="0" Text="Abrasce:"/>
+                <CheckBox Grid.Row="9" Grid.Column="1" IsChecked="{Binding Cliente.abrasce, Converter={StaticResource StringToCheckBoxConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="9" Grid.Column="2" Text="ABL:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="9" Grid.Column="3" Text="{Binding Cliente.abl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="9" Grid.Column="4" Text="Lojas:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="9" Grid.Column="5" Text="{Binding Cliente.lojas, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="10" Grid.Column="0" Text="Aniv:"/>
+                <telerik:RadDatePicker Grid.Row="10" Grid.Column="1" SelectedValue="{Binding Cliente.aniversario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="10" Grid.Column="2" Foreground="Red" Text="Internacional:"/>
+                <CheckBox Grid.Row="10" Grid.Column="3" IsChecked="{Binding Cliente.internacional, Converter={StaticResource StringToCheckBoxConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Text="Região de Atendimento para Show Room:"/>
+                <telerik:RadComboBox Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="2"
+                                     ItemsSource="{Binding RegioesAtendimento}"
+                                     SelectedItem="{Binding Cliente.reg_atend, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEditable="True"/>
+
+                <TextBlock Grid.Row="12" Grid.Column="0" Text="CNPJ:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="12" Grid.Column="1" Text="{Binding Cliente.cnpj, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBlock Grid.Row="12" Grid.Column="2" Text="IE:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="12" Grid.Column="3" Text="{Binding Cliente.inscestad, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <TextBlock Grid.Row="13" Grid.Column="0" Text="Obs:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding Cliente.obs, UpdateSourceTrigger=PropertyChanged}"/>
+<!--
+                <TextBlock Grid.Row="14" Grid.Column="0" Text="Incluído por:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="14" Grid.Column="1" IsReadOnly="True" Text="{Binding Cliente.incluidopor}"/>
+                <TextBlock Grid.Row="14" Grid.Column="2" Text="Data inclusão:"/>
+                <telerik:RadDatePicker Grid.Row="14" Grid.Column="3" IsEnabled="False" SelectedValue="{Binding Cliente.datainclusao}"/>
+                <TextBlock Grid.Row="14" Grid.Column="4" Text="Alterado por:"/>
+                <telerik:RadWatermarkTextBox Grid.Row="14" Grid.Column="5" IsReadOnly="True" Text="{Binding Cliente.respatualizacao}"/>
+
+                <TextBlock Grid.Row="15" Grid.Column="0" Text="Data alteração:"/>
+                <telerik:RadDatePicker Grid.Row="15" Grid.Column="1" IsEnabled="False" SelectedValue="{Binding Cliente.atualizacao}"/>
+-->                
+            </Grid>
+        </ScrollViewer>
+
+        <telerik:RadGridView x:Name="gridContatos"
+                             Grid.Row="2"
+                             AutoGenerateColumns="False"
+                             ShowGroupPanel="False"
+                             ClipboardCopyMode="Cells, Header"
+                             NewRowPosition="Bottom"
+                             GroupRenderMode="Flat"
+                             ItemsSource="{Binding Contatos}"
+                             SelectedItem="{Binding ContatoSelecionado, Mode=TwoWay}"
+                             AddingNewDataItem="OnContatoAddingNewDataItem"
+                             RowValidating="OnContatoRowValidating"
+                             RowEditEnded="OnContatoRowEditEnded"
+                             CanUserDeleteRows="False">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding contato}" Header="contato" Width="150"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding funcao}" Header="funcao" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding cargo}" Header="cargo" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding celular}" Header="celular" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding email}" Header="email" Width="220"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding inativo}" Header="inativo" Width="80"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding brindedenatal}" Header="brindedenatal" Width="110"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding respdec}" Header="respdec" Width="80"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding vip}" Header="vip" Width="70"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding ok}" Header="ok" Width="70"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding ok1}" Header="ok1" Width="70"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding cartaodenatal}" Header="cartaodenatal" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding conviteshowroom}" Header="conviteshowroom" Width="130"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding convitefesta}" Header="convitefesta" Width="110"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding preconviteshowroom}" Header="preconviteshowroom" Width="150"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding pesquisabriefing}" Header="pesquisabriefing" Width="130"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding operacional}" Header="operacional" Width="110"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding vipouro}" Header="vipouro" Width="90"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding revista}" Header="revista" Width="90"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_financeiro}" Header="resp_financeiro" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding resp_operacoes}" Header="resp_operacoes" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding aniversario}" Header="aniversario" DataFormatString="{}{0:dd/MM/yyyy}" Width="110"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding sexo}" Header="sexo" Width="70"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding auxiliar}" Header="auxiliar" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding convitesrfase2}" Header="convitesrfase2" Width="120"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding incluidopor}" Header="incluidopor" Width="120" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding datainclusao}" Header="datainclusao" DataFormatString="{}{0:dd/MM/yyyy HH:mm}" Width="140" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding alteradopor}" Header="alteradopor" Width="120" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding dataalteracao}" Header="dataalteracao" DataFormatString="{}{0:dd/MM/yyyy HH:mm}" Width="140" IsReadOnly="True"/>
+            </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
+    </Grid>
+</UserControl>
